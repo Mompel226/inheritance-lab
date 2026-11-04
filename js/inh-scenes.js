@@ -123,30 +123,29 @@
   }
 
   /* 5 · mitosis: one cell of 4 chromosomes, then two cells of 4 */
+  /* the cells are working, so each chromosome is a long, thin line (Daniel, 4 Nov 2026: "when the cell is working, it's just
+     a line"); a cross only while a cell divides, which the animation shows */
   function mitosis() {
-    var out = D.cell(90, 150, 72, 64) + D.nucleus(90, 150, 42, 38);
-    var set = [[-14, -2, 'mum', 46], [-2, 2, 'dad', 46], [12, -4, 'mum', 26], [22, 4, 'dad', 26]];
-    set.forEach(function (c) { out += D.chromo({ x: 90 + c[0], y: 150 + c[1], len: c[3], w: 6.5, who: c[2], rot: c[0] * 1.2 }); });
+    var out = D.cell(90, 150, 72, 64) + D.nucleus(90, 150, 42, 38) + D.threads(90, 155, .72, .85, 0, 2.6);
     out += '<path class="arr" d="M172 150 L222 150"/><path class="arrh" d="M222 143 L234 150 L222 157 Z"/>';
     [[320, 78], [320, 222]].forEach(function (p) {
-      out += D.cell(p[0], p[1], 62, 54) + D.nucleus(p[0], p[1], 36, 32);
-      set.forEach(function (c) { out += D.chromo({ x: p[0] + c[0], y: p[1] + c[1], len: c[3], w: 6.5, who: c[2], rot: c[0] * 1.2 }); });
+      out += D.cell(p[0], p[1], 62, 54) + D.nucleus(p[0], p[1], 36, 32) + D.threads(p[0], p[1] + 4, .62, .72, 0, 2.4);
     });
+    var s0 = D.threadStart(90, 155, .72, .85);
     return { w: 400, h: 300, svg: out,
-      pts: { parent: [20, 150, 'L'], daughter: [382, 78, 'R'], daughter2: [382, 222, 'R'], chromosome: [76, 130, 'L'] }, alts: {} };
+      pts: { parent: [20, 150, 'L'], daughter: [382, 78, 'R'], daughter2: [382, 222, 'R'], chromosome: [s0[0], s0[1], 'L'] }, alts: {} };
   }
 
   /* 7 · meiosis: one cell of 4 (2 pairs), four cells of 2 (one of each pair) */
   function meiosis() {
-    var out = D.cell(74, 160, 62, 58) + D.nucleus(74, 160, 38, 34);
-    var set = [[-12, -2, 'mum', 42], [-1, 2, 'dad', 42], [11, -4, 'mum', 24], [20, 4, 'dad', 24]];
-    set.forEach(function (c) { out += D.chromo({ x: 74 + c[0], y: 160 + c[1], len: c[3], w: 6, who: c[2], rot: c[0] * 1.2 }); });
+    var out = D.cell(74, 160, 62, 58) + D.nucleus(74, 160, 38, 34) + D.threads(74, 164, .66, .76, 0, 2.4);
     out += '<path class="arr" d="M144 160 L190 160"/><path class="arrh" d="M190 153 L202 160 L190 167 Z"/>';
     var kids = [['mum', 'dad'], ['mum', 'dad'], ['dad', 'mum'], ['dad', 'mum']];
     kids.forEach(function (k, i) {
       var cx = 262 + (i % 2) * 92, cy = 92 + Math.floor(i / 2) * 136;
       out += D.cell(cx, cy, 40, 38) + D.nucleus(cx, cy, 24, 22);
-      out += D.chromo({ x: cx - 6, y: cy, len: 30, w: 6, who: k[0] }) + D.chromo({ x: cx + 7, y: cy + 2, len: 17, w: 6, who: k[1] });
+      /* one of each pair, as long thin lines: the long one (pair A) and the short one (pair B) */
+      out += thread([[cx - 15, cy - 6], [cx - 6, cy - 12], [cx + 4, cy - 5], [cx + 13, cy - 10]], k[0], 2.4) + thread([[cx - 9, cy + 9], [cx, cy + 4], [cx + 10, cy + 10]], k[1], 2.4);
     });
     return { w: 400, h: 320, svg: out, pts: { parent: [12, 160, 'L'], gamete: [394, 92, 'R'], gamete2: [394, 228, 'R'] }, alts: {} };
   }

@@ -139,11 +139,18 @@
       gLab.innerHTML = K.names(lay, items, narrow, key, null, 6);
       var pl = pills(t); S.pill('ph', pl[0], 'ok'); S.pill('n', pl[1], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw });
-    return K.mount(S, sp, 'dv', notes, function (Dw, nar) {
+    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });
+    var box = K.mount(S, sp, 'dv', [], function (Dw, nar) {
       narrow = nar; var m = K.margins(nar, 19, 19, 100, 100);
       lay = K.frameOf(svg, bg, model, cr, { x0: 0, x1: W, y0: 0, y1: H }, false, Dw, m[0], m[1], m[2], m[3], 14.5);
     });
+    /* the long key and the guide's statements fold away under one closed line, as in the Immunity Lab (Daniel, 4 Nov
+       2026: "this text is extremely long. It distracts from … the step-by-step") */
+    var d = document.createElement('details'); d.className = 'dvnote';
+    d.innerHTML = '<summary>The key, and what the IB Biology guide asks</summary>' +
+      notes.map(function (n) { return '<p class="widget__note' + (n[1] ? ' ' + n[1] : '') + '">' + n[0] + '</p>'; }).join('');
+    box.appendChild(d);
+    return box;
   }
   function stepOf(M, t) { var k = 0; for (var i = 0; i < M.length - 1; i++) if (t >= M[i] - 1e-6) k = i; return k; }
 

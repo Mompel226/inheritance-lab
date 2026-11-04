@@ -10,7 +10,10 @@
        opts.end     the last moment (s)
        opts.render  render(t) — must be a pure function of t, so any moment can be drawn on demand
        opts.rate    optional: a function returning how fast time runs (1 normal, 2 twice as fast)
-       returns { bar, list, now, paint(t), seek(t), stop(), isStill(), compact(on) }
+       opts.flow    optional: flow(t) → the time Play all goes on from (a step's reading hold is skipped, so Play all
+                    runs straight through: Daniel, 4 Nov 2026, "the whole animation should flow … I can always press
+                    pause to read")
+       returns { bar, list, now, paint(t), seek(t), stop(), playAll(), isStill(), compact(on) }
        compact(true): the steps become small chips, and the step's words stand in a panel right under
        them, for a widget whose drawing stands in the plate's column (Daniel, 26 Sep: "make the different
        stages smaller, and more compacted ... you can still click them. But you see the text on the right")
@@ -106,6 +109,7 @@
       if (last == null) last = ts;
       var lim = stopAt == null ? END : stopAt;
       T = Math.min(lim, T + Math.min(.1, (ts - last) / 1000) * (opts.rate ? opts.rate() : 1)); last = ts;
+      if (opts.flow && stopAt === END) T = Math.min(lim, Math.max(T, opts.flow(T)));
       if (T >= lim) { playing = false; raf = null; paint(T); if (opts.onHold) opts.onHold(stepAt(T)); return; }
       paint(T);
       raf = requestAnimationFrame(frame);
@@ -144,6 +148,7 @@
     }
     return {
       bar: bar, list: list, now: now, paint: paint, stop: stop, isStill: still, compact: compact,
+      playAll: function () { run(0, END); }, playing: function () { return playing; },
       time: function () { return T; },
       seek: function (t) { stop(); started = t > 0; stopAt = null; T = Math.max(0, Math.min(END, t)); paint(T); return STEPS.map(function (s) { return s.t; }); }
     };

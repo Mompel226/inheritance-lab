@@ -3,7 +3,8 @@
 
    frameOf   fits a model window into the svg with a margin each side for the names, at a readable size
    fitType   the font and the margins, so names stay about 13 px on any screen
-   readerClock / readerSteps   each step lasts at least one second for every 3.2 words of its caption
+   readerClock / readerSteps   each step lasts at least one second for every 3.2 words of its caption; its motion runs
+             1.6 times faster than written and then holds (Play all skips the hold)
    drawLabels  the names in both margins on ruled level lines (CircLearn.labels), each ending ON its part
    shell / mount  the widget's head, step bar, drawing and step list; on a wide screen the drawing stands in the
              picture's column and the steps stay beside it (memory animations-beside-their-buttons)
@@ -28,13 +29,31 @@
     return { f: f, mL: mL, mR: mR };
   }
 
-  /* Reading time. Each step's animation is written in its own time (the model's); the reader's
-     time stretches it so that a step lasts at least 1 second for every 3.2 words of its caption
-     (the lab's rule is 4). R = when each step starts for the reader, M = in the model. */
-  function readerClock(R, M) {
+  /* Reading time. Each step's animation is written in its own time (the model's), and a step lasts at least 1 second
+     for every 3.2 words of its caption (the lab's rule is 4). R = when each step starts for the reader, M = in the
+     model. The motion is never stretched to fill the reading time (Daniel, 4 Nov 2026: "very slow"): it runs PACE
+     times faster than written, then the step holds its last frame until the reader's time is up. */
+  var PACE = 1.6;
+  /* P: the pace of each step (an array), or one pace for all; PACE when not given */
+  function paceOf(P, i) { return P == null ? PACE : typeof P === 'number' ? P : (P[i] || PACE); }
+  function readerClock(R, M, P) {
     return function (t) {
-      for (var i = 0; i + 1 < R.length; i++) if (t < R[i + 1] || i + 2 === R.length) return M[i] + (Math.min(t, R[i + 1]) - R[i]) * (M[i + 1] - M[i]) / (R[i + 1] - R[i]);
+      for (var i = 0; i + 1 < R.length; i++) if (t < R[i + 1] || i + 2 === R.length) {
+        var run = Math.min((M[i + 1] - M[i]) / paceOf(P, i), R[i + 1] - R[i]), k = Math.min(1, Math.max(0, (Math.min(t, R[i + 1]) - R[i]) / run));
+        return M[i] + k * (M[i + 1] - M[i]) - (k === 1 && i + 2 < R.length ? .001 : 0);
+      }
       return M[M.length - 1];
+    };
+  }
+  /* Play all skips each step's reading hold: once a step's motion has run (and a short beat, so the eye sees the step
+     change), it goes on with the next step's motion */
+  function readerFlow(R, M, P) {
+    return function (t) {
+      for (var i = 0; i + 1 < R.length; i++) if (t < R[i + 1]) {
+        var run = Math.min((M[i + 1] - M[i]) / paceOf(P, i), R[i + 1] - R[i]);
+        return t > R[i] + run + .35 ? R[i + 1] : t;
+      }
+      return t;
     };
   }
   function readerSteps(steps, R) { return steps.map(function (s, i) { var o = {}; for (var k in s) o[k] = s[k]; o.t = R[i]; return o; }); }
@@ -117,12 +136,34 @@
     S.box.__onMove = function () { if (stg) stg.mount(); };
     S.box.__onReset = function () { sp.stop(); if (ro) ro.disconnect(); if (stg) stg.detach(); };
     S.box.__seek = function (t) { fit(); return sp.seek(t); };
+    /* in a card, the animation plays all its steps as soon as its card opens (Daniel, 4 Nov 2026: "as soon as you open
+       that, the full animation should play … if the user wants to go one by one or stop it, it just has to scroll
+       down"); it pauses when the card closes or the widget is hidden (the IGCSE / IB switch), and plays again when
+       shown in an open card. Reduced motion shows the last frame (the stepper's rule). */
+    var waits = 0, card = null, wasOn = false;
+    function shownOpen() { return !!card && card.classList.contains('is-open') && !S.box.hidden; }
+    function react() {
+      var on = shownOpen();
+      if (on && !wasOn) sp.playAll();
+      else if (!on && wasOn) { sp.stop(); sp.paint(sp.time()); }
+      wasOn = on;
+    }
+    function watchCard() {
+      if (!S.box.isConnected) { if (++waits < 240) requestAnimationFrame(watchCard); return; }
+      card = S.box.closest ? S.box.closest('.xcard') : null;
+      if (!card || !global.MutationObserver) return;
+      var mo = new MutationObserver(function () { if (!S.box.isConnected) { mo.disconnect(); return; } react(); });
+      mo.observe(card, { attributes: true, attributeFilter: ['class'] });
+      mo.observe(S.box, { attributes: true, attributeFilter: ['hidden'] });
+      react();
+    }
+    requestAnimationFrame(watchCard);
     sp.paint(0);
     return S.box;
   }
 
 
   global.WKit = { pinKey: pinKey, names: names, margins: margins, n1: n1, seg: seg, ease: ease, clamp01: clamp01, lerp: lerp, len: len, rng: rng, fitType: fitType,
-                  readerClock: readerClock, readerSteps: readerSteps, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
+                  readerClock: readerClock, readerFlow: readerFlow, readerSteps: readerSteps, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
                   mount: mount, NS: NS };
 })(window);

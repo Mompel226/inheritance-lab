@@ -56,7 +56,7 @@
       gLab.innerHTML = K.names(lay, items, narrow, key, null, 6);
       var pl = pills(t); S.pill('n', pl[0], 'ok'); S.pill('hu', pl[1], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });
     if (extra) extra(S, function () { sp.paint(sp.time()); });
     return K.mount(S, sp, cls, notes, function (Dw, nar) {
       narrow = nar; var m = K.margins(nar, 21, 21, 100, 100);

@@ -127,7 +127,7 @@
         el.classList.toggle('is-now', s === k && t < M[s + 1]);
       });
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });
     var S = { box: box, read: read, fig: fig, title: c.title, spec: spec };
     return K.mount(S, sp, 'wx', [], function () {});
   }

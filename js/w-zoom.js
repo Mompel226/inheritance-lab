@@ -77,7 +77,7 @@
       gLab.innerHTML = K.names(lay, items, narrow, key, null, 6);
       S.pill('see', ['a cell', 'its nucleus', 'one chromosome', 'one gene', 'one pair'][k], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });
     return K.mount(S, sp, 'zm', [
       ['Steps 1–4 draw the chromosomes as the long, thin lines they are in a working cell. Step 5 draws one pair as single lines too, each one copy of its DNA, only thicker than real, so the gene can be seen on both.'],
       ['Key: orange, a chromosome from the mother; blue, from the father; yellow, a gene.']

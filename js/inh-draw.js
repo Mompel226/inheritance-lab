@@ -100,8 +100,9 @@
   /* the four chromosomes as threads: A from the mother, B from the father (above); B from the mother, A from the father
      (below). (cx, cy) the nucleus's centre; sx, sy the scale (1 fits a nucleus of 56 × 48 units); two 0…1 draws each one
      as two sister copies after replication; w the width of a line */
+  /* the long pair A is the two longer lines (one from each parent), the short pair B the two shorter */
   var TH = [['mum', [[-40, -20], [-26, -32], [-10, -22], [4, -30]]], ['dad', [[14, -28], [28, -18], [40, -28]]],
-            ['mum', [[-42, 14], [-28, 4], [-14, 16], [0, 8]]], ['dad', [[10, 22], [26, 12], [42, 22]]]];
+            ['mum', [[-42, 14], [-28, 4], [-14, 16]]], ['dad', [[-4, 8], [10, 22], [26, 12], [42, 22]]]];
   function threadPath(pts, who, w) {
     var d = 'M' + n1(pts[0][0]) + ' ' + n1(pts[0][1]);
     for (var i = 1; i < pts.length; i++) { var p = pts[i - 1], q = pts[i]; d += ' Q' + n1(p[0]) + ' ' + n1(p[1]) + ' ' + n1((p[0] + q[0]) / 2) + ' ' + n1((p[1] + q[1]) / 2); }

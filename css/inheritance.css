@@ -511,3 +511,8 @@ p,li,dd,figcaption{text-wrap:pretty}
 .eqline{fill:none;stroke:var(--grey);stroke-width:1.2;stroke-dasharray:5 4}
 .hist{fill:var(--aa4);opacity:.9} .histdna{fill:none;stroke:var(--dna-a);stroke-width:1.8}
 .inset{fill:var(--card);stroke:var(--edge);stroke-width:1.2}
+/* the IB divisions' key and guide notes, folded under one closed line (the Immunity Lab's .ixnote) */
+.dvnote{margin:10px 0 0;font-size:13px;color:var(--grey);line-height:1.45}
+.dvnote summary{cursor:pointer;font-weight:600;color:var(--grey);list-style-position:inside}
+.dvnote summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.dvnote p{margin:8px 0 0}

@@ -128,7 +128,7 @@
       gLab.innerHTML = K.names(lay, items, narrow, key, null, 6);
       S.pill('where', t < 15 ? 'in the nucleus' : t < 22 ? 'leaving the nucleus' : 'in the cytoplasm', 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });
     return K.mount(S, sp, 'pt', [
       ['Key: the bases are coloured blocks, four kinds; the amino acids are circles, each colour one kind. The ribosome and the bases are drawn far larger than real.'],
       ['Extension (beyond 0610; IB D1.2.6–D1.2.7, B2.2.6): the mRNA leaves through a pore in the membrane of the nucleus. Each group of three bases, a codon, gives one amino acid, the same group always the same kind; tRNA molecules carry the amino acids to the ribosome. mRNA has the base U where DNA has T.', 'widget__note--ext']
