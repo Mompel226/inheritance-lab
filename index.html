@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Inheritance Lab — IGCSE Biology 0610 Topic 17, Inheritance</title>
+<meta name="description" content="An interactive lab on Cambridge IGCSE Biology 0610 Topic 17, Inheritance: chromosomes, genes and alleles; how a gene controls a protein; mitosis, stem cells and meiosis; genetic diagrams and Punnett squares, the test cross, pedigree diagrams, codominance and the ABO blood groups, and sex linkage, with crosses to practise.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Inheritance Lab — IGCSE Biology 0610 Topic 17, Inheritance">
+<meta property="og:description" content="An interactive lab on Cambridge IGCSE Biology 0610 Topic 17, Inheritance: chromosomes, genes and alleles; how a gene controls a protein; mitosis, stem cells and meiosis; genetic diagrams and Punnett squares, the test cross, pedigree diagrams, codominance and the ABO blood groups, and sex linkage, with crosses to practise.">
+<meta property="og:image" content="https://nlcsbiology.com/inheritance-lab/preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Inheritance Lab, as it opens">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="Dr Daniel Mompel Riera">
+<meta name="copyright" content="Dr Daniel Mompel Riera, NLCS Jeju">
+<meta name="theme-color" content="#0E141B">
+<!-- The bright or dark version before the first paint: the reader's own choice if they made one
+     (biology.theme, shared with the hub's teacher pages), else the computer's setting. -->
+<script>
+(function () { try { var t = localStorage.getItem('biology.theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();
+</script>
+<!-- The tab icon: one chromosome, its two copies joined, on the Life on Earth labs' green. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2314572B'/><g fill='none' stroke-width='4.2' stroke-linecap='round'><path d='M10.5 6.5 Q16 16 10.5 25.5' stroke='%23FFD48A'/><path d='M21.5 6.5 Q16 16 21.5 25.5' stroke='%23FFFFFF'/></g><circle cx='16' cy='16' r='2.4' fill='%2314572B' stroke='%23FFFFFF' stroke-width='1.4'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- The two faces, loaded WITHOUT blocking the first paint: behind a school captive portal a
+     cross-origin stylesheet HANGS rather than failing, so it is fetched at low priority and swapped
+     in when it arrives. Offline, the page uses the system fallbacks. -->
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="css/app.css?v=1793778031">
+<link rel="stylesheet" href="css/inheritance.css?v=1793778031">
+</head>
+<body>
+<div class="app">
+
+  <header class="hdr">
+    <a class="hbtn hbtn--back" href="https://nlcsbiology.com/life-on-earth-hub/" aria-label="Back to Life on Earth" title="Life on Earth: the tree of life, and the labs for topics 1 and 17–21"><span class="hbtn__long">← Back to Life on Earth</span><span class="hbtn__short" aria-hidden="true">← Life on Earth</span></a>
+    <div class="hdr__mark">
+      <h1 class="hdr__title">Inheritance Lab</h1>
+      <span class="hdr__sub">Topic 17 · Inheritance</span>
+      <a class="hdr__by" href="https://github.com/Mompel226" target="_blank" rel="noopener">by Dr Daniel Mompel Riera</a>
+    </div>
+    <button class="badge" id="btnSyllabus" type="button" aria-label="IGCSE 0610: open the syllabus, as Cambridge publishes it">IGCSE 0610</button>
+    <div class="hdr__spacer"></div>
+    <div class="hdr__stats">
+      <span class="stat tip tip--right" id="statQ" data-tip="Questions answered correctly. Press to open this station's questions.">
+        <svg class="ring" viewBox="0 0 26 26" aria-hidden="true">
+          <circle class="bg" cx="13" cy="13" r="11"></circle>
+          <circle id="ringFg" class="fg" cx="13" cy="13" r="11" transform="rotate(-90 13 13)" stroke-dasharray="0 69.1"></circle>
+        </svg>
+        <b><span id="qDone">0</span>/<span id="qTotal">0</span></b> <span class="stat__lbl">questions</span>
+      </span>
+      <span class="stat stat--stations">
+        <b><span id="stDone">0</span>/<span id="stTotal">0</span></b> <span class="stat__lbl">stations</span>
+      </span>
+      <button class="hbtn hbtn--save tip tip--right" id="btnSubmit" hidden data-tip="Signed in, your work is sent to Dr Mompel’s records automatically while you work. Press to see, or to sign in.">Saves as you go</button>
+      <button class="hbtn" id="btnGloss" type="button"><span class="hbtn__long">Glossary</span><span class="hbtn__short" aria-hidden="true">A–Z</span></button>
+      <button class="hbtn" id="btnHelp" type="button"><span class="hbtn__long">How to use</span><span class="hbtn__short" aria-hidden="true">?</span></button>
+      <button class="hbtn" id="btnTheme" type="button"><span class="hbtn__long">☾ Dark</span><span class="hbtn__short" aria-hidden="true">☾</span></button>
+      <button class="hbtn" id="btnReset" type="button" aria-label="Reset"><span class="hbtn__long">Reset</span><span class="hbtn__short" aria-hidden="true">↺</span></button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <!-- The left column: this station's own picture (js/plate.js, js/views/). -->
+    <section class="platecol viewcol" aria-label="This station's picture">
+      <div class="platecol__tools viewcol__tools">
+        <button class="tool tool--sim" id="simBtn" type="button" hidden></button>
+        <button class="tool fold" id="plateFold" type="button" aria-expanded="true" data-what="the picture">▲ Hide the picture</button>
+      </div>
+      <div class="viewhost" id="viewHost"></div>
+      <div class="sim" id="simHost" hidden role="region" aria-label="The simulation, beside the questions"></div>
+      <p class="said" id="said"></p>
+    </section>
+
+    <section class="panel" id="panel">
+      <div class="panel__inner" id="panelInner">
+        <p class="bootnote" role="status">Opening the lab… the first station will appear here.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="rail" aria-label="The stations, in order">
+    <div class="rail__track" id="railTrack"></div>
+  </nav>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="toast" id="updBar" role="status" aria-live="polite"></div>
+
+<div class="modal lb" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Enlarged image">
+  <figure class="lb__box"><div class="lb__stage"><img alt=""></div><figcaption class="lb__cap"></figcaption>
+  <div class="lb__hint">Click anywhere to close</div></figure>
+</div>
+
+<div class="modal" id="subDlg" hidden role="dialog" aria-modal="true" aria-label="Your work and the records">
+  <div class="modal__box modal__box--sm">
+    <button class="modal__close" id="subClose" aria-label="Close">×</button>
+    <h2>Your work</h2>
+    <div id="subBody"></div>
+    <div class="dlgrow"><button class="btn" id="subGo">Save now</button></div>
+  </div>
+</div>
+
+<div class="modal" id="glossDlg" hidden role="dialog" aria-modal="true" aria-label="Glossary">
+  <div class="modal__box">
+    <button class="modal__close" id="glossClose" aria-label="Close">×</button>
+    <h2>Glossary</h2>
+    <p class="st-sub">Every word the labs use, with the definition it is examined on. The short list at the foot of each station is only the words that are new there.</p>
+    <input class="gloss__find" id="glossFind" type="search" autocomplete="off"
+           placeholder="Type a word — or part of one" aria-label="Search the key words">
+    <p class="gloss__count" id="glossCount"></p>
+    <p class="gloss__known" id="glossKnown" hidden></p>
+    <div id="glossList"></div>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-label="How to use the Inheritance Lab">
+  <div class="modal__box">
+    <button class="modal__close" id="modalClose" aria-label="Close">×</button>
+    <h2>Inheritance Lab</h2>
+    <p class="st-sub">Cambridge IGCSE Biology 0610 · Topic 17, Inheritance: 17.1–17.4</p>
+
+    <h3>In one minute</h3>
+    <ul>
+      <li><b>Choose a station</b> on the bar along the bottom. The stations follow your T17 revision summary, in its order. Each station has <b>its own picture</b> on the left: chromosomes, a dividing cell, a family, a cross. Press a part of the picture and its card opens on the right; open a card and its part shows in the picture.</li>
+      <li>Each station has two tabs: <b>Learn</b>, what you must know, with something to press or to step through, and <b>Practise</b>, the questions.</li>
+      <li>An animation plays one step, then waits: press <b>Next step</b> when you have read it. <b>Play all</b> runs straight through, for revision.</li>
+      <li><b>Check as often as you like.</b> You are told which parts are wrong, <b>never the answer</b>: you must find it yourself. Try again until every part is right.</li>
+      <li>An underlined word can be pressed: <b>↗</b> takes you to the station that explains it, with a button to return here, <b>↓</b> takes you to its card in Key words, at the bottom of the station, and a faint dotted line opens the definition.</li>
+      <li>Your work is kept <b>in this browser</b> and, once you sign in with your school account, sent to Dr&nbsp;Mompel&rsquo;s records automatically while you work. You do not need to submit anything. Signed in, you can continue your work on another computer.</li>
+      <li><b>☾ Dark</b> and <b>☀ Bright</b> switch the page between its two versions.</li>
+    </ul>
+    <p class="fineprint">The answers are never shown. Sign in with your school Google account so Dr&nbsp;Mompel knows whose work it is. Anyone else is welcome to use the lab: their work stays in their own browser.</p>
+
+    <details class="helpmore">
+      <summary>What the colours mean</summary>
+      <ul>
+        <li><b>In the text</b>, the colours of your T17 summary: <b class="t t--struct">green</b> words are structures (chromosomes, genes, the nucleus, ribosomes); <b class="t t--proc">orange</b> words are processes (mitosis, meiosis, fertilisation); <b class="t t--subst">rose</b> words are substances (DNA, mRNA, proteins, amino acids).</li>
+        <li>A <b>box with a red border</b> is the mistake students most often make there. A small <b>S</b> badge means Supplement (Extended papers 2 and 4 only): in this topic, 17.1.5–17.1.12, mitosis, meiosis, the test cross, codominance and sex linkage. <b>What you need to know</b> holds only what the syllabus for exams in 2026–2029 asks: Cambridge’s syllabus for 2029 is word for word the same as the one for 2026–2028. Everything else is in the card directly below it, <b>“Not in the syllabus for 2026–2029”</b>. Do not skip it: an exam question can still use these ideas.</li>
+      </ul>
+    </details>
+
+    <details class="helpmore">
+      <summary>The sources of the content and the pictures</summary>
+      <ul>
+        <li>The definitions are the wording of the syllabus for 2026–2029; everything else says what your T17 revision summary says, in its words, checked against the Cambridge mark schemes.</li>
+        <li>Every photograph is a real one, credited under it. The chromosomes, alleles, genetic diagrams and family trees are drawn for this lab, with every symbol in a key. They are listed in full below and in <code>assets/photos/CREDITS.md</code>.</li>
+      </ul>
+      <p class="fineprint" id="creditsList"></p>
+    </details>
+
+    <p class="fineprint"><a class="by-me" href="https://github.com/Mompel226" target="_blank" rel="noopener"><b>Dr Daniel Mompel Riera</b></a> — Biology, North London Collegiate School Jeju.
+       Questions or corrections: <a href="mailto:dmompelriera@nlcsjeju.kr">dmompelriera@nlcsjeju.kr</a>.
+       One of the <a href="https://nlcsbiology.com/life-on-earth-hub/">Life on Earth</a> labs ·
+       <a href="https://nlcsbiology.com/biology-hub/">Biology Hub</a></p>
+  </div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client?hl=en-GB" async defer></script>
+<script src="js/config.js?v=1793778031" defer></script>
+<script src="js/data/glossary.js?v=1793778031" defer></script>
+<script src="js/data/syllabus.js?v=1793778031" defer></script>
+<script src="js/data/stations.js?v=1793778031" defer></script>
+<script src="js/data/photos.js?v=1793778031" defer></script>
+<script src="js/terms.js?v=1793778031" defer></script>
+<script src="js/marking.js?v=1793778031" defer></script>
+<script src="js/sync.js?v=1793778031" defer></script>
+<script src="js/signin.js?v=1793778031" defer></script>
+<script src="js/homework.js?v=1793778031" defer></script>
+<script src="js/engine.js?v=1793778031" defer></script>
+<script src="js/syllabus.js?v=1793778031" defer></script>
+<script src="js/widgets.js?v=1793778031" defer></script>
+<script src="js/learn.js?v=1793778031" defer></script>
+<script src="js/w-common.js?v=1793778031" defer></script>
+<script src="js/engine-ext.js?v=1793778031" defer></script>
+<script src="js/plate.js?v=1793778031" defer></script>
+<script src="js/genes.js?v=1793778031" defer></script>
+<script src="js/inh-draw.js?v=1793778031" defer></script>
+<script src="js/inh-scenes.js?v=1793778031" defer></script>
+<script src="js/w-kit.js?v=1793778031" defer></script>
+<script src="js/w-zoom.js?v=1793778031" defer></script>
+<script src="js/w-protein.js?v=1793778031" defer></script>
+<script src="js/w-divide-ib.js?v=1793778031" defer></script>
+<script src="js/w-divide.js?v=1793778031" defer></script>
+<script src="js/w-cross.js?v=1793778031" defer></script>
+<script src="js/views/gallery.js?v=1793778031" defer></script>
+<script src="js/views/figure.js?v=1793778031" defer></script>
+<script src="js/views/pedigree.js?v=1793778031" defer></script>
+<script src="js/app.js?v=1793778031" defer></script>
+<!-- The lab offline. The worker lives at this lab's root, so on Pages its scope is exactly
+     /<lab>/. It fetches the HTML network-first, so a deploy always reaches an online student
+     and the cache is only the fall-back for when the wifi is not there. -->
+<script>
+(function () {
+  if (!("serviceWorker" in navigator)) return;
+  if (location.protocol.slice(0, 4) !== "http") return;
+  addEventListener("load", function () {
+    navigator.serviceWorker.register(new URL("sw.js", document.baseURI), {
+      scope: new URL("./", document.baseURI).pathname,
+      updateViaCache: "none"
+    }).catch(function () {});
+  });
+})();
+</script>
+</body>
+</html>

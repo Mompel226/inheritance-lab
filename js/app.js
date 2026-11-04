@@ -1,0 +1,1930 @@
+/* ============================================================
+   app.js — wiring: picture ⇄ panel ⇄ rail, progress, saving.
+   The Circulation Lab's app.js (7 Oct 2026, with the shuffle, anyOrder, keep, rounds and checks) with
+   the plate swapped: there is no body here. Each station has its OWN left picture (js/plate.js,
+   js/views/*.js), and a sentence with a heading is a card that opens one at a time and shows its part
+   in the picture (Daniel, 7 Oct 2026: less text beside the picture; one piece open at a time).
+   Saving, sign-in, goes and rounds are the other labs' code, unchanged: keep them in step.
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var LAB = 'inheritance-lab';
+  var STORE = LAB + '.v1';
+  var ORDER = [];
+  var S = {};                       /* stations by id */
+  var OWNER = {};                   /* a part on a station's picture -> that station */
+
+  var progress = load();
+  var current = null;
+  var tab = 'learn';
+
+  /* ---------- progress ---------- */
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) { return {}; }
+  }
+  var saveBroken = false;
+  function save() {
+    if (typeof queueSave === 'function') queueSave();   /* the records get it a couple of minutes later */
+    try { localStorage.setItem(STORE, JSON.stringify(progress)); }
+    catch (e) {
+      /* Private browsing, or a school profile with site data blocked. Said once per session. */
+      if (!saveBroken) { saveBroken = true; toast('This browser cannot keep your work between visits — sign in, so it goes to Dr Mompel’s records as you work, and do not reload.'); }
+    }
+  }
+  function p(id) {
+    if (!progress[id]) progress[id] = { done:{}, tried:{}, sig:(S[id] ? stationSig(S[id]) : '') };
+    return progress[id];
+  }
+  /* A record is filed by the question's position, and a changed question set would credit
+     a reader for a question they never saw: the record carries a fingerprint of the set. */
+  /* FNV-1a, base 36. Small, stable, and it only has to notice a change, not resist an attack. */
+  function hash36(s) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+    }
+    return h.toString(36);
+  }
+  /* The fingerprint covers the number of questions AND everything a student reads in each one,
+     in order — the prompt, the options, the items, the labels. Counting types alone was not
+     enough: rewording a question, or reordering its options, left the fingerprint unchanged, so
+     a student kept a tick against a question that had changed underneath them.
+
+     Deliberately NOT the answer key `k`. It is salted afresh on every build, so hashing it
+     would wipe every record on every deploy whether anything changed or not. Verified: across
+     two rebuilds with no content change, every station's fingerprint is identical in both labs. */
+  function stationSig(st) {
+    var acts = st.activities || [];
+    var body = acts.map(function (a) {
+      var c = {};
+      /* `k` holds the answer hashes and `anyOrder` is marking policy — neither is something a
+         student reads, and both change when marking is made more generous. Leaving them out
+         keeps a fixed question fingerprinted the same, so widening what an answer may say never
+         wipes anybody's ticks, and snapshots already saved in the spreadsheet still restore. */
+      Object.keys(a).sort().forEach(function (k) { if (k !== 'k' && k !== 'anyOrder') c[k] = a[k]; });
+      return JSON.stringify(c);
+    }).join('|');
+    var sig = acts.length + ':' + hash36(body);
+    /* `keep` (7 Oct 2026): a station reworded WITHOUT changing what it asks keeps the fingerprint its
+       records were saved under, so nobody's ticks, scores, homework or practice move (Daniel: the
+       multiple-choice options were rewritten so that the right answer is no longer the longest, and
+       the work pupils had done was not to be lost). keep = { sig: the old fingerprint, now: the
+       fingerprint of the wording it was declared for }. It holds only while the station reads
+       exactly as declared: reword it again and `now` no longer matches, so the station resets as
+       any changed station does. Written by tools/keep-records.mjs after it has checked that every
+       question still asks the same thing; never by hand. Every copy of this function must agree
+       (tools/syllabus-tags.mjs, the labs script's _labSig_). */
+    var kp = st.keep;
+    return kp && kp.now === sig && typeof kp.sig === 'string' ? kp.sig : sig;
+  }
+  function reconcile() {
+    var dropped = 0;
+    Object.keys(progress).forEach(function (id) {
+      var st = S[id];
+      if (!st) { delete progress[id]; dropped++; return; }
+      var sig = stationSig(st);
+      if (progress[id].sig && progress[id].sig !== sig) {
+        progress[id] = { done:{}, tried:{}, sig:sig }; dropped++;
+      } else progress[id].sig = sig;
+    });
+    if (dropped) save();
+    return dropped;
+  }
+  /* A station's numbers: this go, and what the record keeps (js/sync.js counts both).
+       done, tried        this go: the Practise tab and the ticks on its questions
+       best, bestTried    best ever: the header, the rail's ✓, the teacher's Score
+       firstRight         right first time on the FIRST go, so a redo cannot make it look better
+       checks             every Check pressed, every go: this browser's own, with what the records hold
+     Only positions that still exist count, so a stale record can never push a score above the
+     number of questions actually asked. */
+  function countsOf(rec, n) {
+    if (window.LabSync) return window.LabSync.counts(rec, n);
+    /* js/sync.js did not arrive: this go is all there is */
+    var o = { go:1, done:0, tried:0, bestDone:0, bestTried:0, firstRight:0, firstTried:0, checks:0 };
+    for (var i = 0; i < n; i++) {
+      if (rec.done && rec.done[i]) { o.done++; if (rec.one && rec.one[i]) o.firstRight++; }
+      if (rec.tried && rec.tried[i]) o.tried++;
+    }
+    Object.keys(rec.per || {}).forEach(function (k) { if (+k < n) o.checks += rec.per[k]; });
+    o.bestDone = o.done; o.bestTried = o.tried; o.firstTried = o.tried;
+    return o;
+  }
+  function stationScore(id) {
+    var st = S[id];
+    if (!st) return { done:0, total:0, tried:0, best:0, bestTried:0, go:1, firstRight:0, firstTried:0, checks:0 };
+    var total = (st.activities || []).length, c = countsOf(p(id), total);
+    return { done:c.done, total:total, tried:c.tried, best:c.bestDone, bestTried:c.bestTried, go:c.go,
+             firstRight:c.firstRight, firstTried:c.firstTried, checks:c.checks };
+  }
+  /* The whole lab as the record keeps it: best ever, right first time on the first go, every check. */
+  function totals() {
+    var done = 0, total = 0, tried = 0, checks = 0, first1 = 0, from = 0;
+    ORDER.forEach(function (id) {
+      var s = stationScore(id), rec = p(id);
+      done += s.best; total += s.total; tried += s.bestTried; checks += s.checks; first1 += s.firstRight;
+      if (rec.first && (!from || rec.first < from)) from = rec.first;
+    });
+    return { done:done, total:total, tried:tried, checks:checks, first1:first1, from:from };
+  }
+
+  /* ---------- header ---------- */
+  function paintHeader() {
+    var t = totals(), pct = t.total ? t.done / t.total : 0, C = 2 * Math.PI * 11;
+    paintSaveChip();
+    document.getElementById('ringFg').setAttribute('stroke-dasharray', (C * pct).toFixed(1) + ' ' + C.toFixed(1));
+    document.getElementById('qDone').textContent = t.done;
+    document.getElementById('qTotal').textContent = t.total;
+    document.getElementById('stDone').textContent = ORDER.filter(function (id) { var s = stationScore(id); return s.total && s.best === s.total; }).length;
+    document.getElementById('stTotal').textContent = ORDER.length;
+  }
+
+  /* ---------- the rail ---------- */
+  function paintRail() {
+    var track = document.getElementById('railTrack');
+    track.innerHTML = '';
+    ORDER.forEach(function (id, i) {
+      var st = S[id]; if (!st) return;
+      var sc = stationScore(id), full = sc.total && sc.best === sc.total;
+      var b = document.createElement('button');
+      b.className = 'rstep' + (full ? ' done' : '');
+      b.setAttribute('aria-current', id === current ? 'true' : 'false');
+      b.setAttribute('aria-label', st.name + ' — ' + (sc.go > 1 ? 'round ' + sc.go + ': ' + sc.done + ' of ' + sc.total + ' answered' + (full ? ' · done before ✓' : '') : sc.done + ' of ' + sc.total + ' questions answered'));
+      var n = document.createElement('span'); n.className = 'rstep__n'; n.textContent = full ? '✓' : (i + 1);
+      var lab = document.createElement('span'); lab.textContent = st.name;
+      var bar = document.createElement('span'); bar.className = 'rstep__bar';
+      var fill = document.createElement('i'); fill.style.width = (sc.total ? (sc.done / sc.total) * 100 : 0) + '%';
+      bar.appendChild(fill);
+      b.appendChild(n); b.appendChild(lab); b.appendChild(bar);
+      b.addEventListener('click', function () { open(id); });
+      /* homework set for this pupil: red not started, orange part done, green done (labs-shared/engine/homework.js) */
+      if (window.LabHomework) window.LabHomework.mark(b, id, sc.best, sc.total);
+      track.appendChild(b);
+    });
+    var cur = track.querySelector('[aria-current="true"]');
+    if (cur) cur.scrollIntoView({ block:'nearest', inline:'center', behavior:'smooth' });
+  }
+
+  /* ---------- panel ---------- */
+  /* the other number of a term, when the glossary gives one: stoma → stomata, microvilli → microvillus */
+  function numberOf(w) { return w && w.plural ? ' <small class="num">plural: ' + esc(w.plural) + '</small>' : w && w.singular ? ' <small class="num">singular: ' + esc(w.singular) + '</small>' : ''; }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  /* ---------- the old syllabus ----------
+     What this lab teaches that the syllabus for 2026–2029 does not include, although an older 0610 syllabus did
+     (the statements tagged in ../inheritance-lab-source/past-syllabus.json). It stays, because past papers ask it, and its badge names the syllabus it
+     belongs to. The words are Cambridge's own, from labs-shared/syllabus-past.json through the build. */
+  var PAST = window.PAST_SYLLABUS || { statements: {}, terms: {} };
+  function pastTerm(term) { return (PAST.terms || {})[String(term || '').toLowerCase()] || null; }
+  function pastBadge(id, cls) {
+    var x = (PAST.statements || {})[id && id.id ? id.id : id];
+    if (!x) return '';
+    /* the note says what the syllabus for 2026–2029 does instead, and whether recent papers still give marks for it */
+    var tip = 'In the 0610 syllabus until ' + x.until + (x.tier ? ' (' + x.tier + ')' : '') + ': \u201c' + x.text + '\u201d. ' +
+              (x.note || ('It is not in the syllabus for 2026\u20132029, but an exam question can still use it, and past papers up to ' + x.until + ' may ask it directly.'));
+    return '<span class="' + (cls || 'sup sup--old') + ' tip" tabindex="0" data-tip="' + esc(tip).replace(/"/g, '&quot;') + '">old syllabus \u00b7 until ' + esc(x.until) + '</span>';
+  }
+  /* a sentence only part of which is old: the badge goes in front of that part (`from`, in past-syllabus.json) */
+  function pastSplit(txt, pe, M) {
+    var at = pe && pe.from ? String(txt).indexOf(pe.from) : -1;
+    return at >= 0 ? (at ? M(txt.slice(0, at)) : '') + pastBadge(pe.id) + ' ' + M(txt.slice(at)) : null;
+  }
+  /* a chromosome: its two copies joined in the middle, one in the accent and one in the substance rose */
+  function icon() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path class="ic-cell" d="M8 3.5Q12.5 12 8 20.5"/>' +
+      '<path class="ic-nuc" d="M16 3.5Q11.5 12 16 20.5"/></svg>';
+  }
+
+  function paintPanel() {
+    var st = S[current]; if (!st) return;
+    /* which tab is open, for a picture that must change on Practise (a picture's names hide there when they would
+       answer a question), 25 Oct 2026 */
+    document.documentElement.setAttribute('data-lab-tab', tab);
+    var host = document.getElementById('panelInner'), sc = stationScore(current);
+    parkSim();                                      /* out of the panel before it is emptied */
+    if (window.CircLearn && CircLearn.dropPlateHold) CircLearn.dropPlateHold();   /* a part pressed on the old panel lets go */
+    host.innerHTML = '';
+    if (window.Learn && Learn.reap) Learn.reap();   /* the old station's widgets are detached now */
+
+    var head = document.createElement('div');
+    head.className = 'st-head';
+    head.innerHTML = '<div class="st-head__ic">' + icon() + '</div>' +
+      '<div><h2 class="st-title">' + esc(st.name) + '</h2><div class="st-sub">' + esc(st.subtitle || '') + '</div></div>';
+    host.appendChild(head);
+
+    var chips = document.createElement('div');
+    chips.className = 'chips';
+    (st.tags || []).forEach(function (tg) {
+      var c = document.createElement('span');
+      c.className = 'chip chip--' + (tg.cls || 'k');
+      c.textContent = tg.text;
+      chips.appendChild(c);
+    });
+    host.appendChild(chips);
+
+    var tabs = document.createElement('div');
+    tabs.className = 'tabs'; tabs.setAttribute('role', 'tablist');
+    [['learn','Learn',''],['do','Practise', sc.done + '/' + sc.total]].forEach(function (t) {
+      var b = document.createElement('button');
+      b.className = 'tab'; b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', tab === t[0] ? 'true' : 'false');
+      b.appendChild(document.createTextNode(t[1]));
+      if (t[2]) { var n = document.createElement('span'); n.className = 'tab__n'; n.textContent = t[2]; b.appendChild(n); }
+      b.addEventListener('click', function () { tab = t[0]; paintPanel(); });
+      tabs.appendChild(b);
+    });
+    host.appendChild(tabs);
+
+    var pane = document.createElement('div');
+    pane.className = 'tabpane';
+    host.appendChild(pane);
+
+    if (tab === 'learn' && window.Terms && !(st.plate && st.plate.bench)) {   /* the bench station has no body to colour: no legend there */
+      var key = document.createElement('div');
+      key.className = 'keybar';
+      key.innerHTML = window.Terms.legend();
+      pane.appendChild(key);
+    }
+    /* The bench has to be showing BEFORE the pane is built. A bench widget's mount() reads
+       #benchHost.hidden to decide whether its apparatus stands in the column or stays inside the
+       widget, and coming back from Practise the bench is still hidden from when the simulation
+       covered the column. Plate.showBench only unhides it — showStation would empty it. */
+    /* Tell the glossary which pictures this station is about to show, so a magnifier never
+       opens the photograph the reader is already looking at. */
+    if (window.Terms && window.Terms.setShown) {
+      var onPage = {};
+      ((st.learn && st.learn.interact) || []).forEach(function (w) {
+        var im = w.img || (w.photo && w.photo.img); if (im) onPage[/\./.test(im) ? im : im + '-900.jpg'] = 1;
+      });
+      (st.activities || []).forEach(function (a2) { if (a2.img) onPage[/\./.test(a2.img) ? a2.img : a2.img + '-900.jpg'] = 1; });
+      window.Terms.setShown(onPage);
+    }
+    if (tab === 'learn' && st.plate && st.plate.bench && window.Plate && window.Plate.showBench) window.Plate.showBench(true);
+    if (tab === 'learn') paintLearn(pane, st); else paintDo(pane, st);
+    paintSim(st, pane);
+    var sc = panelScroller();
+    if (sc) { var prev = sc.style.scrollBehavior; sc.style.scrollBehavior = 'auto'; sc.scrollTop = 0; sc.style.scrollBehavior = prev || ''; }
+  }
+
+  var WIDGET_CTX = {
+    focus: function (gid) { if (window.Plate) window.Plate.focus(gid); },
+    home: function () { if (window.Plate) window.Plate.home(); }
+  };
+
+  /* ---------- a simulation standing beside the questions ----------
+     A question that can only be answered by trying something is worth more than one that can be
+     answered by remembering; but a student will not walk back to Learn, scroll to the widget, try
+     it, and walk back. So on the Practise tab the station's simulations can stand where the body
+     is, and the questions are answered beside them.
+
+     ONE NODE per (station, widget), created once and RE-PARENTED — never a second live copy, and
+     never rebuilt on a repaint. Both rules are load-bearing. The Plants Lab's potometer keeps its model in a
+     module-level PO_STATE, so two copies would share one model and neither would repaint when the
+     other wrote. And paintPanel runs on the tab bar, on both glossary known-word toggles, on a
+     sync and on Reset: rebuilding there would throw away a half-finished experiment because the
+     student looked up a word. */
+  var SIM_NOT = { photo: 1, figure: 1, video: 1, watch: 1, finder: 1, table: 1, curio: 1, sound: 1, tasklist: 1, reportlinks: 1, labelphoto: 1,
+                  lightpath: 1 };   /* Follow the light drives the station's own picture: it must never cover it */   /* pictures, recordings, stories and lists are not simulations to try beside the questions */
+  var simView = null, simOpen = {}, simPick = {},
+      simWide = window.matchMedia ? window.matchMedia('(min-width: 1001px)') : { matches: true, addEventListener: function () {} };
+
+  function simsOf(st) {
+    return ((st.learn && st.learn.interact) || []).filter(function (w) {
+      return w && !SIM_NOT[w.type] && window.Widgets && window.Widgets.has(w.type);
+    });
+  }
+  function simName(w) {
+    return w.simLabel || w.title || ({ equation: 'The equation', diagram: 'The diagram' }[w.type]) || 'The simulation';
+  }
+  function simHostEl() { return document.getElementById('simHost'); }
+
+  function simSlot(pane) {
+    var el = pane.querySelector('.sim__slot');
+    if (!el) { el = document.createElement('div'); el.className = 'sim__slot'; pane.insertBefore(el, pane.firstChild); }
+    return el;
+  }
+  /* the chooser is rebuilt; the widget node beside it is not */
+  function simChooser(container, st, sims, idx) {
+    var old = container.querySelector('.sim__pick');
+    if (old) old.parentNode.removeChild(old);
+    if (sims.length < 2) return;
+    var row = document.createElement('div'); row.className = 'sim__pick';
+    sims.forEach(function (w, i) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'sim__pickb' + (i === idx ? ' is-on' : '');
+      b.textContent = simName(w);
+      b.addEventListener('click', function () { simPick[st.id] = i; paintPanel(); });
+      row.appendChild(b);
+    });
+    container.insertBefore(row, container.firstChild);
+  }
+
+  var simWired = false;
+  function wireSim() {
+    if (simWired) return; simWired = true;
+    var btn = document.getElementById('simBtn');
+    if (btn) btn.addEventListener('click', function () {
+      simOpen[current] = !simOpen[current];
+      paintPanel();
+      var h = simHostEl(), hd = h && h.querySelector('.widget__h');
+      if (simOpen[current] && hd) { hd.setAttribute('tabindex', '-1'); hd.focus(); }
+      else { var b2 = document.getElementById('simBtn'); if (b2) b2.focus(); }
+    });
+    if (simWide.addEventListener) simWide.addEventListener('change', function () { paintPanel(); });
+  }
+
+  function paintSim(st, pane) {
+    wireSim();
+    var btn = document.getElementById('simBtn'), host = simHostEl();
+    var sims = simsOf(st), onBench = !!(st.plate && st.plate.bench);
+
+    /* On a bench station there is no body to go back to, and switching to Practise used to
+       destroy the Plants Lab potometer's controls while its apparatus and readout survived orphaned in
+       #benchHost — a student left looking at a bench they could not drive. So there the
+       simulation is simply always open, and no button is offered. */
+    if (tab === 'do' && onBench && sims.length) { simOpen[st.id] = true; if (btn) btn.hidden = true; }
+    else if (tab !== 'do' || !sims.length) {
+      dropSim();
+      if (btn) btn.hidden = true;
+      /* A widget marked onStage keeps its drawing in the column and shows it only while the
+         reader is level with it. Start from the body and let the widget decide; the heavy
+         showSim would rebuild the whole station, which the scroll must never do.
+
+         A BENCH station must not take showSim either, and for a sharper reason: showSim(false)
+         puts the body back by re-running showStation, and showStation empties #benchHost. On
+         the bench station's Learn tab the widget has just mounted its apparatus there, so that call
+         deleted the bench a moment after it was built and left the column blank. There is no
+         body to put back on a bench station; all that is wanted is the simulation layer off. */
+      var staged = sims.some(function (w) { return w.onStage; });
+      if (onBench || (tab === 'learn' && staged && simWide.matches)) {
+        if (window.Plate && window.Plate.stageSim) window.Plate.stageSim(false);
+      } else if (window.Plate && window.Plate.showSim) window.Plate.showSim(false);
+      return;
+    }
+    if (simPick[st.id] == null) simPick[st.id] = 0;
+    var idx = Math.min(simPick[st.id], sims.length - 1), open = !!simOpen[st.id];
+
+    if (btn && !onBench) {
+      btn.hidden = false;
+      btn.textContent = open ? '▲ Back to the picture'
+        : (sims.length > 1 ? '⚗ Try the ' + sims.length + ' simulations' : '⚗ ' + simName(sims[0]));
+      btn.setAttribute('aria-label', open ? 'Show the picture again' : 'Open it beside the questions and try it while you answer');
+      btn.setAttribute('aria-pressed', open ? 'true' : 'false');
+    }
+    if (!open) {
+      dropSim();
+      if (window.Plate && window.Plate.showSim) window.Plate.showSim(false);
+      return;
+    }
+
+    var key = st.id + ':' + idx;
+    if (!simView || simView.key !== key) {
+      dropSim();
+      var node = buildSim(st, idx);
+      if (!node) { if (window.Plate && window.Plate.showSim) window.Plate.showSim(false); return; }
+      simView = { key: key, node: node };
+    }
+    /* below 1001px the body column is a 42vh strip — a bench does not fit in it, so the same
+       single node mounts at the top of the questions instead. The query is the one a
+       bench widget uses. */
+    var wide = simWide.matches, target = wide ? host : simSlot(pane);
+    /* a drawing left behind in the column by a Learn-tab widget that has since been destroyed */
+    if (wide) Array.prototype.slice.call(host.children).forEach(function (c) {
+      if (c !== simView.node && !c.classList.contains('sim__pick')) host.removeChild(c);
+    });
+    simChooser(target, st, sims, idx);
+    if (simView.node.parentNode !== target) target.appendChild(simView.node);
+    if (typeof simView.node.__onMove === 'function') simView.node.__onMove();
+    if (window.Plate && window.Plate.showSim) window.Plate.showSim(wide);
+  }
+
+  /* park it somewhere the panel wipe cannot reach, before the wipe */
+  function parkSim() {
+    var host = simHostEl();
+    if (simView && host && simView.node.parentNode !== host) host.appendChild(simView.node);
+  }
+  function dropSim() {
+    if (!simView) return;
+    /* a widget may run intervals that only __onReset clears; dropping the node
+       without this leaks a timer for the life of the page */
+    if (typeof simView.node.__onReset === 'function') simView.node.__onReset();
+    if (simView.node.parentNode) simView.node.parentNode.removeChild(simView.node);
+    simView = null;
+  }
+  function buildSim(st, idx) {
+    var w = simsOf(st)[idx]; if (!w) return null;
+    /* quiet, because wireTermClicks is bound to #panel: a marked term rendered in the body
+       column would look alive and be dead on click */
+    if (window.Terms) window.Terms.setQuiet(true);
+    var node = window.Learn.widget(w, WIDGET_CTX);
+    if (window.Terms) window.Terms.setQuiet(false);
+    return node;
+  }
+
+  function paintLearn(pane, st) {
+    if (window.Terms) window.Terms.setStation(st.id);
+    WIDGET_CTX.station = st.id;      /* a widget that keeps state needs a name that survives a repaint */
+    var M = window.Terms ? window.Terms.mark : esc;
+    var widgets = (st.learn && st.learn.interact) || [];
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    /* the exams this list is for: Cambridge's syllabus for 2029 is word for word the one for 2026–2028 (checked 28 Sep
+       2026), so one list serves every student sitting the exams from 2026 to 2029 — the IGCSE 0610 badge says whose is whose */
+    card.innerHTML = '<div class="card__h">What you need to know <span class="card__hsub">\u00b7 for exams in 2026\u20132029</span></div>';
+    var list = document.createElement('ul');
+    list.className = 'exam-list';
+    card.appendChild(list);
+
+    /* What you need to know holds the syllabus for 2026–2029 only (Daniel, 28 Sep 2026: "do not add these to the what
+       you need to know sections but a separate one"). A sentence from an older 0610 syllabus (tagged in
+       past-syllabus.json) or beyond the syllabus (`ext`) is drawn the same way, with its pictures and widgets,
+       but in the card below: "Not in the syllabus for 2026–2029". Each li keeps its place in the master as data-i. */
+    var off = { old: document.createElement('ul'), beyond: document.createElement('ul') }, offAt = { old: [], beyond: [] };
+    off.old.className = off.beyond.className = 'exam-list exam-list--off';
+    function offOf(b, i) {
+      if (st.past && st.past.exam && st.past.exam[i] != null) return 'old';
+      return typeof b === 'object' && b.ext ? 'beyond' : null;
+    }
+    var partName = null;
+
+    (st.learn.exam || []).forEach(function (b, i) {
+      var offK = offOf(b, i);
+      /* sentences that belong to a named part — "Setting it up" — sit together in their own block */
+      var part = (typeof b === 'object' && b.part) || null;
+      if (!offK && part !== partName) {
+        partName = part;
+        list = document.createElement('ul'); list.className = 'exam-list';
+        /* a block named as one of the picture's buttons takes that button's colour (gallery.js gal__mode--k), so the two are
+           read as one (Daniel, 4 Nov 2026); a block with no button keeps the plain tint */
+        if (part) {
+          var wrap = document.createElement('div'); wrap.className = 'exam-part';
+          var modes = (st.view && st.view.modes) || [], mk = -1;
+          modes.forEach(function (m, j) { if (m.name === part) mk = j; });
+          if (mk >= 0 && modes.length > 1) wrap.classList.add('exam-part--' + (mk + 1));
+          wrap.innerHTML = '<div class="exam-part__h">' + esc(part) + '</div>'; wrap.appendChild(list); card.appendChild(wrap);
+        }
+        else card.appendChild(list);
+      }
+      var li = document.createElement('li');
+      var txt = typeof b === 'string' ? b : b.text;
+      /* visit every text node under an element, collected first so replacing one does not
+         disturb the walk */
+      function walkText(root, fn) {
+        var out = [], w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false), nd;
+        while ((nd = w.nextNode())) out.push(nd);
+        out.forEach(fn);
+      }
+      var badge = '';
+      if (typeof b === 'object' && b.sup) badge = '<span class="sup tip" tabindex="0" data-tip="Supplement — examined on the Extended papers (2 and 4) only. Core candidates can skip it.">S</span>';
+      /* in an older 0610 syllabus: its badge names that syllabus; beyond the syllabus: no badge, its heading says so */
+      var pe = st.past && st.past.exam ? st.past.exam[i] : null;
+      if (pe != null) badge = pastBadge(pe);
+      else if (offK === 'beyond') badge = '';
+      /* the sentences a student reads, not the card below: the only place a word takes you to another station */
+      var teachHere = !offK;
+      if (typeof b === 'object' && b.head && window.Terms && Terms.freshCard) Terms.freshCard();   /* a card is read on its own */
+      if (window.Terms && Terms.teach) Terms.teach(teachHere);
+      li.innerHTML = badge + M(txt);
+      if (window.Terms && Terms.teach) Terms.teach(false);
+      /* a rule a student must not miss, in the lab's red and yellow (Daniel, 26 Sep: the academic
+         honesty rule for the gym report "in red and yellow ... very visible") */
+      if (typeof b === 'object' && b.alert) {
+        li.className = 'exam-alert';
+        li.insertAdjacentHTML('afterbegin', '<span class="exam-alert__h"><span aria-hidden="true">⚠</span> ' + esc(b.alert === true ? 'Warning' : b.alert) + '</span>');
+      }
+      /* the parts of the body this sentence answers. Pressing one on the drawing lands here
+         (openGroup looks for exactly this attribute); a list item can name its own */
+      if (typeof b === 'object' && b.group) li.setAttribute('data-group', [].concat(b.group).join(' '));
+      /* A small picture beside the sentence, with the words running round it. One idea each and
+         about the size of a postage stamp: a reader takes a picture in faster than a clause, and
+         a big diagram in the middle of a paragraph stops the reading instead of helping it. */
+      if (typeof b === 'object' && b.fig && window.FIGS && window.FIGS[b.fig]) {
+        var fg = document.createElement('figure');
+        fg.className = 'minifig';
+        fg.innerHTML = window.FIGS[b.fig];
+        li.insertBefore(fg, li.firstChild);
+      }
+      /* A sentence that names something shown further down — "that is demonstration 1" — should
+         take you to it. The phrase is already marked by _..._, so the mark becomes the link and
+         nothing new appears in the text. */
+      /* a numbered run of facts belongs on its own rows, not strung through the sentence:
+         it is what the mark scheme is counting, so it is what the eye should be able to count */
+      if (typeof b === 'object' && b.list) {
+        var ol = document.createElement('ol'); ol.className = 'exam-steps';
+        b.list.forEach(function (x) {
+          var s2 = document.createElement('li');
+          if (window.Terms && Terms.teach) Terms.teach(teachHere);
+          s2.innerHTML = M(typeof x === 'object' ? x.text : x);
+          if (window.Terms && Terms.teach) Terms.teach(false);
+          /* a fact the syllabus words simply, with the fuller truth under it, marked extension (Daniel, 27 Sep: the
+             hepatic portal vein "brings blood from the small intestine", but it is the mesenteric vein that does) */
+          if (typeof x === 'object' && x.note) s2.insertAdjacentHTML('beforeend', '<span class="exam-inote"><span class="sup sup--ext">extension</span> ' + M(x.note) + '</span>');
+          if (typeof x === 'object' && x.group) s2.setAttribute('data-group', [].concat(x.group).join(' '));
+          ol.appendChild(s2);
+        });
+        li.appendChild(ol);
+      }
+      /* Run AFTER the nested list is in place, or a (1) inside one of the numbered facts is
+         still plain text when the walk goes past. */
+      if (typeof b === 'object' && b.fig && window.FIGS && window.FIGS[b.fig]) {
+        /* (1) in the sentence becomes the same numbered token that is pinned on the drawing, so
+           the word and the part it names are tied together and neither has to repeat the other.
+           Only inside a bullet that HAS a figure, so an ordinary bracketed number elsewhere in
+           the lab is left alone. */
+        walkText(li, function (node) {
+          if (!/\(\d\)/.test(node.data)) return;
+          var frag = document.createDocumentFragment(), rest = node.data, m;
+          while ((m = /\((\d)\)/.exec(rest))) {
+            if (m.index) frag.appendChild(document.createTextNode(rest.slice(0, m.index)));
+            var sp = document.createElement('span');
+            sp.className = 'figref'; sp.textContent = m[1];
+            frag.appendChild(sp);
+            rest = rest.slice(m.index + m[0].length);
+          }
+          if (rest) frag.appendChild(document.createTextNode(rest));
+          node.parentNode.replaceChild(frag, node);
+        });
+      }
+      /* a phrase that opens a short aside, for a reader who wants to know why */
+      if (typeof b === 'object' && b.explain) {
+        Array.prototype.forEach.call(li.querySelectorAll('u.syl-u'), function (u) {
+          var e = b.explain[u.textContent.trim().toLowerCase()];
+          if (!e) return;
+          var j = document.createElement('button');
+          j.type = 'button'; j.className = 'xplain';
+          j.innerHTML = u.innerHTML + '<span class="xplain__a" aria-hidden="true">?</span>';
+          j.addEventListener('click', function () { openExplain(e); });
+          u.parentNode.replaceChild(j, u);
+        });
+      }
+      if (typeof b === 'object' && b.goto) {
+        Array.prototype.forEach.call(li.querySelectorAll('u.syl-u'), function (u) {
+          var to = b.goto[u.textContent.trim().toLowerCase()];
+          if (!to) return;
+          var j = document.createElement('button');
+          j.type = 'button'; j.className = 'goto'; j.setAttribute('data-goto', to);
+          j.setAttribute('aria-label', 'Go to it');
+          j.innerHTML = u.innerHTML + '<span class="goto__a" aria-hidden="true">↓</span>';
+          u.parentNode.replaceChild(j, u);
+        });
+      }
+      li.setAttribute('data-i', i);
+      /* A sentence with a heading is a card: its heading always shows, its words open one card at a time
+         (Daniel, 7 Oct 2026: less text beside the picture, one piece open at a time; memory explore-dont-scroll).
+         Opening a card shows its part in the picture; a part pressed in the picture opens its card (openGroup). */
+      if (typeof b === 'object' && b.head) makeCard(li, b.head);
+      if (offK) offAt[offK].push({ k: typeof b === 'object' && b.near != null ? b.near + 0.5 : i, li: li });
+      else list.appendChild(li);
+      /* the thing to press, drag or count sits under the sentence it belongs to */
+      widgets.filter(function (w) { return w.after === i; }).forEach(function (w) {
+        var el = window.Learn.widget(w, WIDGET_CTX);
+        if (el && w.anchor && el.setAttribute) el.setAttribute('data-anchor', w.anchor);
+        /* A tall, narrow diagram set under the sentence leaves a column of empty paper beside it.
+           Put it FIRST instead and let the sentence close round it — css floats it into the
+           margin. Everything else still sits under the sentence it belongs to. */
+        /* a tall picture, or a small one, stands beside its sentence (the CSS floats it), so the words wrap
+           round it instead of leaving white paper beside it (Daniel, 25 Sep) */
+        var into = li.__body || li;
+        if (el && el.classList && (el.classList.contains('photo--portrait') || el.classList.contains('photo--small'))) into.insertBefore(el, into.firstChild);
+        else into.appendChild(el);
+      });
+    });
+    widgets.filter(function (w) { return w.after == null; }).forEach(function (w) {
+      var el = window.Learn.widget(w, WIDGET_CTX);
+      if (el && w.anchor && el.setAttribute) el.setAttribute('data-anchor', w.anchor);
+      card.appendChild(el);
+    });
+    /* the card below reads in the station's order: a part moved out of sentence 3 comes after sentence 3 (`near`) */
+    ['old', 'beyond'].forEach(function (k) {
+      offAt[k].sort(function (x, y) { return x.k - y.k; }).forEach(function (x) { off[k].appendChild(x.li); });
+    });
+
+    var goldOld = null, goldExt = null;
+    if (st.learn && st.learn.golden) {
+      var g = document.createElement('div');
+      g.className = 'golden';
+      /* one mistake is a string; a station with more than one gives a list, one paragraph each */
+      var gs = [].concat(st.learn.golden).map(function (x) { return typeof x === 'object' ? x.text : x; });
+      var gExt = [].concat(st.learn.golden).every(function (x) { return typeof x === 'object' && x.ext; });
+      var gOld = !!(st.past && st.past.golden && !st.past.golden.from);
+      g.innerHTML = '<div class="golden__h">⬤ Check yourself — ' + (gs.length > 1 ? 'the mistakes students make here' : 'the mistake students make here') + (gOld ? ' ' + pastBadge(st.past.golden) : '') + '</div>' +
+        gs.map(function (para) { return '<p>' + (pastSplit(para, st.past && st.past.golden, M) || M(para)) + '</p>'; }).join('');
+      /* a mistake about something from an older syllabus goes with it, into the card below; so does a mistake
+         about something beyond the syllabus (`{ text, ext: true }`), into its part of that card */
+      if (gOld) goldOld = g; else if (gExt) goldExt = g; else card.appendChild(g);
+    }
+    if ((st.learn.examFocus || []).length) {
+      var ef = document.createElement('div');
+      ef.className = 'examfocus';
+      ef.innerHTML = '<div class="examfocus__h">In the exam — what to write here</div><ul>' +
+        st.learn.examFocus.map(function (b) {
+          var tag = typeof b === 'object' && b.tag ? '<b class="examfocus__tag">' + esc(b.tag) + '</b> ' : '';
+          return '<li>' + tag + esc(typeof b === 'string' ? b : b.text) + '</li>';
+        }).join('') + '</ul>';
+      card.appendChild(ef);
+    }
+    pane.appendChild(card);
+
+    /* the sentences that are not in the syllabus for 2026–2029, right below the ones that are */
+    if (off.old.children.length || off.beyond.children.length || goldOld || goldExt) {
+      var oc = document.createElement('div');
+      oc.className = 'card offsyl';
+      oc.innerHTML = '<div class="card__h">Not in the syllabus for 2026\u20132029</div>' +
+        /* Daniel, 28 Sep: not in the syllabus does not mean a question cannot lead there, and knowing it can be
+           what earns the last marks — so the card says so, and nothing in it says "you will not be asked" */
+        '<p class="offsyl__lead">Do not skip this card. The syllabus for 2026\u20132029 does not list these, but an exam question can still use them \u2014 and knowing them can be what earns you full marks.</p>';
+      if (off.old.children.length || goldOld) {
+        oc.insertAdjacentHTML('beforeend', '<div class="offsyl__h">In older syllabuses \u2014 you may see these in past papers</div>');
+        oc.appendChild(off.old);
+        if (goldOld) oc.appendChild(goldOld);
+      }
+      if (off.beyond.children.length || goldExt) {
+        oc.insertAdjacentHTML('beforeend', '<div class="offsyl__h">Beyond the syllabus \u2014 here to help you understand the rest</div>');
+        oc.appendChild(off.beyond);
+        if (goldExt) oc.appendChild(goldExt);
+      }
+      pane.appendChild(oc);
+    }
+
+    var further = (st.learn && st.learn.further) || [];
+    if (further.length) {
+      var L = document.createElement('div');
+      L.className = 'card later';
+      L.innerHTML = '<div class="card__h">Going further — links to other topics, IB, and beyond the syllabus</div>' +
+        '<ul class="later__list">' + further.map(function (x, j) {
+          var pid = st.past && st.past.further ? st.past.further[j] : null;   /* in an older 0610 syllabus: say which */
+          var kind = /^IB/.test(x.ref) ? ' later__ref--ib' : /^(Beyond|Not in)/.test(x.ref) ? ' later__ref--beyond' : '';
+          /* an entry may point at something outside the lab. It opens in a new tab, and the
+             link says so, because a student halfway through a station should not lose it. */
+          var body = M(x.text) + (x.url ? ' <a class="later__out" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.link || 'Watch it') + ' ↗</a>' : '');
+          return '<li>' + (pid != null && /^(Beyond|Not in)/.test(x.ref) ? pastBadge(pid, 'later__ref later__ref--old') : '<span class="later__ref' + kind + '">' + esc(x.ref) + '</span>' + (pid != null ? pastBadge(pid, 'later__ref later__ref--old') : '')) + body + '</li>';
+        }).join('') + '</ul>';
+      pane.appendChild(L);
+    }
+
+    if ((st.keywords || []).length) {
+      if (window.Terms) window.Terms.setQuiet(true);
+      var k = document.createElement('div');
+      k.className = 'card';
+      k.innerHTML = '<div class="card__h">Key words</div>' +
+        '<p class="kw-hint">Say the definition to yourself first, then turn the card.</p>' +
+        '<dl class="kw-grid">' +
+        st.keywords.map(function (w) {
+          var g2 = (window.GLOSSARY || []).filter(function (e) { return e.term.toLowerCase() === w.term.toLowerCase(); })[0] || {};
+          var tag = pastTerm(w.term) ? ' ' + pastBadge(pastTerm(w.term), 'tier tier--old') : g2.ext ? ' <span class="tier tier--ext tip" tabindex="0" data-tip="The 0610 syllabus does not name it, but it is useful to know: an exam question can still use it.">beyond 0610</span>'
+                  : g2.sup ? ' <span class="tier tier--sup tip" tabindex="0" data-tip="Supplement — Extended papers (2 and 4) only">Supplement</span>' : '';
+          return '<div class="kw kw--flip" role="button" tabindex="0" aria-expanded="false" data-kwcard="' + esc(w.term.toLowerCase()) + '">' +
+                 '<dt>' + M(w.term) + numberOf(g2) + tag + '</dt><p class="kw__ask">Do you know it? Tap to check</p><dd>' + M(w.def) + '</dd></div>';
+        }).join('') + '</dl>';
+      Array.prototype.forEach.call(k.querySelectorAll('.kw--flip'), function (c) {
+        var turn = function () { var o = c.classList.toggle('is-open'); c.setAttribute('aria-expanded', o ? 'true' : 'false'); };
+        c.addEventListener('click', function (e) { if (e.target.closest('[data-peek],[data-jump],[data-gloss],[data-stat],[data-kw],.tip')) return; turn(); });
+        c.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); turn(); } });
+      });
+      pane.appendChild(k);
+      if (window.Terms) window.Terms.setQuiet(false);
+    }
+  }
+
+  /* click any image to see it full size */
+  window.LabLightbox = function (src, cap, kind, credit) { lightbox(src, cap + (credit ? ' <span class="lens__credit">' + credit + '</span>' : ''), kind); };
+  function lightbox(src, cap, kind) {
+    var lb = document.getElementById('lightbox');
+    var st = lb.querySelector('.lb__stage');
+    st.innerHTML = '';
+    var im = new Image(); im.src = src; im.alt = '';
+    st.appendChild(im);
+    lb.querySelector('.lb__cap').innerHTML = '<span class="kindtag">' + esc(kind) + '</span> ' + cap;
+    lb.hidden = false;
+  }
+
+  /* The line at the top of a station's Practise tab. On a second go it says which go this is and
+     how the first go went (the honest measure); Practise again empties the page for another go.
+     The record keeps everything: the teacher's Score, homework and the hub read the best ever. */
+  function paintGoLine(pane, st) {
+    var sc = stationScore(st.id);
+    if (!(sc.go > 1 || sc.tried)) return;                 /* nothing answered yet: nothing to say */
+    var line = document.createElement('div');
+    line.className = 'goline' + (sc.go > 1 ? '' : ' goline--bare');   /* go 1: just the button, no box */
+    var txt = document.createElement('span');
+    /* "round", said once and the same everywhere a student reads it (a round = one time through the questions);
+       the first round is counted over the questions answered in it — never "0 of 12" for work not done */
+    if (sc.go > 1) txt.innerHTML = 'Round ' + sc.go + '.' + (sc.firstTried
+      ? ' In your first round you answered <b>' + sc.firstTried + '</b>; <b>' + sc.firstRight + '</b> ' + (sc.firstRight === 1 ? 'was' : 'were') + ' right at the first try.'
+      : ' Your record keeps everything you did before.');
+    line.appendChild(txt);
+    if (sc.tried && window.LabSync) {
+      var again = document.createElement('button');
+      again.type = 'button'; again.className = 'btn btn--quiet'; again.textContent = '\u21ba Start this station again';
+      again.addEventListener('click', function () {
+        if (!confirm('Start this station again?\n\nYour answers will be cleared from this page, so you can try the questions again. Your record keeps everything you have already done.')) return;
+        if (!window.LabSync.newGo(progress, st.id, S)) return;
+        save(); queueSave(true);
+        paintHeader(); paintRail(); paintPanel();
+        var tb = document.querySelector('.tabs .tab[aria-selected="true"]');   /* the button is gone: keep the keyboard in place */
+        if (tb) tb.focus();
+        toast('Round ' + stationScore(st.id).go + ' of ' + st.name + ' has started. Your record keeps everything you did before.');
+      });
+      line.appendChild(again);
+    }
+    /* Redo the ones you missed (Daniel, 8 Oct 2026): this round's questions answered right, but not at the first try, again
+       as practice (Engine.redo): nothing a redo does is recorded or sent */
+    var miss = missedNow(st);
+    if (miss.length && window.Engine && window.Engine.redo) {
+      var rd = document.createElement('button');
+      rd.type = 'button'; rd.className = 'btn btn--quiet'; rd.textContent = 'Redo the ' + miss.length + ' you missed';
+      rd.addEventListener('click', function () { redoOf = { id: st.id, list: missedNow(st), who: redoWho(), go: stationScore(st.id).go }; paintPanel(); });
+      line.appendChild(rd);
+    }
+    pane.appendChild(line);
+  }
+  var redoOf = null;          /* the redo on screen: { id, list, who, go } of one station, or null */
+  function redoWho() { return signIn && signIn.email ? String(signIn.email).toLowerCase() : ''; }
+  function missedNow(st) {
+    var rec = progress[st.id] || {}, out = [];
+    (st.activities || []).forEach(function (a, i) { if (rec.done && rec.done[i] && !(rec.one && rec.one[i])) out.push(i); });
+    return out;
+  }
+  function paintDo(pane, st) {
+    /* a redo belongs to one station, one pupil and one round: another station, another account (or none), Reset or a new
+       round ends it (the audit, 8 Oct 2026: pupil B saw pupil A's missed question) */
+    if (redoOf && (redoOf.id !== st.id || redoOf.who !== redoWho() || redoOf.go !== stationScore(st.id).go)) redoOf = null;
+    if (redoOf && window.Engine && window.Engine.redo) {
+      window.Engine.redo(pane, st, redoOf.list, function () { redoOf = null; paintPanel(); });
+      return;
+    }
+    paintGoLine(pane, st);
+    (st.activities || []).forEach(function (a, i) {
+      var card = window.Engine.render(a, i, st.id + ':' + i);
+      /* a question on something the syllabus for 2026–2029 does not include says which syllabus it comes from */
+      var pq = st.past && st.past.q ? st.past.q[i] : null;
+      if (pq != null) {
+        var qtop = card.querySelector('.act__top'), qn = qtop && qtop.querySelector('.act__n'), qbox = document.createElement('span');
+        qbox.innerHTML = pastBadge(pq, 'act__old');
+        if (qtop && qbox.firstChild) { if (qn) qn.insertAdjacentElement('afterend', qbox.firstChild); else qtop.appendChild(qbox.firstChild); }
+      }
+      if (p(st.id).done[i]) {
+        var tick = document.createElement('span');
+        tick.className = 'verdict ok'; tick.textContent = '✓ answered correctly earlier'; tick.style.marginLeft = 'auto';
+        var top = card.querySelector('.act__top');
+        if (top) top.appendChild(tick);
+      }
+      card.addEventListener('result', function (e) {
+        if (!e.detail) return;
+        var rec = p(st.id);
+        rec.per = rec.per || {};
+        rec.per[i] = (rec.per[i] || 0) + 1;
+        if (!rec.first) rec.first = Date.now();
+        rec.last = Date.now();
+        if (e.detail.correct && !rec.done[i] && rec.per[i] === 1 && !rec.tried[i]) { rec.one = rec.one || {}; rec.one[i] = true; }
+        rec.tried[i] = true;
+        if (e.detail.correct) rec.done[i] = true;
+        save(); paintHeader(); paintRail(); refreshTabCount();
+        var s = stationScore(st.id);
+        if (e.detail.correct && s.done === s.total) toast('Station complete: ' + st.name);
+      });
+      pane.appendChild(card);
+    });
+
+    var nav = document.createElement('div');
+    nav.className = 'act__foot'; nav.style.justifyContent = 'space-between';
+    var i = ORDER.indexOf(st.id);
+    if (i > 0) {
+      var prev = document.createElement('button');
+      prev.className = 'btn btn--ghost'; prev.textContent = '← ' + S[ORDER[i - 1]].name;
+      prev.addEventListener('click', function () { open(ORDER[i - 1]); });
+      nav.appendChild(prev);
+    }
+    if (i < ORDER.length - 1) {
+      var next = document.createElement('button');
+      next.className = 'btn'; next.textContent = 'Next: ' + S[ORDER[i + 1]].name + ' →';
+      if (i === 0) next.style.marginLeft = 'auto';   /* "Next" stays on the right on the first station too */
+      next.addEventListener('click', function () { open(ORDER[i + 1]); });
+      nav.appendChild(next);
+    }
+    pane.appendChild(nav);
+  }
+  function refreshTabCount() {
+    var sc = stationScore(current);
+    var n = document.querySelector('.tabs .tab:last-child .tab__n');
+    if (n) n.textContent = sc.done + '/' + sc.total;
+  }
+
+  /* ---------- open a station, or a group on the tree ---------- */
+  function open(id, focusTerm, cameFrom) {
+    if (!S[id]) return;
+    current = id;
+    tab = 'learn';
+    p(id).opened = true;
+    save();
+    if (window.Plate) window.Plate.showStation(S[id]);
+    paintPanel(); paintRail();
+    if (focusTerm) focusOnTerm(focusTerm, cameFrom);
+    if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id);
+  }
+  /* ---------- landing in the right place ----------
+     Following a word to another station used to CENTRE the paragraph it landed on, so on any
+     paragraph taller than half the panel the reader arrived in the middle of it and had to
+     scroll back up to find where it began. It now puts the START of the block just below the
+     top of the panel.
+
+     Two things have to be measured rather than assumed. The tab bar is position:sticky at
+     top:0 inside the panel, so anything scrolled to the panel's top edge lands underneath it;
+     and its height is not the same on a laptop, an iPad and a phone. And a picture above the
+     target can finish loading just after the scroll and push everything down, so the position
+     is re-applied on the next frame and once more a moment later. */
+  /* Which box actually scrolls. Below 1000px the panel is overflow:visible and .stage takes
+     over the scrolling, so scrolling #panel there moves nothing at all — which is why a jump
+     did nothing on an iPad held upright or on a phone. Never assume; walk up and find it. */
+  function scrollerFor(el) {
+    /* A box that scrolls but is not full yet still owns the scrolling. Right after a station is
+       painted its widgets and pictures have no height, so the panel briefly looks short — take it
+       anyway, or a click on the body scrolls the window, which does not move, and the reader is
+       left at the top of a station they asked to be shown the middle of. */
+    var loose = null;
+    for (var n = el.parentNode; n && n.nodeType === 1 && n !== document.body; n = n.parentNode) {
+      var oy = window.getComputedStyle(n).overflowY;
+      if (oy !== 'auto' && oy !== 'scroll') continue;
+      if (n.scrollHeight > n.clientHeight + 4) return n;
+      if (!loose) loose = n;
+    }
+    return loose || document.scrollingElement || document.documentElement;
+  }
+  /* The tab bar sticks to the top of that same box, so the first line a reader can actually
+     read starts below it, not at the box's top edge. */
+  function stickyInset(scroller) {
+    /* on a phone the plate is pinned above the notes, so the first readable line starts under it */
+    var inset = 0, plate = document.querySelector('.platecol');
+    if (plate && scroller.contains(plate) && window.getComputedStyle(plate).position === 'sticky') inset += Math.round(plate.getBoundingClientRect().height);
+    var tabs = document.querySelector('#panelInner .tabs');
+    if (!tabs || window.getComputedStyle(tabs).position !== 'sticky') return inset;
+    var tr = tabs.getBoundingClientRect(), sr = topOf(scroller);
+    return inset + (tr.height && tr.top <= sr + tr.height + 2 ? Math.round(tr.height) : 0);
+  }
+  function topOf(scroller) {
+    return scroller === document.scrollingElement || scroller === document.documentElement
+      ? 0 : scroller.getBoundingClientRect().top;
+  }
+  /* A word can send a reader into a section that is folded shut — a line can live inside
+     a closed <details>, and scrolling to something behind a shut disclosure scrolls to
+     nothing the reader can see. Open the way in first. */
+  function revealAncestors(target) {
+    for (var n = target.parentNode; n && n.nodeType === 1; n = n.parentNode) {
+      if (n.tagName === 'DETAILS' && !n.open) n.open = true;
+    }
+  }
+  function placeBlock(target, smooth, gap) {
+    revealAncestors(target);
+    var sc = scrollerFor(target);
+    var inset = stickyInset(sc) + (gap == null ? 14 : gap);
+    var prev = sc.style.scrollBehavior;
+    sc.style.scrollBehavior = smooth ? 'smooth' : 'auto';
+    sc.scrollTop += (target.getBoundingClientRect().top - topOf(sc)) - inset;
+    sc.style.scrollBehavior = prev || '';
+  }
+  /* Re-place on the next frame and again shortly after: a picture above the target often
+     finishes loading after the first scroll and pushes the paragraph back down the page. */
+  function landOn(target, smooth) {
+    placeBlock(target, smooth);
+    requestAnimationFrame(function () { placeBlock(target, false); });
+    setTimeout(function () { placeBlock(target, false); }, 160);
+    /* A widget or a photograph above the target keeps growing after the first scroll — a station
+       whose animation is still building can push the sentence a page and a half down. So keep
+       re-placing while the page above is still changing height, for up to a second and a half, and
+       stop the moment the reader scrolls for themselves. */
+    var h0 = -1, mine = -1, t0 = Date.now(), tries = 0;
+    (function again() {
+      setTimeout(function () {
+        if (!target.isConnected) return;
+        var sc = scrollerFor(target);                            /* re-asked each time: it can change */
+        if (mine >= 0 && Math.abs(sc.scrollTop - mine) > 2) return;   /* the reader has taken over */
+        if (sc.scrollHeight !== h0) { h0 = sc.scrollHeight; placeBlock(target, false); }
+        mine = sc.scrollTop;
+        if (++tries < 14 && Date.now() - t0 < 1600) again();
+      }, 110);
+    })();
+  }
+  /* A card opened by a press comes wholly into view (Daniel, 25 Oct 2026: "when you uncollapse or expand the section,
+     make sure that that section is completely visible"). Opening a card closes the one open above it, which moves the
+     page, so a card could open half off the screen. Now: a card already wholly in view stays where it is; one whose end
+     is below the view scrolls up just enough to show its end, but never so far that its top goes out of view; one
+     whose top is out of view, or that is taller than the view, comes to the top. Checked again a moment later (a
+     picture in the card may still be growing), unless the reader has scrolled by then. */
+  function showWhole(card, smooth) {
+    function place(sm) {
+      var sc = scrollerFor(card), box = sc === document.scrollingElement || sc === document.documentElement;
+      var top = topOf(sc) + stickyInset(sc) + 10, bottom = (box ? window.innerHeight : sc.getBoundingClientRect().bottom) - 10;
+      var r = card.getBoundingClientRect(), dy = 0;
+      if (r.top < top) dy = r.top - top;
+      else if (r.bottom > bottom) dy = Math.min(r.bottom - bottom, r.top - top);
+      if (Math.abs(dy) < 1) return sc.scrollTop;
+      var prev = sc.style.scrollBehavior;
+      sc.style.scrollBehavior = sm ? 'smooth' : 'auto';
+      sc.scrollTop += dy;
+      sc.style.scrollBehavior = prev || '';
+      return sc.scrollTop;
+    }
+    place(smooth);
+    var sc0 = scrollerFor(card), mine = null;
+    setTimeout(function () {
+      if (!card.isConnected) return;
+      mine = sc0.scrollTop;
+      setTimeout(function () { if (card.isConnected && Math.abs(sc0.scrollTop - mine) <= 2) place(false); }, 260);
+    }, 420);
+  }
+  function panelScroller() {
+    var inner = document.getElementById('panelInner');
+    return inner ? scrollerFor(inner) : (document.scrollingElement || document.documentElement);
+  }
+  function toStationTop() { var sc = panelScroller(); if (sc) sc.scrollTop = 0; }
+
+  /* A part pressed on the body. Daniel, 26 Sep: "when the student clicks that word, where is it taking
+     the student? Is the student going to learn more about that?" Three answers, in this order:
+       · the station being read explains it: the reader lands on that sentence, and stays in the station;
+       · its own station explains it: that station opens on the sentence, with a chip to go back;
+       · nothing in the lab explains it (a vessel beyond the syllabus): the body names it, with a line
+         on what it does, and the page stays where it is.
+     The body shows the part beside its sentence until the reader moves on; then the station's own
+     picture comes back (CircLearn.holdPlate). Which sentence answers which part is the `group` of a
+     sentence in stations.master.js; tools/build.mjs checks that every part has one or is meant to have none. */
+  function explains(id, gid) {
+    var st = S[id]; if (!st || !st.learn) return false;
+    function has(o) { return !!(o && typeof o === 'object' && o.group && [].concat(o.group).indexOf(gid) >= 0); }
+    return (st.learn.exam || []).some(function (b) { return has(b) || (b && b.list || []).some(has); });
+  }
+  /* o.stay: the press came from a control on the picture (a zoom, a ruler step, a chip, a thumbnail). On a phone the
+     picture sits above the words, so the card opens where it is and the page does not scroll away from the picture. */
+  function openGroup(gid, o) {
+    var stay = !!(o && o.stay) && !!(window.matchMedia && window.matchMedia('(max-width: 1000px)').matches);
+    var here = current, id = OWNER[gid];
+    var dest = explains(here, gid) ? here : (id && explains(id, gid) ? id : null);
+    if (dest && (dest !== here || tab !== 'learn')) {
+      if (dest !== here) markWhereWeAre();
+      current = dest; tab = 'learn'; p(dest).opened = true; save();
+      if (dest !== here && window.Plate) window.Plate.showStation(S[dest]);   /* the plate must hear of the new station too */
+      paintPanel(); paintRail();
+      if (dest !== here && S[here]) {
+        var G = window.Plate && window.Plate.draw() ? window.Plate.draw().G : {};
+        showBackChip(here, (G[gid] && G[gid].label) || gid);
+      }
+    }
+    if (window.Plate) window.Plate.focus(gid);
+    history.replaceState(null, '', '#' + gid);
+    var target = dest ? document.querySelector('#panelInner [data-group~="' + gid + '"]') : null;
+    if (target && target.__open) target.__open(true, true);
+    if (target && !stay) {
+      landOn(target, true);
+      target.classList.add('flash');
+      setTimeout(function () { target.classList.remove('flash'); }, 2800);
+    }
+  }
+
+  /* ---------- a sentence as a card ----------
+     The heading is a button; the words under it open on a press, one card at a time in the station. Opening
+     one shows its part in the picture (its `group`); closing it gives the whole picture back. */
+  function makeCard(li, head) {
+    var body = document.createElement('div');
+    body.className = 'xcard__b';
+    while (li.firstChild) body.appendChild(li.firstChild);
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'xcard__h'; btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<span class="xcard__t">' + esc(head) + '</span><span class="xcard__a" aria-hidden="true"></span>';
+    li.classList.add('xcard');
+    li.appendChild(btn); li.appendChild(body);
+    body.hidden = true;
+    li.__body = body;
+    li.__open = function (on, fromPicture) {
+      if (on) Array.prototype.forEach.call(document.querySelectorAll('#panelInner .xcard.is-open'), function (o) { if (o !== li && o.__open) o.__open(false, true); });
+      li.classList.toggle('is-open', !!on);
+      body.hidden = !on;
+      btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+      if (!fromPicture && window.Plate) window.Plate.focus(on ? (li.getAttribute('data-group') || '').split(' ')[0] || null : null);
+    };
+    btn.addEventListener('click', function () {
+      var on = !li.classList.contains('is-open');
+      li.__open(on);
+      if (on) showWhole(li, true);
+    });
+  }
+
+  /* Plurals English refuses to make regularly, and which this lab uses constantly. */
+  var SAME_WORD = { atria: 'atrium', arteries: 'artery', capillaries: 'capillary', veins: 'vein', valves: 'valve', ventricles: 'ventricle',
+    nuclei: 'nucleus', alleles: 'allele', chromosomes: 'chromosome', genes: 'gene', genotypes: 'genotype', phenotypes: 'phenotype',
+    gametes: 'gamete', zygotes: 'zygote', ribosomes: 'ribosome', proteins: 'protein', carriers: 'carrier' };
+
+  /* An element's words, with a space at every child boundary. Read straight off textContent,
+     a badge letter in its own <span> glues itself to the first word — "SClassification
+     systems" — and a whole-word search then fails on a word that is plainly there. */
+  function wordsOf(el) {
+    var out = '', w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false), n;
+    while ((n = w.nextNode())) out += ' ' + n.nodeValue;
+    return out.replace(/\s+/g, ' ').trim();
+  }
+
+  function focusOnTerm(term, cameFrom) {
+    var low = String(term).toLowerCase().trim();
+    var esc = function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+    var whole = function (t) { return new RegExp('(?<![A-Za-z0-9-])' + esc(t) + '(?![A-Za-z0-9-])', 'i'); };
+    var starts = function (t) { return new RegExp('(?<![A-Za-z0-9-])' + esc(t), 'i'); };
+
+    /* Tried in order, most exact first. A reader clicking "ancestry" is sent to the station
+       that says "ancestor", "genera" to the one that says "genus", "animal kingdom" to the
+       line about animals. Without these, nine words arrived with nothing found and nothing
+       highlighted, which leaves a reader at the top of a station wondering why. */
+    var tries = [whole(low)];
+    if (SAME_WORD[low]) tries.push(whole(SAME_WORD[low]));
+    var trimmed = low.replace(/(ies|es|ing|ed|al|ic|um|s|y)$/, '');
+    if (trimmed.length >= 4 && trimmed !== low) tries.push(starts(trimmed));
+    if (low.length >= 7) tries.push(starts(low.slice(0, 6)));
+    if (/ /.test(low)) tries.push(whole(low.split(' ')[0]));
+
+    /* Where to look, best first: the keyword card that defines it, then the lines a student
+       reads, then anything else on the station that names it. */
+    var ORDER = [
+      ['#panelInner .kw', function (el) { return el.querySelector('dt') || el; }],
+      ['#panelInner .exam-list > li', null],
+      ['#panelInner .later__list li', null],
+      ['#panelInner li', null],
+      ['#panelInner .st-sub, #panelInner .card p, #panelInner .widget__note, #panelInner p', null],
+      ['#panelInner td, #panelInner th', null]
+    ];
+    function firstIn(sel, re, pick) {
+      var els = document.querySelectorAll(sel);
+      for (var i = 0; i < els.length; i++) {
+        var probe = pick ? pick(els[i]) : els[i];
+        if (probe && re.test(wordsOf(probe))) return els[i];
+      }
+      return null;
+    }
+    var target = null, t, k;
+    for (t = 0; t < tries.length && !target; t++)
+      for (k = 0; k < ORDER.length && !target; k++) target = firstIn(ORDER[k][0], tries[t], ORDER[k][1]);
+    /* a table cell is not a paragraph: take the whole table, so the headings come with it */
+    if (target && /^(TD|TH)$/.test(target.tagName)) target = target.closest('.ctable') || target.closest('table') || target;
+
+    if (!target) {
+      /* nothing on this station names it. Start the reader at the beginning rather than
+         leaving them wherever the previous scroll happened to be. */
+      toStationTop();
+      if (cameFrom && S[cameFrom]) showBackChip(cameFrom, term);
+      return;
+    }
+    /* arriving from another station: there is nothing to animate from, so land instantly */
+    landOn(target, cameFrom == null);
+    target.classList.add('flash');
+    setTimeout(function () { target.classList.remove('flash'); }, 2800);
+    if (cameFrom && S[cameFrom]) showBackChip(cameFrom, term);
+  }
+
+  var backChip = null, whereWeWere = null;
+  function jumpTo(el, top) { var prev = el.style.scrollBehavior; el.style.scrollBehavior = 'auto'; el.scrollTop = top; el.style.scrollBehavior = prev || ''; }
+  function markWhereWeAre() { var sc = panelScroller(); whereWeWere = { id: current, top: sc ? sc.scrollTop : 0, tab: tab }; }
+  function goBackToMark(id) {
+    var w = whereWeWere && whereWeWere.id === id ? whereWeWere : null;
+    open(id);
+    if (!w) return;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { var sc = panelScroller(); if (sc) jumpTo(sc, w.top); }); });
+  }
+  function showBackChip(id, term) {
+    if (backChip) backChip.remove();
+    var b = document.createElement('button');
+    b.className = 'backchip'; b.innerHTML = '← back to ' + esc(S[id].name); b.setAttribute('aria-label', 'Back to ' + S[id].name + ': you followed "' + term + '" from there');
+    b.addEventListener('click', function () { b.remove(); backChip = null; goBackToMark(id); });
+    document.getElementById('panel').appendChild(b);
+    backChip = b;
+    setTimeout(function () { if (backChip === b) b.classList.add('is-fading'); }, 9000);
+    setTimeout(function () { if (backChip === b) { b.remove(); backChip = null; } }, 11000);
+  }
+
+  /* ---------- whose work this is, and saving it ----------
+     The lab is public and stays public: anyone may work through it. Signing in with the school
+     Google account is what lets the work be recorded, so Dr Mompel's spreadsheet holds his own
+     students and nobody else's. There is nothing to hand in: signed in, the work is sent to the
+     records on its own — two minutes after the last check, and at once when the lab is finished
+     or the page is left. Work done signed out stays in this browser and goes the moment they
+     sign in. The records only ever grow: a save can never take a right answer away.
+
+     One sign-in for the whole site, kept by js/signin.js (shared, from labs-shared/): a student
+     who signed in on the Biology Hub or in another lab is already known here, and signing in
+     here signs them in there. It is remembered after Google's hour is up — `signIn` is who, and
+     haveToken() says whether their token is still good — and renewed without a click when
+     Google allows, so a student is not asked again every hour. */
+  var SI = window.SignIn || null;
+  var CID = (window.LAB_CONFIG || {}).googleClientId || '';
+  var signIn = SI ? SI.who() : null;
+  var LAB_ID = LAB;
+  var afterSignIn = null;
+  /* ---------- a shared computer ----------
+     This browser's work belongs to the account it was last saved for. Another account signing in must not have
+     it pushed into THEIR record — it is safe in its owner's already — so it leaves this browser first. Work done
+     signed out, before anybody signed in here, has no owner yet and goes to the first account that signs in
+     (as ever). "Clear this computer", in the save window, empties the browser by hand. (Review, 27 Sep 2026:
+     Reset used to be the only way to clear a shared computer, and Reset now keeps the record.)
+     It is safe in its owner's record only if every answer reached it. UNSENT_KEY says whether some has not:
+     every change sets it (queueSave), and a save the records took, with nothing left waiting, clears it
+     (flushSave), so the message the next account sees is true either way. And signing out sends what is still
+     waiting first, while that account's sign-in still works (onSignIn). The same as the Bio English Lab (30 Sep 2026). */
+  var OWNER_KEY = LAB_ID + '.owner', UNSENT_KEY = LAB_ID + '.unsent';
+  function markUnsent(on) { try { if (on) localStorage.setItem(UNSENT_KEY, '1'); else localStorage.removeItem(UNSENT_KEY); } catch (e) {} }
+  function unsentHere() { try { return !!localStorage.getItem(UNSENT_KEY); } catch (e) { return true; } }
+  function clearHere() {
+    progress = {}; markUnsent(false);
+    /* their whole-lab resets go with their work; and "Saved ✓ hh:mm" was theirs, not the next pupil's (7 Oct 2026) */
+    if (window.LabSync && window.LabSync.clearResets) window.LabSync.clearResets(LAB_ID);
+    else { try { localStorage.removeItem(LAB_ID + '.resets'); } catch (e) {} }
+    savedAt = null;
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    paintHeader(); paintRail(); paintPanel();
+  }
+  /* the page drawn again for the work it now holds */
+  function repaintAfterClaim() { paintHeader(); paintRail(); paintPanel(); }
+  /* Whose work THIS page holds in memory: the stored owner it was loaded with, then each pupil it is claimed for; a
+     sign-out never clears it. Two tabs of a lab share the stored owner, so another tab that had already claimed this
+     browser for the next pupil hid the last pupil's work still in this page's memory, and it went to the next pupil's
+     record (the sign-in audit, 7 Oct 2026). */
+  var pageOwner = '';
+  try { pageOwner = localStorage.getItem(OWNER_KEY) || ''; } catch (e) {}
+  function claimFor(email) {
+    var was = '';
+    try { was = localStorage.getItem(OWNER_KEY) || ''; } catch (e) {}
+    if (email && pageOwner && pageOwner !== email && was === email) {
+      /* another tab has claimed this browser for them already, and keeps their copy here: this page takes that copy and
+         lets the last pupil's go (it is in their record, or waits in their own tab) */
+      progress = load(); reconcile(); savedAt = null; savePending = false; markUnsent(false); pageOwner = email;
+      repaintAfterClaim();
+      return;
+    }
+    if (email) pageOwner = email;
+    if (was && email && was !== email) {
+      var unsent = unsentHere() || !!savePending || !!saving;
+      clearHere();
+      if (unsent) toast('This computer had another student\u2019s work, and some of it may not have been saved to their record. It has been removed from this computer, and none of it was added to yours.', 10000);
+      else toast('This computer had another student\u2019s work. It stays in their record; it was not added to yours.');
+    }
+    try { if (email) localStorage.setItem(OWNER_KEY, email); } catch (e) {}
+  }
+  function mountSignIn(el) {
+    return !!(CID && SI && SI.button(el, CID, { theme:'outline', size:'large', text:'signin_with', width: 260, locale:'en-GB' }));
+  }
+  /* "not you?" signs out everywhere on the site: the hub, every lab (an expired sign-in is renewed in place: fillSaveDialog) */
+  function signOut() {
+    if (savePending && !saving && canSend()) flushSave();   /* what waits goes first, while its sign-in or pass still works */
+    if (SI) SI.out(); else { signIn = null; paintSaveChip(); fillSaveDialog(); }
+  }
+  /* The sign-in changed — in this page, or in another tab of the site. A sign-in that was not
+     there before brings their records back, then sends what was done here. */
+  function onSignIn(v, here) {
+    var was = signIn && signIn.email;
+    /* signed out (here, or in another tab of the site), or another account signed in: what is still waiting
+       goes first, with the sign-in it belongs to, while that still works. Once it is gone it cannot be sent. */
+    if (was && (!v || v.email !== was) && savePending && !saving && haveToken()) flushSave();
+    /* the same pupil with a new sign-in (Google's button pressed again, a renewal, the hub in another tab): what could not
+       be sent while the old one had expired goes now, the records first (6 Oct 2026; before, only another account did) */
+    var again = !!v && v.email === was && SI.fresh(v) && (saveWhy === 'stale' || savePending || unsentHere());
+    signIn = v;
+    if (v && SI.fresh(v) && saveWhy === 'stale') saveWhy = '';
+    paintSaveChip();
+    var dlg = document.getElementById('subDlg');
+    if (dlg && !dlg.hidden) fillSaveDialog();
+    if (v && SI.fresh(v) && v.email !== was) { claimFor(v.email); pullThenPush(); }
+    else if (again) pullThenPush();
+    if (v && here && afterSignIn && SI.fresh(v)) { var next = afterSignIn; afterSignIn = null; next(); }
+  }
+  if (SI) SI.on(onSignIn);
+
+  function snapshotNow() {
+    return (window.LabSync && window.LabSync.snapshot)
+      ? window.LabSync.snapshot(progress, S, ORDER, stationSig) : '';
+  }
+  function syncEnabled() { return !!((window.LAB_CONFIG || {}).submitUrl && window.LabSync); }
+  function haveToken() { return !!(SI && SI.fresh(signIn)); }
+  /* The labs script's own pass (6 Oct 2026; js/signin.js): after Google's hour it still carries this pupil's saves and their
+     own records. Only ever the pass made for the account signed in HERE, so another account's never goes with this work. */
+  function passFor(v) { var p = SI && SI.pass ? SI.pass() : null; return (p && v && p.email === v.email) ? p.pass : ''; }
+  function canSend() { return haveToken() || !!passFor(signIn); }
+
+  /* Ask Google for a sign-in — for the same account, when one is remembered — then come back
+     and finish. One Tap can be refused by the browser; `failed` hears why. */
+  function signInThen(fn, failed) {
+    afterSignIn = fn;
+    if (!CID || !SI) { if (failed) failed('unavailable'); return; }
+    SI.renew(CID, function (v, why) {
+      if (v) { if (afterSignIn === fn) { signIn = v; afterSignIn = null; fn(); } return; }
+      if (why === 'signed out') return;
+      if (failed) failed(why);
+    });
+  }
+
+  /* ---------- bringing work back ----------
+     What the records hold for this lab, folded in. js/sync.js only ever adds: a question right
+     on either machine stays right. */
+  function applySnap(mine, quiet) {
+    if (!mine) return;
+    var L = window.LabSync;
+    /* this go first (it may move a station on to a newer go), then the first go and the best */
+    var here = mine.here != null ? mine.here : mine.snap;      /* `here`: this go, from a script that knows goes */
+    var res = here ? L.merge(progress, here, S, stationSig) : { added: 0, stations: 0, skipped: [], newer: 0 };
+    var more = (mine.first && L.mergeFirst ? L.mergeFirst(progress, mine.first, S, stationSig) : 0) +
+               (mine.best && L.mergeBest ? L.mergeBest(progress, mine.best, S, stationSig) : 0) +
+               /* every round and its checks (7 Oct 2026): after merge(), which moves a station on to the records' round */
+               (mine.rounds && L.mergeRounds ? L.mergeRounds(progress, mine.rounds, S, stationSig) : 0);
+    if (mine.resets && L.resets) L.resets(LAB_ID, false, mine.resets);
+    if (res.added || res.newer || more) { save(); reconcile(); paintHeader(); paintRail(); paintPanel(); refreshTabCount(); }
+    if (!quiet || res.added || res.newer) toast(L.say(res));
+  }
+  function pull(then) {
+    if (!syncEnabled() || !canSend()) { if (then) then(); return; }
+    /* an answer for a pupil who is no longer the one signed in here is dropped, and nothing goes on from it: another account
+       signing in while it was on its way must never have the first one's records (audit, 6 Oct 2026) */
+    var asked = signIn.email, still = function () { return !!signIn && signIn.email === asked; };
+    fetch((window.LAB_CONFIG || {}).submitUrl, {
+      method:'POST', mode:'cors', headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action:'progress', token: signIn.token, pass: passFor(signIn) })
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!still()) return;
+        var mine = j && j.ok && j.labs && j.labs[LAB_ID]; applySnap(mine, true);
+        /* and their homework here, which the same answer carries (a script from before sends none) */
+        if (window.LabHomework) window.LabHomework.take(j && j.ok ? j.homework : null, signIn && signIn.email);
+        /* the teacher's accommodation for this pupil (8 Oct 2026): help after a second wrong try (engine.js LabHelp) */
+        if (window.LabHelp) window.LabHelp.set(!!(j && j.ok && j.acc), signIn && signIn.email);
+      })
+      .catch(function () {})
+      .then(function () { if (then && still()) then(); });
+  }
+  /* Signed in: their records first, so nothing here is older than what is there; then whatever
+     this browser has that the records do not. */
+  function pullThenPush() { pull(function () { queueSave(true); }); }
+  /* Homework set for this pupil in this lab (Daniel, 29 Sep 2026): its stations coloured on the row, and a note once a
+     day with what is still to do. Scored by the teacher's rule; the shared code is labs-shared/engine/homework.js. */
+  if (window.LabHomework) window.LabHomework.init({ lab: LAB_ID,
+    score: function (id) { var s = stationScore(id); return { done: s.best, total: s.total }; },
+    name: function (id) { return S[id] ? S[id].name : ''; },
+    open: function (id) { open(id); },
+    repaint: function () { paintRail(); } });
+  if (SI && SI.passFrom && syncEnabled()) SI.passFrom((window.LAB_CONFIG || {}).submitUrl);   /* the script's pass, when it is due */
+  if (signIn && syncEnabled()) {
+    claimFor(signIn.email);
+    if (canSend()) pullThenPush();
+    /* opened on an expired sign-in that Google will not renew without a click: the chip says "Sign in again" at once, never
+       "Saves as you go", because nothing can be sent until the pupil does (6 Oct 2026) */
+    else if (SI && CID) SI.renew(CID, function (v) {
+      /* only ever the same pupil's renewal (audit, 6 Oct 2026), and "Sign in again" only when nothing can be sent */
+      if (v && (!signIn || v.email === signIn.email)) { signIn = v; pullThenPush(); }
+      else if (signIn && !canSend()) { saveWhy = 'stale'; paintSaveChip(); }
+    });
+  }
+
+  /* ---------- saving on its own ----------
+     Two minutes after the last check, one save carries everything since. Forty students on one
+     script is comfortable at that pace; a save that finds the records busy simply goes again a
+     minute later, and nothing is lost meanwhile because this browser keeps its own copy. */
+  var SAVE_AFTER = 120000, RETRY_AFTER = 60000;
+  var saveTimer = null, savePending = false, saving = false, savedAt = null, saveWhy = '', lastSent = '', lastScore = -1, askedAgain = false;
+  function queueSave(now) {
+    markUnsent(true);                        /* until a save the records take: see flushSave */
+    if (!syncEnabled()) return;
+    savePending = true;
+    paintSaveChip();
+    if (now) { clearTimeout(saveTimer); saveTimer = null; flushSave(); return; }
+    if (!saveTimer) saveTimer = setTimeout(function () { saveTimer = null; flushSave(); }, SAVE_AFTER);
+  }
+  function retryLater() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () { saveTimer = null; flushSave(); }, RETRY_AFTER);
+  }
+  function payloadNow() {
+    var t = totals(), perStation = {};
+    /* each station as the record keeps it: best ever, and every check of every go (this browser's and the records') */
+    ORDER.forEach(function (id) {
+      var s = stationScore(id);
+      perStation[id] = s.best + '/' + s.total + (s.checks ? ' in ' + s.checks : '');
+    });
+    var name = signIn ? signIn.name : '';
+    return { app: LAB_ID, token: signIn ? signIn.token : '', pass: passFor(signIn), name: name, form: '',
+             score: t.done, total: t.total, complete: t.done === t.total,
+             checks: t.checks, firstTime: t.first1, tried: t.tried,
+             from: t.from ? new Date(t.from).toISOString() : '', stations: perStation,
+             snap: snapshotNow(),
+             first: window.LabSync && window.LabSync.firstSnapshot ? window.LabSync.firstSnapshot(progress, S, ORDER, stationSig) : '',
+             best: window.LabSync && window.LabSync.bestSnapshot ? window.LabSync.bestSnapshot(progress, S, ORDER, stationSig) : '',
+             /* every round of every station, small, with its checks at each question; and how often the whole lab was reset */
+             rounds: window.LabSync && window.LabSync.roundsSnapshot ? window.LabSync.roundsSnapshot(progress, S, ORDER, stationSig) : '',
+             resets: window.LabSync && window.LabSync.resets ? window.LabSync.resets(LAB_ID) : 0,
+             at: new Date().toISOString() };
+  }
+  /* What a save says, for telling whether the records have it already: a check changes the rounds even when no letter moves
+     (up to 35 checks at one question in a round: one character holds no more, and the count past it travels with the
+     station's total) */
+  function sentKey(p) { return p.snap + '|' + (p.rounds || '') + '|' + (p.resets || 0); }
+  /* What the records said when they would not keep it, as a state the chip can show. */
+  function whyNot(reply) {
+    var r = String(reply || '').trim();
+    if (/^not recorded: sign-in is not set up/.test(r)) return 'setup';
+    if (/^not recorded: not signed in/.test(r)) return 'stale';
+    if (/^not recorded: not on this class list/.test(r)) return 'list';
+    if (/^busy/.test(r)) return 'busy';
+    if (/^rejected/.test(r)) return 'rejected';
+    return 'other';
+  }
+  function renewThenSave() {
+    if (askedAgain) { paintSaveChip(); return; }
+    askedAgain = true; setTimeout(function () { askedAgain = false; }, 60000);
+    SI.renew(CID, function (v) { if (v && (!signIn || v.email === signIn.email)) { signIn = v; saveWhy = ''; flushSave(); } else paintSaveChip(); });   /* the same pupil only */
+  }
+  function flushSave(leaving) {
+    if (!savePending || !syncEnabled() || saving) return;
+    if (!signIn) { saveWhy = 'signin'; paintSaveChip(); return; }          /* kept here until they sign in */
+    if (!canSend()) { saveWhy = 'stale'; if (!leaving) renewThenSave(); else paintSaveChip(); return; }
+    var payload = payloadNow();
+    if (!payload.snap && !payload.score && !payload.checks) { savePending = false; saveWhy = ''; markUnsent(false); paintSaveChip(); return; }   /* nothing done yet: nothing to send */
+    if (sentKey(payload) === lastSent && payload.score <= lastScore) { savePending = false; saveWhy = ''; markUnsent(false); paintSaveChip(); return; }   /* the records have it already */
+    saving = true; savePending = false; saveWhy = ''; paintSaveChip();
+    var opts = { method:'POST', mode:'cors', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) };
+    if (leaving) opts.keepalive = true;
+    fetch((window.LAB_CONFIG || {}).submitUrl, opts)
+      .then(function (r) { return r.text(); })
+      .then(function (reply) {
+        saving = false;
+        var r = String(reply || '').trim();
+        if (/^recorded/.test(r)) {
+          savedAt = new Date(); lastSent = sentKey(payload); lastScore = payload.score; saveWhy = '';
+          try { localStorage.setItem(LAB_ID + '.submitted', JSON.stringify({ at: payload.at, sent: true, name: payload.name })); } catch (e) {}
+          if (savePending) queueSave();          /* something changed while it was on its way */
+          else markUnsent(false);                /* everything done here is in the records */
+        } else {
+          saveWhy = whyNot(r); savePending = true;
+          if (saveWhy === 'stale' && payload.pass && SI && SI.dropPass) SI.dropPass(payload.pass);   /* the script refused that pass (🔑): sign in again */
+          if (saveWhy === 'busy' || saveWhy === 'other') retryLater();
+          else if (saveWhy === 'stale' && signIn) renewThenSave();   /* signed out since it left: nobody to renew */
+        }
+        paintSaveChip();
+      })
+      .catch(function () { saving = false; savePending = true; saveWhy = 'offline'; paintSaveChip(); retryLater(); });
+  }
+  addEventListener('pagehide', function () { if (savePending && !saving) flushSave(true); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden' && savePending && !saving) flushSave(true);
+  });
+
+  /* ---------- the chip in the header, and what opens from it ---------- */
+  function hhmm(d) { return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+  function paintSaveChip() {
+    var b = document.getElementById('btnSubmit'); if (!b) return;
+    if (!syncEnabled()) { b.hidden = true; return; }
+    b.hidden = false;
+    var cls = 'hbtn hbtn--save tip tip--right', text, tip;
+    if (!signIn) { cls += ' is-off'; text = 'Sign in to save'; tip = 'Your work stays in this browser until you sign in with your school account. Sign in and it goes to Dr Mompel’s records — what you have done already, too.'; }
+    else if (saving) { cls += ' is-busy'; text = 'Saving…'; tip = 'Sending your work to Dr Mompel’s records.'; }
+    else if (saveWhy === 'list') { cls += ' is-no'; text = 'Not on the class list'; tip = 'The account you signed in with is not on Dr Mompel’s class list, so nothing is recorded for it. Your work stays in this browser.'; }
+    else if (saveWhy === 'setup') { cls += ' is-no'; text = 'Not being collected'; tip = 'The records do not accept sign-ins yet. Your work stays in this browser.'; }
+    else if (saveWhy === 'stale') { cls += ' is-no'; text = 'Sign in again'; tip = 'Your Google sign-in has expired (it lasts about an hour). Press here to sign in again. Nothing is lost: your work is sent after you sign in.'; }
+    else if (saveWhy === 'offline') { cls += ' is-no'; text = 'Offline · will retry'; tip = 'Could not reach the records. Your work is kept here and sent again in a minute.'; }
+    else if (saveWhy === 'rejected') { cls += ' is-no'; text = 'Not saved'; tip = 'The records would not accept this. Show your teacher.'; }
+    else if (savePending) { cls += ' is-busy'; text = 'Saving…'; tip = 'Sent to Dr Mompel’s records within two minutes, and immediately when you finish or leave.'; }
+    else if (savedAt) { cls += ' is-ok'; text = 'Saved ✓ ' + hhmm(savedAt); tip = 'In Dr Mompel’s records. Every check is sent automatically — you do not need to submit anything.'; }
+    else { cls += ' is-ok'; text = 'Saves as you go'; tip = 'Signed in: every check is sent to Dr Mompel’s records automatically — you do not need to submit anything.'; }
+    /* a phone: the shorter words, so the header's buttons fit on one row under the name (8 Oct 2026) */
+    if (window.matchMedia && window.matchMedia('(max-width: 540px)').matches) {
+      var SHORT = { 'Sign in to save': 'Sign in', 'Saves as you go': 'Saving on', 'Offline · will retry': 'Offline', 'Not on the class list': 'Not on list', 'Not being collected': 'Not collected' };
+      if (SHORT[text]) text = SHORT[text];
+    }
+    b.className = cls; b.textContent = text; b.setAttribute('data-tip', tip);
+  }
+  function openSaveDialog() {
+    var dlg = document.getElementById('subDlg'); if (!dlg) return;
+    fillSaveDialog();
+    dlg.hidden = false;
+    if (signIn && !canSend() && SI && CID) SI.renew(CID, function () {});
+    document.getElementById('subClose').onclick = function () { dlg.hidden = true; };
+    dlg.onclick = function (e) { if (e.target === dlg) dlg.hidden = true; };
+  }
+  function saveLine() {
+    if (saving) return 'Saving…';
+    if (saveWhy === 'list') return 'The account you signed in with (' + esc(signIn.email) + ') is not on the class list, so nothing is recorded for it. The list is matched on email address, not on name.';
+    if (saveWhy === 'setup') return 'The records do not accept sign-ins yet, so nothing is recorded. Show your teacher this message.';
+    if (saveWhy === 'offline') return 'Could not reach the records just now. Your work is kept here and sent again in a minute.';
+    if (saveWhy === 'stale') return 'Your sign-in has expired. Sign in again and your work is sent.';
+    if (saveWhy === 'rejected') return 'The records would not accept this. Show your teacher.';
+    if (savePending) return 'What you have done since the last save is sent within two minutes.';
+    if (savedAt) return 'Saved at ' + hhmm(savedAt) + '. Everything you have done here is in the records.';
+    return 'Saves as you go.';
+  }
+  function fillSaveDialog() {
+    var body = document.getElementById('subBody'), go = document.getElementById('subGo');
+    if (!body || !go) return;
+    var cfg = window.LAB_CONFIG || {}, t = totals();
+    var sofar = '<p class="st-sub"><b>' + t.done + '</b> of <b>' + t.total + '</b> right so far, in <b>' + t.checks + '</b> check' + (t.checks === 1 ? '' : 's') + '.</p>';
+    if (!cfg.googleClientId || !syncEnabled()) {
+      body.innerHTML = sofar + '<p class="fineprint">This copy of the lab is not connected to a teacher’s records, so your work stays in this browser.</p>';
+      go.style.display = 'none'; return;
+    }
+    if (signIn) {
+      var stale = !canSend();
+      /* an expired sign-in: Google's own button, here, for one press; the same pupil carries on and onSignIn sends what waits.
+         Until 6 Oct 2026 "sign in again" signed the pupil out first, so it took two presses and a second look */
+      body.innerHTML = sofar +
+        '<div class="who">Saving as <b>' + esc(signIn.name) + '</b><button type="button" class="tourcard__link" id="subOut">not you?</button></div>' +
+        (stale ? '<p class="submsg no">Your Google sign-in has expired: it lasts about an hour, and a lab takes longer than that. Sign in again below. Nothing is lost: your work is sent after you sign in.</p><div id="subWho" class="signinbox"></div>'
+               : '<p class="submsg' + (saveWhy && saveWhy !== 'signin' ? ' no' : ' ok') + '">' + saveLine() + '</p>') +
+        '<p class="fineprint">Every check is sent to Dr&nbsp;Mompel’s records automatically — within two minutes, and immediately when you finish or leave. You do not need to submit anything. If you are on his class list it is added to his records; if you are not — anyone in the world is welcome here — nothing is recorded anywhere.</p>';
+      go.style.display = (savePending || saveWhy) && !stale ? '' : 'none'; go.textContent = 'Save now';
+      go.onclick = function () { queueSave(true); fillSaveDialog(); };
+      document.getElementById('subOut').onclick = signOut;
+      if (stale && !mountSignIn(document.getElementById('subWho'))) {
+        document.getElementById('subWho').innerHTML = '<p class="fineprint">Google sign-in could not load here — offline, or a school filter has blocked accounts.google.com. Your work stays in this browser; sign in later and it is sent then.</p>';
+      }
+      return;
+    }
+    body.innerHTML = sofar +
+      '<p class="fineprint">Sign in with your school Google account and your work is sent to Dr&nbsp;Mompel’s records while you work — what you have done here already is sent too. The lab is open to everyone; signing in is only how a result reaches his records.</p>' +
+      '<div id="subWho" class="signinbox"></div>' +
+      (t.tried ? '<p class="fineprint">Not your work? <button type="button" class="tourcard__link" id="subClear">Clear this computer</button> \u2014 the answers kept in this browser are removed; nothing in anybody\u2019s record changes.</p>' : '');
+    go.style.display = 'none';
+    var clr = document.getElementById('subClear');
+    if (clr) clr.onclick = function () {
+      if (!confirm('Clear this computer?\n\nThe answers kept in this browser are removed. Nothing in anybody\u2019s record changes.')) return;
+      clearHere();
+      try { localStorage.removeItem(OWNER_KEY); } catch (e) {}
+      fillSaveDialog();
+      toast('Cleared. This computer keeps no answers now.');
+    };
+    if (!mountSignIn(document.getElementById('subWho'))) {
+      document.getElementById('subWho').innerHTML = '<p class="fineprint">Google sign-in could not load here — offline, or a school filter has blocked accounts.google.com. Your work stays in this browser; sign in later and it is sent then.</p>';
+    }
+  }
+
+  /* ---------- clicking a highlighted word ---------- */
+  var peekEl = null;
+  function closePeek() { if (peekEl) { peekEl.remove(); peekEl = null; } }
+  function openPeek(el) {
+    closePeek();
+    var host = document.getElementById('panelInner');
+    var src = el.getAttribute('data-peek'), note = el.getAttribute('data-note'), credit = el.getAttribute('data-credit');
+    var pk = document.createElement('div');
+    pk.className = 'peek';
+    /* the same box reservation the finder pictures get: without it the note under the picture
+       jumps down the moment the file lands */
+    var pkw = (window.PHOTO_SIZE || {})[src] || (window.PHOTO_SIZE || {})[String(src).replace(/-900\.jpg$/, '')];
+    /* "fig:name" draws one of the lab's own diagrams instead of a photograph. Some things
+       cannot be photographed at all — a plasmid is inside a cell and far below the resolution
+       of any school microscope — and showing a picture of the outside of a bacterium under the
+       word "plasmids" teaches nothing. */
+    var art = '';
+    if (String(src).slice(0, 4) === 'fig:') {
+      art = '<div class="peek__fig">' + (window.Learn ? window.Learn.svgFor(String(src).slice(4)) : '') + '</div>';
+      pk.className += ' peek--fig';   /* a drawing with lettering in it needs the room */
+    } else if (src) {
+      art = '<img src="assets/photos/' + src + '" alt="" decoding="async"' +
+            (pkw ? ' width="' + pkw[0] + '" height="' + pkw[1] + '"' : '') + '>';
+    }
+    pk.innerHTML = art +
+      '<div class="peek__note">' + note + (credit ? '<span class="peek__credit">' + credit + '</span>' : '') + '</div>' +
+      '<button class="peek__x" aria-label="Close">×</button>';
+    host.appendChild(pk);
+    var sheet = window.innerWidth < 600;
+    if (sheet) pk.className += ' peek--sheet';
+    /* the room is the part of the panel the reader can see: below the header and the Learn/Practise tabs, above the
+       station rail (8 Oct 2026: measured against the whole window, a tall picture opened under the tabs, cut off) */
+    function visibleBand() {
+      var sc = panelScroller(), vr = sc ? sc.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+      var tabsEl = document.querySelector('#panelInner .tabs'), tb = tabsEl ? tabsEl.getBoundingClientRect() : null;
+      var top = Math.max(0, vr.top, tb && tb.bottom > vr.top && tb.top < vr.top + 140 ? tb.bottom : 0);
+      var rail = document.querySelector('.rail'), rr = rail ? rail.getBoundingClientRect() : null;
+      var bottom = Math.min(window.innerHeight, vr.bottom, rr && rr.top > top + 100 ? rr.top : window.innerHeight);
+      return { top: top, bottom: bottom };
+    }
+    function place() {
+      var hr = host.getBoundingClientRect(), r = el.getBoundingClientRect(), band = visibleBand();
+      var w = pk.offsetWidth, hh = pk.offsetHeight, pad = 8, gap = 8;
+      var left = Math.min(Math.max(pad, (r.left - hr.left) + r.width / 2 - w / 2), host.clientWidth - w - pad);
+      var below = band.bottom - r.bottom - gap - pad, above = r.top - gap - pad - band.top, room = Math.max(above, below), top;
+      /* short of room, the picture gives way first, so the words under it are never cut off */
+      var pim = pk.querySelector('img');
+      if (pim) pim.style.maxHeight = '';
+      hh = pk.offsetHeight;
+      if (hh > room && pim) { var ih = pim.getBoundingClientRect().height; pim.style.maxHeight = Math.max(110, ih - (hh - room)) + 'px'; hh = pk.offsetHeight; }
+      if (hh > room) { pk.style.maxHeight = Math.max(160, room) + 'px'; pk.style.overflowY = 'auto'; hh = pk.offsetHeight; }
+      else { pk.style.maxHeight = ''; pk.style.overflowY = ''; }
+      if (below >= hh || below >= above) top = (r.bottom - hr.top) + gap; else top = (r.top - hr.top) - hh - gap;
+      var vTop = hr.top + top;
+      if (vTop + hh > band.bottom - pad) { top -= (vTop + hh) - (band.bottom - pad); vTop = hr.top + top; }
+      if (vTop < band.top + pad) top += band.top + pad - vTop;
+      pk.style.left = left + 'px'; pk.style.top = top + 'px';
+    }
+    if (!sheet) place();
+    var im = pk.querySelector('img');
+    if (im && !sheet) im.addEventListener('load', place);
+    pk.querySelector('.peek__x').addEventListener('click', closePeek);
+    peekEl = pk;
+  }
+  /* A short aside a reader opens on purpose. Not the glossary, which defines a word, and not
+     the peek, which shows a picture: this is a paragraph or two of why, for the one student in
+     the class who wants it. Nothing in it is examined, and it says so. */
+  var xpBox = null;
+  function closeExplain() {
+    if (!xpBox) return;
+    xpBox.remove(); xpBox = null;
+    document.removeEventListener('keydown', xpKey);
+  }
+  function xpKey(e) { if (e.key === 'Escape') closeExplain(); }
+  function openExplain(spec) {
+    closeExplain();
+    xpBox = document.createElement('div');
+    xpBox.className = 'xp';
+    xpBox.setAttribute('role', 'dialog');
+    xpBox.setAttribute('aria-modal', 'true');
+    xpBox.setAttribute('aria-label', spec.title || 'Why');
+    var card = document.createElement('div');
+    card.className = 'xp__card';
+    card.innerHTML = '<div class="xp__h"><b>' + esc(spec.title || 'Why') + '</b>' +
+                     '<button type="button" class="xp__x" aria-label="Close">✕</button></div>' +
+                     /* Every one of these panels is off-syllabus, and the line saying so was the
+                        first sentence of the body — where a reader in a hurry goes straight past it
+                        and comes away thinking they have to learn it. It is a banner now, put here
+                        rather than in each panel so no panel can ever be written without one. */
+                     '<div class="xp__b"><p class="xp__warn">Beyond the syllabus — it explains why. ' +
+                     'It can help you answer a harder question.</p>' + spec.body + '</div>';
+    /* These panels are the one place in the lab where a hard word got no help: the body is HTML,
+       and Terms.mark escapes its input, so it can never be passed a whole panel. Walking the text
+       nodes and marking each one separately gives the panel the same tappable definitions as the
+       rest of the station — which matters more here than anywhere, since this is where words like
+       coleoptile and expansin live. Links and the citation are left alone. */
+    if (window.Terms && window.Terms.mark) {
+      var tn = [], tw = document.createTreeWalker(card.querySelector('.xp__b'), NodeFilter.SHOW_TEXT, null, false), nd;
+      while ((nd = tw.nextNode())) tn.push(nd);
+      tn.forEach(function (node) {
+        if (!node.data.trim() || !node.parentNode) return;
+        if (node.parentNode.closest('a, b.t, .xp__cite, .xp__warn')) return;
+        var html = window.Terms.mark(node.data);
+        if (html.indexOf('<b class="t') < 0) return;
+        var sp = document.createElement('span');
+        sp.innerHTML = html;
+        node.parentNode.replaceChild(sp, node);
+      });
+    }
+    xpBox.appendChild(card);
+    xpBox.addEventListener('click', function (e) { if (e.target === xpBox || e.target.closest('.xp__x')) closeExplain(); });
+    document.body.appendChild(xpBox);
+    document.addEventListener('keydown', xpKey);
+    var x = card.querySelector('.xp__x'); if (x) x.focus();
+  }
+
+  function wireGoto(root) {
+    root.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('[data-goto]') : null;
+      if (!b) return;
+      var t = document.querySelector('[data-anchor="' + b.getAttribute('data-goto') + '"]');
+      if (!t) return;
+      t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      t.classList.remove('is-found');
+      void t.offsetWidth;                       /* restart the flash if it is clicked twice */
+      t.classList.add('is-found');
+    });
+  }
+
+  /* down to this station's key-word card for a word (Daniel, 25 Oct 2026: the word "should then link to the flashcard at
+     the bottom of it"): the card comes wholly into view and rings once; it stays unturned, so the reader says the
+     definition first, as the card asks */
+  function toKeyCard(term) {
+    var c = document.querySelector('#panelInner [data-kwcard="' + String(term).replace(/"/g, '') + '"]');
+    if (!c) return;
+    showWhole(c, true);
+    c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash');
+    setTimeout(function () { c.classList.remove('flash'); }, 2800);
+    try { c.focus({ preventScroll: true }); } catch (e) {}
+  }
+
+  function wireTermClicks(root) {
+    function act(t) {
+      markWhereWeAre();
+      if (t.hasAttribute('data-peek')) openPeek(t);
+      else if (t.hasAttribute('data-gloss')) { closePeek(); window.LabGlossary(t.getAttribute('data-gloss')); }
+      else if (t.hasAttribute('data-stat')) { closePeek(); if (window.LabStats) window.LabStats.show(t.getAttribute('data-stat'), t); }
+      else if (t.hasAttribute('data-kw')) { closePeek(); toKeyCard(t.getAttribute('data-kw')); }
+      else { closePeek(); open(t.getAttribute('data-jump'), (t.getAttribute('data-term') || t.textContent).trim(), current); }
+    }
+    root.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-peek],[data-jump],[data-gloss],[data-stat],[data-kw]');
+      if (!t) { closePeek(); return; }
+      e.preventDefault(); act(t);
+    });
+    root.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var t = e.target.closest('[data-peek],[data-jump],[data-gloss],[data-stat],[data-kw]');
+      if (!t) return;
+      e.preventDefault(); act(t);
+    });
+  }
+
+  /* ---------- toast, tooltips ---------- */
+  var toastT = null;
+  function toast(msg, ms) {
+    var t = document.getElementById('toast');
+    t.style.pointerEvents = ''; t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('show'); }, ms || 2800);
+  }
+  document.addEventListener('click', function (e) {
+    var tip = e.target.closest ? e.target.closest('.tip') : null;
+    Array.prototype.forEach.call(document.querySelectorAll('.tip.is-open'), function (el) { if (el !== tip) el.classList.remove('is-open'); });
+    if (tip) { e.preventDefault(); tip.classList.toggle('is-open'); }
+  });
+  /* a tooltip opens towards the side with room: one that would run past the right edge of the window opens to the left
+     (8 Oct 2026: the keyword badges' tooltips ran off the right of the panel) */
+  function tipSide(e) {
+    var tip = e.target && e.target.closest ? e.target.closest('.tip') : null;
+    if (!tip || tip.classList.contains('hbtn')) return;
+    var r = tip.getBoundingClientRect();
+    tip.classList.toggle('tip--right', r.left + Math.min(300, window.innerWidth * 0.72) > window.innerWidth - 12);
+  }
+  document.addEventListener('mouseover', tipSide);
+  document.addEventListener('focusin', tipSide);
+  document.addEventListener('pointerdown', tipSide, true);
+
+  /* ---------- credits: every picture and video the stations name ---------- */
+  function paintCredits() {
+    var cr = document.getElementById('creditsList'); if (!cr) return;
+    var seenC = {}, out = [];
+    function add(c, url) { if (!c || seenC[c]) return; seenC[c] = 1; out.push(url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(c) + '</a>' : esc(c)); }
+    function walk(o) {
+      if (!o || typeof o !== 'object') return;
+      if (Array.isArray(o)) { o.forEach(walk); return; }
+      if (o.credit && (o.img || o.src || o.type === 'photo' || o.type === 'finder' || o.type === 'video')) add(o.credit, o.url);
+      Object.keys(o).forEach(function (k) { if (k !== 'credit') walk(o[k]); });
+    }
+    /* the stations' own pictures too: each photograph of a gallery carries its own credit (3 Nov 2026) */
+    ORDER.forEach(function (id) { walk(S[id].view); walk(S[id].learn); walk(S[id].activities); });
+    cr.innerHTML = out.join(' · ') + '.';
+  }
+
+  /* ---------- boot ---------- */
+  function boot() {
+    (window.STATIONS || []).forEach(function (s) { S[s.id] = s; ORDER.push(s.id); });
+    /* the first station to light a part owns it, unless a station claims it outright */
+    /* a station may claim a part outright; otherwise the first station that lights it owns it */
+    ORDER.forEach(function (id) { ((S[id].view || {}).parts || []).forEach(function (g) { if (!OWNER[g]) OWNER[g] = id; }); });
+    var stale = reconcile();
+    if (stale) console.info('Inheritance Lab: ' + stale + ' station record(s) reset — the questions there have changed since they were answered.');
+
+    if (window.Plate) window.Plate.init({ onPick: openGroup });
+    document.getElementById('btnSubmit').addEventListener('click', openSaveDialog);
+    wireTermClicks(document.getElementById('panel'));
+    wireGoto(document.getElementById('panel'));
+    window.addEventListener('resize', closePeek);
+    var lb = document.getElementById('lightbox');
+    lb.addEventListener('click', function () { lb.hidden = true; });
+    paintCredits();
+
+    /* ---------- the glossary ---------- */
+    (function () {
+      var dlg = document.getElementById('glossDlg'), list = document.getElementById('glossList');
+      var find = document.getElementById('glossFind'), count = document.getElementById('glossCount');
+      var built = false, pinTerm = null, atOpen = null;
+      function tierTag(w) {
+        var pid = pastTerm(w.term); if (pid) return ' ' + pastBadge(pid, 'tier tier--old');
+        if (w.ext) return ' <span class="tier tier--ext tip" tabindex="0" data-tip="The 0610 syllabus does not name it, but it is useful to know: an exam question can still use it.">beyond 0610</span>';
+        if (w.sup) return ' <span class="tier tier--sup tip" tabindex="0" data-tip="Supplement — examined on the Extended papers (2 and 4) only">Supplement</span>';
+        return '';
+      }
+      function build() {
+        if (built) return; built = true;
+        var all = (window.GLOSSARY || []).slice(), where = {};
+        ORDER.forEach(function (id) { (S[id].keywords || []).forEach(function (w) { where[w.term.toLowerCase()] = id; }); });
+        var groups = [], byId = {};
+        ORDER.forEach(function (id) { byId[id] = { name: S[id].name, rows: [] }; groups.push(byId[id]); });
+        var general = { name: 'Words used across the labs', rows: [] }, pinned = null;
+        all.forEach(function (e) {
+          if (pinTerm && e.term.toLowerCase() === pinTerm && !pinned) { pinned = e; return; }
+          (byId[where[e.term.toLowerCase()]] || general).rows.push(e);
+        });
+        if (general.rows.length) groups.push(general);
+        if (pinned) groups.unshift({ name: 'The word you tapped', rows: [pinned] });
+        list.innerHTML = groups.filter(function (g) { return g.rows.length; }).map(function (g) {
+          return '<section class="gloss__grp"><h3 class="gloss__h">' + esc(g.name) + '</h3><dl class="gloss__dl">' + g.rows.map(function (w) {
+            var known = window.Terms && window.Terms.isKnown(w.term);
+            var got = '<button type="button" class="gloss__got' + (known ? ' is-known' : '') + '" data-got="' + esc(w.term) + '">' +
+                      (known ? '✓ you know this — show it again' : 'I know this one — stop marking it') + '</button>';
+            var also = (w.also || []).length ? '<p class="gloss__also">See also: ' + w.also.map(function (t) { return '<button type="button" class="gloss__see" data-see="' + esc(t) + '">' + esc(t) + '</button>'; }).join(' ') + '</p>' : '';
+            return '<div class="gloss__row" data-term="' + esc((w.term + ' ' + (w.plural || '') + ' ' + (w.singular || '') + ' ' + w.def).toLowerCase()) + '"><dt>' + esc(w.term) + numberOf(w) + tierTag(w) + '</dt><dd>' + esc(w.def) + also + got + '</dd></div>';
+          }).join('') + '</dl></section>';
+        }).join('');
+      }
+      function filter() {
+        var q = (find.value || '').trim().toLowerCase();
+        var rows = list.querySelectorAll('.gloss__row'), shown = 0;
+        Array.prototype.forEach.call(rows, function (r) { var hit = !q || r.getAttribute('data-term').indexOf(q) >= 0; r.hidden = !hit; if (hit) shown++; });
+        Array.prototype.forEach.call(list.querySelectorAll('.gloss__grp'), function (g) { g.hidden = !g.querySelector('.gloss__row:not([hidden])'); });
+        count.textContent = q ? (shown ? shown + (shown === 1 ? ' word' : ' words') + ' match “' + find.value.trim() + '”' : 'Nothing matches “' + find.value.trim() + '”')
+                              : rows.length + ' key words across ' + list.querySelectorAll('.gloss__grp').length + ' stations';
+      }
+      function countKnown() {
+        var n = window.Terms ? window.Terms.knownCount() : 0;
+        var el = document.getElementById('glossKnown'); if (!el) return;
+        el.hidden = !n;
+        el.innerHTML = n + (n === 1 ? ' word is' : ' words are') + ' marked as known. <button type="button" id="glossForget">Mark them all as new again</button>';
+        var f = document.getElementById('glossForget');
+        if (f) f.addEventListener('click', function () { window.Terms.forgetAll(); built = false; build(); filter(); countKnown(); paintPanel(); });
+      }
+      function openG(term) {
+        var sc = panelScroller();
+        atOpen = sc ? sc.scrollTop : null;
+        pinTerm = term ? String(term).trim().toLowerCase() : null;
+        built = false; build(); find.value = term || ''; filter(); countKnown(); dlg.hidden = false;
+        var box = dlg.querySelector('.modal__box'); if (box) box.scrollTop = 0;
+        var touch = false; try { touch = matchMedia('(pointer: coarse)').matches; } catch (e) {}
+        if (!term && !touch) setTimeout(function () { try { find.focus({ preventScroll: true }); } catch (e) { find.focus(); } if (box) box.scrollTop = 0; }, 30);
+      }
+      window.LabGlossary = openG;
+      document.getElementById('btnGloss').addEventListener('click', function () { openG(''); });
+      function close() { dlg.hidden = true; var sc = panelScroller(); if (sc && atOpen != null) jumpTo(sc, atOpen); }
+      document.getElementById('glossClose').addEventListener('click', close);
+      dlg.addEventListener('click', function (e) { if (e.target === this) close(); });
+      find.addEventListener('input', filter);
+      list.addEventListener('click', function (e) {
+        var got = e.target.closest('.gloss__got');
+        if (got) {
+          var term = got.getAttribute('data-got'), now = !(window.Terms && window.Terms.isKnown(term));
+          window.Terms.setKnown(term, now);
+          got.classList.toggle('is-known', now);
+          got.textContent = now ? '✓ you know this — show it again' : 'I know this one — stop marking it';
+          countKnown(); paintPanel(); return;
+        }
+        var b = e.target.closest('.gloss__see'); if (!b) return;
+        find.value = b.getAttribute('data-see'); filter();
+        var box2 = dlg.querySelector('.modal__box'); if (box2) box2.scrollTop = 0;
+      });
+    })();
+
+    /* ☀ Bright / ☾ Dark: the computer's own setting until the reader chooses; the choice is the site's own key,
+       biology.theme, shared with the hub's teacher pages (memory bright-and-dark-versions). The <head> script sets it
+       before the first paint, so the page never flashes the other version. */
+    (function () {
+      var tb = document.getElementById('btnTheme'); if (!tb) return;
+      function nowDark() {
+        var t = document.documentElement.getAttribute('data-theme');
+        if (t) return t === 'dark';
+        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+      function paint() {
+        var d = nowDark();
+        tb.innerHTML = '<span class="hbtn__long">' + (d ? '\u2600 Bright' : '\u263E Dark') + '</span><span class="hbtn__short" aria-hidden="true">' + (d ? '\u2600' : '\u263E') + '</span>';
+        tb.setAttribute('aria-label', d ? 'Switch to the bright version' : 'Switch to the dark version');
+      }
+      tb.addEventListener('click', function () {
+        var next = nowDark() ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('biology.theme', next); } catch (e) {}
+        paint();
+        if (window.Plate && window.Plate.current && window.Plate.current() && window.Plate.current().theme) window.Plate.current().theme();
+      });
+      if (window.matchMedia) { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', paint); }
+      paint();
+    })();
+    document.getElementById('btnHelp').addEventListener('click', function () { document.getElementById('modal').hidden = false; });
+    document.getElementById('modalClose').addEventListener('click', function () { document.getElementById('modal').hidden = true; });
+    document.getElementById('modal').addEventListener('click', function (e) { if (e.target === this) this.hidden = true; });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      closePeek();
+      document.getElementById('modal').hidden = true;
+      document.getElementById('glossDlg').hidden = true;
+      document.getElementById('subDlg').hidden = true;
+      lb.hidden = true;
+      Array.prototype.forEach.call(document.querySelectorAll('.tip.is-open'), function (el) { el.classList.remove('is-open'); });
+    });
+    /* the questions count in the header opens this station's questions: students click it expecting them */
+    var qStat = document.getElementById('statQ');
+    if (qStat) {
+      qStat.setAttribute('role', 'button'); qStat.tabIndex = 0; qStat.setAttribute('aria-label', 'Open the questions for this station'); qStat.classList.add('stat--go');
+      var goQuestions = function () {
+        if (current == null) return;
+        tab = 'do'; paintPanel();
+        var tabs = document.querySelector('#panelInner .tabs'); if (tabs) landOn(tabs, true);   /* lands below the pinned plate on a phone */
+      };
+      qStat.addEventListener('click', goQuestions);
+      /* on a phone the plate is pinned above the notes; this folds it to a strip for a reader who wants the notes alone */
+      var plate = document.querySelector('.platecol'), fold = document.getElementById('plateFold');
+      if (plate && fold) {
+        var FOLD_KEY = 'labs.plateFolded', foldedNow = false;
+        try { foldedNow = localStorage.getItem(FOLD_KEY) === '1'; } catch (e) {}
+        var paintFold = function () { plate.classList.toggle('is-folded', foldedNow); fold.setAttribute('aria-expanded', foldedNow ? 'false' : 'true'); fold.textContent = (foldedNow ? '▼ Show ' : '▲ Hide ') + fold.getAttribute('data-what'); };
+        paintFold();
+        fold.addEventListener('click', function () { foldedNow = !foldedNow; lentTo = false; try { localStorage.setItem(FOLD_KEY, foldedNow ? '1' : '0'); } catch (e) {} paintFold(); });
+        /* A simulation arriving in the strip while the strip is folded away would be invisible,
+           and the reader would never know it was there. So it opens itself — and closes again
+           afterwards, unless the reader has since made the choice themselves, in which case their
+           choice stands and is what gets remembered. */
+        var lentTo = false;
+        window.PlateFold = {
+          lend: function (on) {
+            if (on) {
+              if (foldedNow) { lentTo = true; plate.classList.remove('is-folded'); fold.setAttribute('aria-expanded', 'true'); fold.textContent = '▲ Hide ' + fold.getAttribute('data-what'); }
+            } else if (lentTo) { lentTo = false; paintFold(); }
+          }
+        };
+      }
+      qStat.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goQuestions(); } });
+    }
+    /* Reset: every station with answers starts a new go (js/sync.js). The page empties so the
+       questions can be practised again; the record (the teacher's Score, homework, the hub) keeps
+       everything, and the first go stays as it was. */
+    document.getElementById('btnReset').addEventListener('click', function () {
+      var ids = ORDER.filter(function (id) { return stationScore(id).tried > 0; });
+      if (!ids.length) {
+        toast(ORDER.some(function (id) { return stationScore(id).bestTried > 0; })
+          ? 'Every station is already empty.' : 'Nothing to start again yet: answer some questions first.');
+        return;
+      }
+      if (!window.LabSync) {                             /* js/sync.js did not arrive: all this page can do is clear itself */
+        if (!confirm('Clear all your answers in this browser?\n\nThis cannot be undone here.')) return;
+        progress = {}; try { localStorage.removeItem(STORE); } catch (e) {}
+      } else {
+        if (!confirm('Start every station again?\n\nYour answers will be cleared from this page, so you can practise the questions again. Your record keeps everything you have already done.')) return;
+        ids.forEach(function (id) { window.LabSync.newGo(progress, id, S); });
+        if (window.LabSync.resets) window.LabSync.resets(LAB_ID, true);   /* the whole lab, started again: counted (7 Oct 2026) */
+      }
+      save(); if (typeof queueSave === 'function') queueSave(true);
+      paintHeader(); paintRail(); paintPanel();
+      toast('Started again: ' + ids.length + ' station' + (ids.length === 1 ? '' : 's') + '. Your record keeps everything you did before.');
+    });
+
+    /* a link can name a station or a part of the body */
+    /* §practise-link (22 Oct 2026, My assessments' Revise tab): "?tab=practise" (or "#<station>/practise") opens that
+       station on its Practise tab, and the address keeps only "#<station>" after. A link without it opens Learn, as before. */
+    var wantDo = /[?&]tab=practise(&|$)/.test(location.search) || /\/practise$/.test(location.hash);
+    function tidyAddress() {   // a part of the picture named with a Practise link: the address keeps the part only
+      if (/[?&]tab=practise(&|$)/.test(location.search) || /\/practise$/.test(location.hash)) history.replaceState(null, '', location.pathname + location.hash.replace(/\/practise$/, ''));
+    }
+    function practiseTab(id) {
+      if (/[?&]tab=practise(&|$)/.test(location.search) || /\/practise$/.test(location.hash)) history.replaceState(null, '', location.pathname + '#' + id);
+      if (wantDo && S[id] && current === id) { tab = 'do'; paintPanel(); }
+      wantDo = false;
+    }
+    function fromHash() {
+      var hsh = (location.hash || '').slice(1).replace(/\/practise$/, '');
+      if (S[hsh]) { open(hsh); practiseTab(hsh); return true; }
+      if (OWNER[hsh]) { open(OWNER[hsh]); openGroup(hsh); wantDo = false; tidyAddress(); return true; }
+      return false;
+    }
+    if (!fromHash()) { open(ORDER[0]); wantDo = false; practiseTab(ORDER[0]); }   // no such station: the first one, on Learn, the address tidied
+    paintHeader();
+    window.addEventListener('hashchange', function () {
+      var raw = location.hash.slice(1), hsh = raw.replace(/\/practise$/, '');
+      if (S[hsh] && (hsh !== current || raw !== hsh)) { if (hsh !== current) open(hsh); if (raw !== hsh) { wantDo = true; practiseTab(hsh); } }
+      else if (OWNER[hsh]) { openGroup(hsh); tidyAddress(); }
+    });
+    /* A widget's button that leads to a widget on another station (Inside the heart's "what starts
+       each beat" → the ECG simulation in Monitoring the heart): open that station, land on the
+       widget as a followed word does, and offer the way back. */
+    if (window.CircLearn) window.CircLearn.goToWidget = function (id, sel, what) {
+      if (!S[id]) return false;
+      var from = current;
+      markWhereWeAre(); closePeek();
+      open(id);
+      var target = document.querySelector('#panelInner ' + sel);
+      if (!target) { toStationTop(); return false; }
+      landOn(target, false);
+      if (from !== id && S[from]) showBackChip(from, what || S[id].name);
+      return true;
+    };
+  }
+
+  /* GitHub Pages caches the HTML for ten minutes; the page's own stamp comes from its script
+     tags, and the banner only shows once the server's index.html carries a newer one. */
+  var pageVersion = (function () {
+    var sc = document.querySelector('script[src*="stations.js"]');
+    var m = sc && (sc.getAttribute('src') || '').match(/[?&]v=(\d+)/);
+    return m ? m[1] : null;
+  })();
+  var updateShown = false;
+  function checkForUpdate() {
+    if (!pageVersion || updateShown || document.hidden) return;
+    fetch('version.txt', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.text() : null; })
+      .then(function (v) {
+        v = v && v.trim();
+        if (!v || v === pageVersion) return;
+        return fetch(location.pathname, { cache: 'reload' })
+          .then(function (r) { return r.ok ? r.text() : ''; })
+          .then(function (html) {
+            var m = html.match(/stations\.js\?v=(\d+)/);
+            if (!m || m[1] === pageVersion) return;
+            updateShown = true;
+            var t = document.getElementById('updBar') || document.getElementById('toast');
+            t.innerHTML = 'A newer version of this page is available. <button class="btn btn--ghost" style="margin-left:8px;padding:3px 12px;font-size:13px" onclick="location.reload()">Reload</button>';
+            t.style.pointerEvents = 'auto'; t.classList.add('show');
+          });
+      }).catch(function () {});
+  }
+  setTimeout(checkForUpdate, 4000);
+  setInterval(checkForUpdate, 10 * 60 * 1000);
+  window.LabUpdateCheck = checkForUpdate;
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) setTimeout(checkForUpdate, 800); });
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();

@@ -1,0 +1,513 @@
+/* ============================================================
+   inheritance.css — what is this lab's own: the header in the Life on Earth shelf's green, the left column that each
+   station fills with its own picture, the cards that open one at a time, and the drawings, animations and crosses of
+   Topic 17. Every colour is a token, defined in the bright AND the dark version (memory bright-and-dark-versions). The
+   frame's rules are the Immunity Lab's (4 Nov 2026), itself the Cells Lab's; this lab's own come after them.
+
+   The two colours of a chromosome pair: one chromosome of each pair came from the mother, one from the father. They are
+   drawn in two colours, --mum and --dad, and every drawing that uses them carries the key "from the mother / from the
+   father". Neither is the green, orange or rose of the words, nor the blue and violet of the picture's parts.
+   ============================================================ */
+:root{
+  --accent:#14572B; --accent-2:#1D7A3D; --accent-tint:#E3F1E7;
+  /* the inks of the Learn tab (js/terms.js): the T17 summary's own colours */
+  --k-struct:#1B7A43; --k-proc:#B5530F; --k-subst:#B4285F;
+  --on-photo-veil:rgba(14,20,27,.40);
+  /* the parts of a station (a block of What you need to know, and its button on the picture): blue and violet */
+  --pt1-ink:#1E5BB8; --pt1-tint:#EAF1FC; --pt1-edge:#B9D0F2; --pt2-ink:#7438B0; --pt2-tint:#F4EDFB; --pt2-edge:#D8C4F0;
+  --pt3-ink:#475569; --pt3-tint:#EEF2F6; --pt3-edge:#C8D2DD;
+  /* the drawings: a chromosome from the mother and one from the father; the nucleus and the cell; a gene's band */
+  --mum:#C2410C; --mum-2:#FDBA8C; --dad:#0E7490; --dad-2:#9EDBEA; --gene:#FACC15; --gene-ink:#3F2E00;
+  --cell-fill:#F7F3EA; --cell-edge:#8A7F6A; --nuc-fill:#EFE7FA; --nuc-edge:#7C6A9E; --cyto:#F7F3EA;
+  --dna-a:#2F6DB5; --dna-b:#C8322F; --rib:#6B4F2A; --mrna:#B4285F; --aa1:#1E5BB8; --aa2:#B5530F; --aa3:#15803D; --aa4:#7438B0;
+  --shade:#3B4652; --g-ok:#13856C; --g-no:#B03A2E; --mito:#D9E7C3; --mito-edge:#5B7A2E;
+}
+@media (prefers-color-scheme: dark){
+:root:not([data-theme="light"]){
+  --accent:#7FD99A; --accent-2:#5CC47D; --accent-tint:#14301D;
+  --k-struct:#6EDB9A; --k-proc:#F5A35C; --k-subst:#F48FB4;
+  --pt1-ink:#8DB9FF; --pt1-tint:#14233A; --pt1-edge:#2C4C7A; --pt2-ink:#CFA9F7; --pt2-tint:#231A36; --pt2-edge:#4C3672;
+  --pt3-ink:#B6C2D0; --pt3-tint:#1B232D; --pt3-edge:#3A4655;
+  --mum:#FB923C; --mum-2:#7C2D12; --dad:#38BDF8; --dad-2:#0C4A6E; --gene:#FDE047; --gene-ink:#3F2E00;
+  --cell-fill:#2A2620; --cell-edge:#A89C84; --nuc-fill:#2A2338; --nuc-edge:#A994CF; --cyto:#2A2620;
+  --dna-a:#6FA8EC; --dna-b:#F06A5E; --rib:#D6B98A; --mrna:#F48FB4; --aa1:#8DB9FF; --aa2:#F5A35C; --aa3:#6EDB9A; --aa4:#CFA9F7;
+  --shade:#C8D1DA; --g-ok:#5EE0B0; --g-no:#F28B7E; --mito:#33402A; --mito-edge:#A9C77A;
+}
+}
+:root[data-theme="dark"]{
+  --accent:#7FD99A; --accent-2:#5CC47D; --accent-tint:#14301D;
+  --k-struct:#6EDB9A; --k-proc:#F5A35C; --k-subst:#F48FB4;
+  --pt1-ink:#8DB9FF; --pt1-tint:#14233A; --pt1-edge:#2C4C7A; --pt2-ink:#CFA9F7; --pt2-tint:#231A36; --pt2-edge:#4C3672;
+  --pt3-ink:#B6C2D0; --pt3-tint:#1B232D; --pt3-edge:#3A4655;
+  --mum:#FB923C; --mum-2:#7C2D12; --dad:#38BDF8; --dad-2:#0C4A6E; --gene:#FDE047; --gene-ink:#3F2E00;
+  --cell-fill:#2A2620; --cell-edge:#A89C84; --nuc-fill:#2A2338; --nuc-edge:#A994CF; --cyto:#2A2620;
+  --dna-a:#6FA8EC; --dna-b:#F06A5E; --rib:#D6B98A; --mrna:#F48FB4; --aa1:#8DB9FF; --aa2:#F5A35C; --aa3:#6EDB9A; --aa4:#CFA9F7;
+  --shade:#C8D1DA; --g-ok:#5EE0B0; --g-no:#F28B7E; --mito:#33402A; --mito-edge:#A9C77A;
+}
+/* ---------- the header: the shelf's own colours, never the other labs' green ---------- */
+.hdr{background:var(--hdr-bg);color:var(--hdr-ink);border-bottom:1px solid var(--hdr-line);box-shadow:none}
+.hdr__title{font-weight:700;letter-spacing:-.01em}
+/* his name is never cut (memory header-footer-credit): the topic line gives way first */
+.hdr__title,.hdr__by{flex:none}
+.hdr__mark{flex:none}
+@media (max-width:1500px){ .hdr__sub{display:none} }
+@media (max-width:1300px) and (min-width:1001px){ .stat--stations{display:none} }
+.hdr__sub{color:var(--hdr-soft);opacity:1;font-size:12.5px;min-width:0;flex:0 1 auto}
+.hdr__by{color:var(--hdr-soft);opacity:1}
+.hdr__by:hover,.hdr__by:focus-visible{color:var(--hdr-ink)}
+.badge{background:var(--hdr-veil);border:1px solid var(--hdr-line);color:var(--hdr-ink);cursor:pointer}
+.stat{background:var(--hdr-veil);border:1px solid var(--hdr-line);color:var(--hdr-ink)}
+.stat--go:hover,.stat--go:focus-visible{background:var(--accent-tint)}
+.ring .bg{stroke:var(--hdr-line)}
+.ring .fg{stroke:var(--accent-2)}
+.hbtn{background:var(--hdr-veil);border:1px solid var(--hdr-line);color:var(--hdr-ink);text-decoration:none}
+.hbtn:hover{background:var(--accent-tint)}
+.hbtn--save.is-ok{background:var(--accent-tint);color:var(--accent);border-color:var(--accent-2)}
+.hbtn--save.is-ok:hover{background:var(--accent-tint)}
+.hbtn--save.is-busy{background:var(--hdr-veil);color:var(--hdr-ink);border-style:dashed}
+.hbtn--save.is-no{background:var(--bad-tint);color:var(--bad);border-color:var(--bad)}
+.hbtn--save.is-no:hover{background:var(--bad-tint)}
+.hbtn--save.is-off{background:transparent;color:var(--hdr-ink);border-style:dashed}
+/* the way back (14 Oct 2026, Daniel: pupils missed it): a solid pill in the lab's green, first in the header; the header's own white (dark at night) as its words */
+.hbtn--back{background:var(--accent);border-color:var(--accent);color:var(--hdr-bg);box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.hbtn--back:hover,.hbtn--back:focus-visible{background:var(--accent-2);border-color:var(--accent-2);color:var(--hdr-bg)}
+#btnTheme{white-space:nowrap}
+
+/* the station's heading: a chromosome in the accent */
+.st-head__ic{background:var(--accent-tint);border:1px solid var(--edge);color:var(--accent)}
+.st-head__ic .ic-cell{stroke:var(--accent)}
+.st-head__ic .ic-nuc{stroke:var(--k-subst)}
+.st-title{color:var(--ink);font-weight:700;letter-spacing:-.015em}
+
+/* ---------- the left column: each station's own picture ---------- */
+.platecol{position:relative;min-height:0;overflow:hidden;display:flex;flex-direction:column;
+  background:var(--col-bg);color:var(--col-ink);border-right:1px solid var(--col-line)}
+.platecol__tools{position:relative;z-index:6;display:flex;align-items:center;gap:10px;padding:8px 12px;min-height:0}
+.platecol__tools:empty{display:none}
+.tool{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--col-ink);cursor:pointer;
+  border:1px solid var(--col-line);border-radius:var(--r-pill);padding:6px 12px;background:var(--col-card)}
+.tool:hover{border-color:var(--accent)}
+.tool[hidden]{display:none}
+.tool--sim{margin-right:auto}
+.viewhost{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
+.viewhost[hidden]{display:none}
+.view{flex:1;min-height:0;display:flex;flex-direction:column}
+.view[hidden]{display:none}
+.said{position:relative;z-index:4;margin:0;padding:8px 16px 12px;text-align:center;border-top:1px solid var(--col-line);background:var(--col-bg)}
+.said:empty{display:none}
+.said__name{display:block;font-size:14px;font-weight:600;color:var(--col-ink)}
+.said__credit{display:block;font-size:11.5px;color:var(--col-soft);margin-top:2px}
+/* a picture of several photographs: its credits folded under it (Daniel, 4 Nov 2026), open upwards into the picture's space */
+.said__fold{margin-top:3px;font-size:12.5px;color:var(--col-soft)}
+.said__fold summary{display:inline-flex;align-items:center;gap:5px;cursor:pointer;padding:2px 8px;border-radius:6px;list-style:none}
+.said__fold summary::-webkit-details-marker{display:none}
+.said__fold summary::before{content:'\25B8';font-size:11px}
+.said__fold[open] summary::before{content:'\25BE'}
+.said__fold summary:hover{color:var(--col-ink)}
+.said__fold summary:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.said__list{margin:4px auto 0;padding:0;list-style:none;text-align:left;display:inline-block;max-width:100%;line-height:1.45}
+.said__list b{color:var(--col-ink);font-weight:600}
+.sim{flex:1;min-height:0;overflow:auto;padding:12px 14px 16px;display:flex;flex-direction:column}
+.sim[hidden]{display:none}
+.sim .widget{margin-top:0;border:none;box-shadow:none;background:transparent;padding:0}
+.platecol.is-sim .said{display:none}
+.stg__park{display:none}
+.stg__title{margin:2px 0 0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.stg__title[hidden]{display:none}
+
+/* a button that belongs to a picture */
+.vbtn{font:inherit;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  border:1.5px solid var(--accent);border-radius:var(--r-pill);background:var(--col-card);color:var(--accent);padding:7px 16px}
+.vbtn:hover{background:var(--accent-tint)}
+.vbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* labels on a picture: the line ends ON the part, no dot (Daniel, 4 Oct 2026) */
+.lb__dot{display:none}
+/* label lines one steady width on screen, however far a picture is scaled to fit (8 Oct 2026) */
+svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
+/* the pale band under a label line stops where the line stops: with a round end it covered a ribosome or a
+   mitochondrion the line touched (18 Oct 2026) */
+.lb__halo{stroke:var(--col-bg);stroke-linecap:butt}
+.lb__lead{stroke:var(--col-ink)}
+.lb__txt{fill:var(--col-ink);stroke:var(--col-bg)}
+/* a word whose key-word card is at the bottom of this station: the faint rule of a definition and a small arrow down,
+   for "down to its card here" (25 Oct 2026) */
+.t.is-kw,.tc.is-kw{cursor:pointer;border-bottom:1px dotted var(--c49);padding-bottom:1px}
+.t.is-kw::after,.tc.is-kw::after{content:"↓";font-size:.72em;vertical-align:.2em;margin-left:1px;opacity:.75}
+.t.is-kw:hover,.tc.is-kw:hover{background:var(--c41);border-radius:3px}
+.t.is-kw:focus-visible,.tc.is-kw:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+/* a name that opens its card (views/figure.js gives it role="button"); any other name is only a name: no hand, no colour */
+.lb[role="button"]{cursor:pointer}
+.lb__lead,.lb__halo{pointer-events:none}
+.lb:focus-visible{outline:none}
+.lb[role="button"]:focus-visible .lb__txt,.lb[role="button"]:hover .lb__txt{fill:var(--accent)}
+.lb.is-lit .lb__txt{fill:var(--accent);font-weight:700}
+.lb.is-lit .lb__lead{stroke:var(--accent);stroke-width:2.6}
+.lb.is-dim{opacity:.45}
+
+/* a picture's own buttons, in a bar above it */
+.vbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;padding:0 6px 6px}
+
+/* ---------- a sentence as a card: the heading always shows, the words open one card at a time ---------- */
+.exam-list > li.xcard{padding:0;margin:0 0 8px}
+.exam-list > li.xcard::before{display:none}
+.xcard__h{width:100%;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;
+  font:inherit;font-size:15.5px;font-weight:600;color:var(--ink);background:var(--card-2);
+  border:1px solid var(--edge);border-radius:var(--r);padding:10px 14px}
+.xcard__h:hover{border-color:var(--accent)}
+.xcard__h:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.xcard__t{flex:1;min-width:0}
+.xcard__a{width:9px;height:9px;border-right:2px solid var(--grey);border-bottom:2px solid var(--grey);transform:rotate(45deg);transition:transform .2s;flex:none;margin-top:-4px}
+.xcard.is-open .xcard__h{border-color:var(--accent);background:var(--accent-tint);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.xcard.is-open .xcard__a{transform:rotate(225deg);margin-top:4px}
+.xcard__b{border:1px solid var(--accent);border-top:0;border-radius:0 0 var(--r) var(--r);padding:12px 14px;background:var(--card)}
+.xcard__b[hidden]{display:none}
+/* a widget, photo or table inside a card sits inside it: the list's bullet margin (-26px in app.css) does not apply here */
+.exam-list li.xcard .widget,.exam-list li.xcard .media,.exam-list li.xcard .photo,.exam-list li.xcard .ctable{margin-left:0;margin-right:0;max-width:100%}
+/* a closed tooltip takes no room: laid out while hidden, it made the panel scroll sideways when its word sat near the
+   right edge (8 Oct 2026); it shows on hover, on focus and when pressed, as before */
+/* a grid question's row names wrap, so the table fits a narrow panel without scrolling inside the question */
+.gridq tbody th{white-space:normal;min-width:6.5em}
+/* a picture in a pop-up never takes more than a third of the screen's height, so its words stay beside the word pressed */
+.peek img{max-height:34vh;object-fit:contain}
+/* "Going further": a long reference wraps inside its card instead of running past it */
+.later__ref{max-width:100%;white-space:normal}
+/* the picture's fold button: the page's own sans and sentence case, a comfortable tap */
+.fold{font-family:var(--font);font-size:12.5px;letter-spacing:0;text-transform:none;min-height:32px}
+/* a question's picture: every ring has a larger invisible tap area, and on a drawing the ring does not hide its part */
+.hs__pt::before{content:"";position:absolute;inset:-9px;border-radius:50%}
+.hs__stage--fig .hs__pt{background:transparent}
+/* the keyword cards' prompt reads at full strength */
+.kw__ask{color:var(--col-soft);font-style:normal}
+/* the station row fades at its ends on a narrow screen, so a cut-off name reads as "more this way" */
+@media (max-width:1000px){ .rail__track{-webkit-mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 22px),transparent)} }
+/* a phone: the header is the name above ONE row of buttons (short labels), and the picture's own buttons are easy to tap */
+@media (max-width:540px){
+  .hdr__stats{flex-wrap:wrap;gap:5px}   /* one row as a rule; a long warning ("Sign in again" and Google's button) takes a second row rather than pushing buttons off the screen */
+  .hdr__stats .hbtn{padding:5px 8px;font-size:12px;min-height:32px}
+  .hdr__stats .hbtn__short{font-size:14px}
+  #btnHelp{width:32px;height:32px}
+  .stat{padding:3px 8px 3px 4px}
+  .cellv__mode,.gal__mode,.dfv__tab,.twn__mode{min-height:34px}
+  .vbar{gap:6px}
+}
+/* a question on a cell drawing: the drawing at a readable size, centred, its stage as wide as the drawing */
+.hs__stage--fig{max-width:min(100%,400px);margin-left:auto;margin-right:auto;background:var(--col-card)}
+.hs__stage--fig svg{background:transparent}
+.tip::after,.tip::before{display:none}
+.tip:hover::after,.tip:hover::before,.tip:focus-visible::after,.tip:focus-visible::before,.tip.is-open::after,.tip.is-open::before{display:block}
+@media (prefers-reduced-motion: reduce){ .xcard__a{transition:none} }
+
+
+/* the inks of this lab (js/terms.js) */
+.t--struct{color:var(--k-struct)} .t--proc{color:var(--k-proc)} .t--subst{color:var(--k-subst)}
+.chip--struct{background:var(--k-struct);color:var(--on-ink)} .chip--proc{background:var(--k-proc);color:var(--on-ink)}
+.chip--subst{background:var(--k-subst);color:var(--on-ink)}
+
+/* ---------- phone and upright tablet: the picture as a strip above the notes ---------- */
+@media (max-width:1000px) and (min-height:561px){
+  /* pinned above the notes (the Cells Lab's rule, 8 Oct 2026), so the picture stays beside the words about it */
+  .platecol{position:sticky;top:0;z-index:4;height:min(42vh,380px);box-shadow:0 2px 10px var(--c176)}
+  .platecol.is-folded{height:auto}
+  .platecol.is-folded .viewhost,.platecol.is-folded .said{display:none}
+  /* the town, the defences and the photographs are working pictures: they scroll with the page at full width */
+  .platecol[data-kind="town"],.platecol[data-kind="defences"],.platecol[data-kind="gallery"]{position:relative;height:auto;box-shadow:none}
+  .platecol[data-kind="gallery"] .gal{overflow:visible}
+  .platecol[data-kind="town"] .twn__svg,.platecol[data-kind="defences"] .dfv__svg{height:auto}
+  /* this lab's drawings are tall (a nucleus above a chromosome above its DNA; four gametes; a family tree): pinned as a
+     strip they were drawn about 180 px high, their names too small. They scroll with the page instead, as the
+     Immunity Lab's town does, at a height that gives each name its full size */
+  .platecol[data-kind="figure"],.platecol[data-kind="pedigree"]{position:relative;height:auto;box-shadow:none}
+  .platecol[data-kind="figure"] .cellv__stage{flex:none;height:min(118vw,520px)}
+}
+
+/* "Check yourself": a yellow highlighter under red-brown words, the same in both versions (a highlighter does not
+   change in the dark); the box keeps the theme's own ground */
+:root{ --gold-ink:#8A2A1E; --gold-mark:#FFE36B; }
+.golden__h,.exam-alert__h{color:var(--gold-ink);background:linear-gradient(180deg,transparent 14%,var(--gold-mark) 14%,var(--gold-mark) 92%,transparent 92%)}
+.golden p + p{margin-top:8px}
+
+/* ---------- the shared look of a picture's own controls ---------- */
+.cellv__mode{font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border-radius:var(--r-pill);cursor:pointer;
+  border:1.5px solid var(--col-line);background:var(--col-card);color:var(--col-ink)}
+.cellv__mode[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
+.cellv__mode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vbtn[disabled]{opacity:.45;cursor:default}
+
+/* ---------- stations 5–7: one cell, several ways of seeing it ---------- */
+.cellv{flex:1;min-height:0;display:flex;flex-direction:column;padding:8px 8px 8px}
+.cellv__stage{flex:1;min-height:0;display:flex}
+.cellv__svg{flex:1;min-height:0;width:100%;height:100%;display:block}
+.cellv__veil{fill:var(--on-photo-veil);opacity:0;transition:opacity .3s ease;pointer-events:none}
+.cellv__veil.is-on{opacity:1}
+.cellv__note{margin:6px 8px 0;font-size:13.5px;font-weight:600;color:var(--amber);text-align:center}
+.cellv__note[hidden]{display:none}
+
+/* "Put in order": the step numbers are neutral until the answer is checked (they were the red of a wrong answer) */
+.oitem__n{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.order.is-ok .oitem__n{background:var(--accent-2);color:var(--c3);border-color:transparent}
+.order.is-no .oitem__n{background:var(--red);color:var(--c3);border-color:transparent}
+.oitem__grip{color:var(--grey)}
+/* every instruction under a question in one style (the match-up's was an amber callout) */
+.act p.hinttext{display:block;background:none;border:0;border-radius:0;padding:0;margin:2px 0 8px;font-size:12.5px;color:var(--grey)}
+/* a gap inside a sentence is as tall as a line of text, so the sentence still reads as one */
+.cloze{line-height:2.05}
+.cloze .gap{line-height:1.3}
+/* four groups to sort into: two by two, never three and one */
+.bins:has(> .bin:nth-child(4):last-child){grid-template-columns:repeat(2,minmax(0,1fr))}
+/* one ring for every picture, photograph or drawing: white with a dark edge inside and out, so it reads on any ground */
+.hs__pt:not([aria-pressed="true"]),.hs__stage svg ~ .hs__pt:not([aria-pressed="true"]){border:2px solid rgba(255,255,255,.95);background:rgba(255,255,255,.1);
+  box-shadow:0 0 0 1.5px rgba(10,20,28,.78),inset 0 0 0 1px rgba(10,20,28,.5)}
+.hs__pt:not([aria-pressed="true"]):hover{background:rgba(255,255,255,.35)}
+/* no word left alone on the last line of a paragraph */
+p,li,dd,figcaption{text-wrap:pretty}
+/* a cell picture's numbered pins and their key (when words in the margins would squeeze the picture) */
+.lb__pin{fill:var(--col-card);stroke:var(--col-ink);stroke-width:1.3px;vector-effect:non-scaling-stroke}
+.lb__pinn{fill:var(--col-ink);font-family:var(--font);font-weight:700}
+.lb.is-lit .lb__pin{fill:var(--accent);stroke:var(--accent)}
+.lb.is-lit .lb__pinn{fill:var(--on-ink)}
+.lb:hover .lb__pin,.lb:focus-visible .lb__pin{stroke:var(--accent)}
+.lb--key .lb__txt{stroke:none}
+
+/* a link out of the lab reads as a button, not as one more badge beside it */
+.later__out{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.later__out:hover{background:var(--accent-tint);filter:none}
+/* a tall photograph in a question is capped in height, so the question, the picture and "Check answer" fit on one
+   screen; the stage shrinks to the picture, so every ring stays on its part */
+.hs__stage:has(> img){width:fit-content;max-width:100%;margin-left:auto;margin-right:auto}
+.hs__stage > img{width:auto;max-width:100%;max-height:min(520px,62vh)}
+/* a heading over a picture (two photographs side by side) */
+.cellv__head{fill:var(--col-ink);font-family:var(--font);font-weight:700;paint-order:stroke;stroke:var(--col-bg);stroke-width:3px;stroke-linejoin:round}
+
+
+/* ---------- this lab's pictures ---------- */
+.vbar{align-items:center}
+.gal__mode,.dfv__tab,.twn__mode{font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border-radius:var(--r-pill);cursor:pointer;
+  border:1.5px solid var(--col-line);background:var(--col-card);color:var(--col-ink)}
+.gal__mode[aria-pressed="true"],.dfv__tab[aria-pressed="true"],.twn__mode[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
+.gal__mode:focus-visible,.dfv__tab:focus-visible,.twn__mode:focus-visible,.gal__tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* a station's parts: each block of What you need to know and its button on the picture share one colour, a swatch before
+   both names (Daniel, 4 Nov 2026: "easy to link it … different in color"); the photographs of that part light in it too */
+.cellv__mode--1,.gal__mode--1,.gal__tile--1,.exam-part--1{--pt-ink:var(--pt1-ink);--pt-tint:var(--pt1-tint);--pt-edge:var(--pt1-edge)}
+.cellv__mode--2,.gal__mode--2,.gal__tile--2,.exam-part--2{--pt-ink:var(--pt2-ink);--pt-tint:var(--pt2-tint);--pt-edge:var(--pt2-edge)}
+.cellv__mode--3,.gal__mode--3,.gal__tile--3,.exam-part--3{--pt-ink:var(--pt3-ink);--pt-tint:var(--pt3-tint);--pt-edge:var(--pt3-edge)}
+.gal__mode[class*="gal__mode--"],.cellv__mode[class*="cellv__mode--"]{display:inline-flex;align-items:center;gap:7px}
+.gal__mode[class*="gal__mode--"]::before,.cellv__mode[class*="cellv__mode--"]::before,.exam-part[class*="exam-part--"] .exam-part__h::before{content:'';flex:none;width:11px;height:11px;border-radius:3px;background:var(--pt-ink)}
+.gal__mode[class*="gal__mode--"][aria-pressed="true"],.cellv__mode[class*="cellv__mode--"][aria-pressed="true"]{border-color:var(--pt-ink);background:var(--pt-tint);color:var(--pt-ink)}
+.gal__mode[class*="gal__mode--"]:focus-visible{outline-color:var(--pt-ink)}
+.gal__tile[class*="gal__tile--"]:hover,.gal__tile[class*="gal__tile--"].is-lit{border-color:var(--pt-ink)}
+.gal__tile[class*="gal__tile--"].is-lit{box-shadow:0 0 0 3px var(--pt-edge)}
+.exam-part[class*="exam-part--"]{background:var(--pt-tint);border-top:1px solid var(--pt-edge);border-bottom:1px solid var(--pt-edge);box-shadow:inset 5px 0 0 var(--pt-ink)}
+.exam-part[class*="exam-part--"] .exam-part__h{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--pt-ink);margin-bottom:10px}
+.exam-part[class*="exam-part--"] .xcard__h:hover,.exam-part[class*="exam-part--"] .xcard.is-open .xcard__h{border-color:var(--pt-ink)}
+.exam-part[class*="exam-part--"] .xcard.is-open .xcard__h{background:var(--pt-tint);color:var(--pt-ink)}
+.exam-part[class*="exam-part--"] .xcard__b{border-color:var(--pt-ink)}
+.exam-part[class*="exam-part--"] .xcard__h:focus-visible{outline-color:var(--pt-ink)}
+
+/* the photographs (stations 1 and 3): each one names itself; their credits are folded under the picture (.said__fold) */
+.gal{flex:1;min-height:0;display:flex;flex-direction:column;padding:8px 10px 8px;overflow:auto}
+.gal__grid{display:grid;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));gap:10px;align-content:start}
+.gal__grid[hidden]{display:none}
+/* on a phone, two photographs a row: at three, a tile's name and its line ran out of the top of the tile (4 Nov 2026) */
+@media (max-width:440px){ .gal__grid{grid-template-columns:repeat(min(var(--cols,2),2),minmax(0,1fr))} }
+.gal__band{grid-column:1/-1;margin:4px 2px -2px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--col-soft)}
+.gal__tile{position:relative;display:block;padding:0;margin:0;border:2px solid var(--col-line);border-radius:12px;overflow:hidden;cursor:pointer;
+  background:var(--col-card);aspect-ratio:4/3;text-align:left;transition:opacity .2s,border-color .2s}
+.gal__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.gal__name{position:absolute;left:0;right:0;bottom:0;padding:22px 10px 7px;color:#fff;font-size:14px;line-height:1.25;
+  background:linear-gradient(180deg,rgba(8,14,20,0),rgba(8,14,20,.78) 45%)}
+.gal__name b{display:block;font-size:15px}
+.gal__name span{display:block;font-size:12.5px;opacity:.92}
+.gal__sup{position:absolute;right:8px;bottom:8px;font-style:normal;font-size:11px;font-weight:700;color:#fff;background:var(--accent);border-radius:5px;padding:1px 6px}
+.gal__tile:hover{border-color:var(--accent)}
+.gal__tile.is-lit{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint)}
+.gal__tile.is-dim{opacity:.55}
+
+
+/* a phone: the numbered names of an animation, under the drawing */
+.pinkey{list-style:none;margin:6px 4px 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 12px;font-size:13.5px}
+.pinkey[hidden]{display:none}
+.pinkey b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--ink);font-size:11.5px;margin-right:4px}
+
+/* ============================================================ this lab's drawings ============================================================ */
+/* chromosomes: the colour of the parent each came from (keyed under every drawing that uses them), a gene's band */
+.ch--mum{fill:var(--mum)} .ch--dad{fill:var(--dad)}
+.ch{stroke:rgba(0,0,0,.28);stroke-width:.8}
+.ch__band{fill:var(--gene);stroke:var(--gene-ink);stroke-width:.6}
+.ch__cen{stroke:rgba(0,0,0,.28);stroke-width:.8}
+.chr--other .ch,.chr--other .ch__cen{fill:var(--shade);opacity:.75}
+.thr{fill:none;stroke-linecap:round}
+.thr--mum{stroke:var(--mum)} .thr--dad{stroke:var(--dad)}
+.cellb{fill:var(--cell-fill);stroke:var(--cell-edge);stroke-width:2}
+.cellb--stem{fill:var(--cell-fill)} .cellb--spec{fill:var(--accent-tint);stroke:var(--accent)}
+.cellb--zyg{fill:var(--cell-fill)} .cellb--other{fill:none;stroke:var(--shade);stroke-dasharray:5 4}
+.nucb{fill:var(--nuc-fill);stroke:var(--nuc-edge);stroke-width:1.8}
+.pore{fill:var(--cell-fill);stroke:none}
+.zm__bg{fill:var(--col-card)}
+.zm__box{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-dasharray:4 3}
+.zm__line{fill:none;stroke:var(--grey);stroke-width:1.2;stroke-dasharray:3 4}
+.zm__pane{fill:var(--card-2);stroke:var(--edge);stroke-width:1.2}
+.dna__s{fill:none;stroke:var(--shade);stroke-width:3;stroke-linecap:round}
+.dna__b{stroke-width:3.2;stroke-linecap:round}
+.dna__b--A,.dna__fill--A{stroke:var(--dna-a);fill:var(--dna-a)} .dna__b--T,.dna__fill--T{stroke:var(--dna-b);fill:var(--dna-b)}
+.dna__b--G,.dna__fill--G{stroke:var(--aa3);fill:var(--aa3)} .dna__b--C,.dna__fill--C{stroke:var(--gene);fill:var(--gene)}
+.dna__gene{fill:var(--gene);opacity:.32}
+.gn__br{fill:none;stroke:var(--ink);stroke-width:1.6}
+.mrna{fill:none;stroke:var(--mrna);stroke-width:4;stroke-linecap:round}
+.mr__b{stroke:rgba(0,0,0,.25);stroke-width:.5}
+.rib ellipse{fill:var(--rib);opacity:.85;stroke:rgba(0,0,0,.3);stroke-width:1}
+.aa{stroke:rgba(0,0,0,.3);stroke-width:1}
+.aa.aa1{fill:var(--aa1)} .aa.aa2{fill:var(--aa2)} .aa.aa3{fill:var(--aa3)} .aa.aa4{fill:var(--aa4)}
+.pchain{fill:none;stroke:var(--grey);stroke-width:2}
+.exg__dna{fill:var(--card-2);stroke:var(--shade);stroke-width:1.5}
+.exg__gene{fill:var(--card);stroke:var(--shade);stroke-width:1.5}
+.exg__gene.is-on{fill:var(--gene);stroke:var(--gene-ink)}
+.exg__out{stroke:var(--ink);stroke-width:2} .exg__prot{fill:var(--aa2);stroke:rgba(0,0,0,.3)}
+.arr{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round} .arrh{fill:var(--ink)}
+.use__dot{fill:var(--accent-tint);stroke:var(--accent);stroke-width:2}
+.al{fill:var(--ink);font-family:var(--font);font-weight:700;font-size:16px}
+.al--on{fill:var(--gene-ink);font-size:15px} .al--tag{font-size:14px}
+.gd__w{fill:var(--ink);font-family:var(--font);font-size:15px} .gd__w--s{font-size:13.5px}
+.gd__x{fill:var(--grey);font-family:var(--font);font-size:18px}
+.gd__al{font-size:17px}
+.gd__gam{fill:var(--card);stroke:var(--ink);stroke-width:1.4}
+.gd__fert{fill:none;stroke:var(--grey);stroke-width:1.2}
+.pd__p{fill:var(--card);stroke:var(--ink);stroke-width:2}
+.pd__p.is-has{fill:var(--shade)}
+.pd__l{fill:none;stroke:var(--ink);stroke-width:2}
+.pd__n{fill:var(--ink);font-family:var(--font);font-weight:600}
+.pd__lit{fill:var(--accent-tint);stroke:var(--accent);stroke-width:2.5}
+.pd__hit{fill:transparent;cursor:pointer}
+.pd__hit:focus-visible{outline:none;stroke:var(--accent);stroke-width:3}
+.wr__col{fill:var(--card-2);stroke:var(--edge);stroke-width:1.2}
+.pdv{flex:1;min-height:0;display:flex;flex-direction:column;padding:10px}
+.pdv__stage{width:100%}
+.pdv__svg{display:block;margin:0 auto}
+/* a drawing's key, in HTML under it */
+.figkey{list-style:none;margin:6px 10px 2px;padding:0;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13.5px;color:var(--col-ink)}
+.figkey[hidden]{display:none}
+.figkey li{display:inline-flex;align-items:center;gap:7px}
+.figkey__sw{flex:none;width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.25)}
+.sw--mum{background:var(--mum)} .sw--dad{background:var(--dad)} .sw--gene{background:var(--gene)}
+/* the colours of a fluorescence photograph (the mitosis station's real cell): the photograph's own, in both themes */
+.sw--flb{background:#7DA3F2} .sw--flg{background:#46C866} .sw--flr{background:#D8342A}
+.sw--bases{background:linear-gradient(90deg,var(--dna-a) 25%,var(--dna-b) 25% 50%,var(--aa3) 50% 75%,var(--gene) 75%)}
+.sw--mrna{background:var(--mrna)} .sw--aa{background:linear-gradient(90deg,var(--aa1) 25%,var(--aa2) 25% 50%,var(--aa3) 50% 75%,var(--aa4) 75%);border-radius:50%}
+.sw--geneoff{background:var(--card)} .sw--geneon{background:var(--gene)} .sw--prot{background:var(--aa2);border-radius:50%}
+.sw--gam{background:var(--card);border:1.5px solid var(--ink);border-radius:50%}
+.sw--spec{background:var(--accent-tint);border-color:var(--accent)}
+.pd--m{background:var(--card);border:2px solid var(--ink);border-radius:2px}
+.pd--f{background:var(--card);border:2px solid var(--ink);border-radius:50%}
+.pd--has{background:var(--shade);border:2px solid var(--ink);border-radius:2px}
+
+/* ============================================================ writing alleles (js/genes.js) ============================================================ */
+/* a box of alleles: an inline block, never a flex box, which would undo the raise of a superscript */
+.gt{display:inline-block;text-align:center;min-width:64px;min-height:36px;padding:3px 10px;margin:2px 3px;border:2px solid var(--edge);
+  border-radius:8px;background:var(--card);font-size:20px;font-weight:700;color:var(--ink);vertical-align:middle;cursor:text;line-height:1.5;white-space:nowrap}
+.gt sup{font-size:66%;font-weight:700;margin-left:1px;vertical-align:super;line-height:0;position:relative;top:-.1em}
+.gt.is-active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint)}
+.gt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gt.ok{border-color:var(--ok);background:var(--ok-tint)} .gt.no{border-color:var(--bad);background:var(--bad-tint)}
+.gt.is-fixed{cursor:default}
+.gt--given{border-color:transparent;background:transparent;min-width:0;cursor:default}
+.gt__ph{font-size:13px;font-weight:500;color:var(--grey)}
+.gt__caret{display:inline-block;width:2px;height:22px;background:var(--accent);margin-left:2px;vertical-align:middle;animation:gtblink 1s steps(2) infinite}
+.gt__caret--up{height:13px;vertical-align:super}
+@keyframes gtblink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.gt__caret{animation:none}}
+.cloze--gt{line-height:2.6}
+.gtwrap{overflow-x:auto;margin:6px 0}
+.gtgrid{border-collapse:separate;border-spacing:6px;margin:0 auto}
+.gtgrid th{font-size:14px;font-weight:600;color:var(--grey);text-align:right;padding:0 6px}
+.gtgrid--punnett th{text-align:center}
+.gtgrid--punnett td{background:var(--card-2);border:1.5px solid var(--edge);border-radius:8px;padding:4px;text-align:center}
+.gtgrid th .gt--given{font-size:19px;color:var(--ink)}
+.gtpad{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.gtpad[hidden]{display:none}
+.gtpad__k{font:inherit;font-size:19px;font-weight:700;min-width:46px;min-height:44px;padding:4px 10px;border-radius:9px;border:1.5px solid var(--edge);
+  background:var(--card);color:var(--ink);cursor:pointer}
+.gtpad__k:hover{border-color:var(--accent)}
+.gtpad__k:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gtpad__k--up,.gtpad__k--del{font-size:14px;font-weight:600}
+.gtpad__k--up sup{font-size:70%}
+.gtpad__k--up[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-ink)}
+.gtpad.is-up .gtpad__k:not(.gtpad__k--up):not(.gtpad__k--del){font-size:14px;padding-bottom:16px}
+.gtadvice{margin:10px 0 0;padding:10px 12px;border-left:4px solid var(--amber);background:var(--amber-tint);border-radius:0 8px 8px 0;color:var(--ink)}
+.gtadvice p{margin:4px 0;font-size:14.5px;line-height:1.5}
+.gtadvice__h{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--amber)}
+
+/* ============================================================ crosses (js/w-cross.js) ============================================================ */
+.wx__d{display:flex;flex-direction:column;gap:10px;padding:12px;background:var(--col-card);border:1px solid var(--edge);border-radius:14px}
+.wx__row{display:grid;grid-template-columns:minmax(92px,30%) 1fr;align-items:center;gap:10px}
+.wx__lab{font-size:13px;color:var(--grey);text-align:right;line-height:1.25}
+.wx__cells{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;justify-items:center;gap:6px;font-size:16px}
+.wx__c{text-align:center} .wx__g{font-size:20px;font-weight:700}
+.wx__g sup,.wx__gam sup,.wx__bg sup{font-size:68%;line-height:0}
+.wx__x{color:var(--grey);font-size:20px}
+.wx__gam{display:inline-grid;place-items:center;min-width:42px;height:42px;margin:0 4px;border:1.8px solid var(--ink);border-radius:50%;font-style:normal;font-weight:700;font-size:18px;background:var(--card)}
+.wx__ps{display:flex;justify-content:center}
+.wx__sq{border-collapse:separate;border-spacing:6px}
+.wx__sq th{padding:0}
+.wx__sq td{width:112px;height:72px;background:var(--card-2);border:1.5px solid var(--edge);border-radius:10px;text-align:center;vertical-align:middle}
+.wx__bg{display:block;font-weight:700;font-size:20px}
+.wx__bp{display:block;font-size:13px;color:var(--grey);line-height:1.2;margin-top:2px}
+.wx__end{margin:0;font-size:15px;text-align:center}
+.wx [data-s]{transition:opacity .25s}
+.wx .is-now.wx__gam,.wx td .is-now{color:var(--accent)}
+.wx__fig{margin:0}
+.wx__read{display:none}
+.tr__tally{font-size:13.5px;color:var(--grey);margin:2px 0 8px}
+.tr__stem{font-size:15.5px;line-height:1.55;margin:0 0 10px}
+.tr__stem sup{font-size:70%}
+.tr__line{margin:10px 0;padding:10px 12px;border:1px solid var(--edge);border-radius:12px;background:var(--card-2)}
+.tr__h{margin:0 0 6px;font-weight:700;font-size:14.5px}
+.tr__t1 td,.tr__t1 th{vertical-align:middle}
+.tr__gams{white-space:nowrap}
+.tr__gl{font-size:12.5px;color:var(--grey);margin:0 4px 0 10px}
+.tr__choices{display:flex;flex-wrap:wrap;gap:6px}
+.tr__ch{font:inherit;font-size:14.5px;padding:8px 12px;border-radius:9px;border:1.5px solid var(--edge);background:var(--card);color:var(--ink);cursor:pointer;text-align:left}
+.tr__ch[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint)}
+.tr__ch.ok{border-color:var(--ok);background:var(--ok-tint)} .tr__ch.no{border-color:var(--bad);background:var(--bad-tint)}
+.tr__fb{margin:8px 0}
+.tr__ok{color:var(--ok);font-weight:600;margin:4px 0} .tr__no{color:var(--bad);font-weight:600;margin:4px 0}
+.tr__new{margin-top:6px}
+.widget__note--ext{border-left:3px solid var(--purple);padding-left:8px;color:var(--purple)}
+@media (max-width:520px){
+  .wx__row{grid-template-columns:1fr;gap:2px}
+  .wx__lab{text-align:left}
+  .wx__sq td{width:auto;min-width:96px;height:64px}
+  .gt{min-width:54px;font-size:19px}
+  .tr__gl{display:block;margin:4px 0 0}
+  .tr__gams{white-space:normal}
+}
+
+/* the step animations' read-outs and drawings (the Immunity Lab's) */
+.zm__read,.pt__read,.dv__read{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px}
+.zm__pill,.pt__pill,.dv__pill{font-size:12.5px;border-radius:var(--r-pill);padding:3px 10px;border:1px solid var(--edge);background:var(--card-2)}
+.zm__pill.is-ok,.pt__pill.is-ok,.dv__pill.is-ok{border-color:var(--ok);color:var(--ok)}
+.zm__fig,.pt__fig,.dv__fig{margin:0}
+.zm__svg,.pt__svg,.dv__svg{display:block;width:100%;height:auto}
+.thr--faint{stroke:var(--shade);opacity:.35}
+.dv__ext{font:inherit;font-size:12.5px;font-weight:600;border-radius:var(--r-pill);padding:3px 10px;border:1.5px solid var(--purple);background:var(--card);color:var(--purple);cursor:pointer}
+.dv__ext[aria-pressed="true"]{background:var(--purple);color:var(--on-ink)}
+.dv__ext[aria-pressed="true"] .sup--ext{color:var(--on-ink)}
+.sw--faint{background:var(--shade);opacity:.45}
+.sw--x{background:linear-gradient(60deg,transparent 42%,var(--mum) 42% 58%,transparent 58%),linear-gradient(-60deg,transparent 42%,var(--mum) 42% 58%,transparent 58%);border:none}
+/* the IGCSE · IB switch of the divisions */
+.lvw__bar{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
+.lvw__b{font:inherit;font-size:13.5px;font-weight:600;padding:6px 12px;border-radius:var(--r-pill);border:1.5px solid var(--edge);background:var(--card);color:var(--ink);cursor:pointer}
+.lvw__b[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
+.lvw__b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* the cell's own structures, IB level */
+.cent{fill:var(--ink);opacity:.8} .cent__pcm{fill:var(--accent-tint);stroke:var(--accent);stroke-width:1}
+.mt path{fill:none;stroke:var(--grey);stroke-width:1.1;opacity:.75}
+.nucleolus{fill:var(--nuc-edge);opacity:.7}
+.nucb--break{stroke-dasharray:6 5}
+.cring circle{fill:var(--bad);stroke:#fff;stroke-width:1}
+.chiasma{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-dasharray:3 2}
+.mito{fill:var(--mito);stroke:var(--mito-edge);stroke-width:1}
+.nucghost{fill:var(--nuc-fill);stroke:none}
+.vesicle{fill:var(--nuc-edge);opacity:.8}
+.eqline{fill:none;stroke:var(--grey);stroke-width:1.2;stroke-dasharray:5 4}
+.hist{fill:var(--aa4);opacity:.9} .histdna{fill:none;stroke:var(--dna-a);stroke-width:1.8}
+.inset{fill:var(--card);stroke:var(--edge);stroke-width:1.2}
