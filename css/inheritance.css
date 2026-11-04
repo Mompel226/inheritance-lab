@@ -498,6 +498,9 @@ p,li,dd,figcaption{text-wrap:pretty}
 .lvw__b{font:inherit;font-size:13.5px;font-weight:600;padding:6px 12px;border-radius:var(--r-pill);border:1.5px solid var(--edge);background:var(--card);color:var(--ink);cursor:pointer}
 .lvw__b[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
 .lvw__b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* IB in the IB blue of the practicals (Daniel, 4 Nov 2026: "Yes, IB blue"): the tag on the switch, and the IB level's notes */
+.lvw__b .sup--ext{background:var(--c103);color:var(--c104);border-color:var(--c105)}
+.widget__note--ib{border-left:3px solid var(--c104);padding-left:8px;color:var(--c104)}
 /* the cell's own structures, IB level */
 .cent{fill:var(--ink);opacity:.8} .cent__pcm{fill:var(--accent-tint);stroke:var(--accent);stroke-width:1}
 .mt path{fill:none;stroke:var(--grey);stroke-width:1.1;opacity:.75}
