@@ -32,7 +32,7 @@ in its order and in its words. Then the questions say right or wrong, never the 
 | 🔤 **The letters right** | genotypes are typed with a real raised letter (Iᴬ, Xᵇ), capitals and small letters kept apart; a wrong box says which rule it breaks |
 | ♾️ **Crosses without end** | a trainer makes a new cross every time: dominant and recessive, the test cross, codominance, the ABO blood groups and sex linkage |
 | ✖️ **A line or a cross?** | a chromosome is a single line in a working cell, a cross only while the cell divides, then two single rods again |
-| 🎬 **Step by step** | from a cell to a gene; making a protein; mitosis and meiosis, each with an IGCSE level and a detailed IB level (every phase, the spindle, centrosomes, crossing over). Each step waits for "Next step" |
+| 🎬 **Step by step** | from a cell to a gene (the DNA copied, coiled into a cross, wound round histones, down to the double helix, each at its real size); making a protein; mitosis and meiosis, each with an IGCSE level and a detailed IB level (every phase, the spindle, centrosomes, crossing over). Each step waits for "Next step" |
 | 📷 **Real pictures** | a dividing cell under a fluorescence microscope, an embryo of 8 cells, a blood group test, a colour-vision chart |
 | 📖 **A shared glossary** | one wording per term, the same in every lab |
 

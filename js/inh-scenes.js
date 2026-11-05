@@ -49,7 +49,8 @@
     out += D.helix(22, 278, 348, 22, 3.2, .6, [.36, .66]);
     return { w: 300, h: 404, svg: out,
       pts: { nucleus: [222, 64, 'R'], chromosome: [28, 222, 'L'], dna: [24, 352, 'L'], gene: [210, 322, 'R'] },
-      alts: { nucleus: [[226, 80], [220, 96]], gene: [[200, 370], [190, 328]] } };
+      alts: { nucleus: [[226, 80], [220, 96]], gene: [[200, 370], [190, 328]] },
+      spots: { nucleus: [176, 80, 52, 42], chromosome: [150, 221, 128, 24], dna: [150, 348, 132, 32], gene: [152, 348, 42, 32] } };
   }
 
   /* 1 · 12 · pair 9: the two chromosomes of a pair, the ABO gene at the same place on both */
@@ -60,14 +61,15 @@
     var bm = D.bandAt(m, .8), bf = D.bandAt(f, .8);
     return { w: 300, h: 300, svg: out,
       pts: { mum9: [m.x - 15, 70, 'L'], dad9: [f.x + 15, 70, 'R'], alleleA: [bm[0] - 15, bm[1], 'L'], alleleO: [bf[0] + 15, bf[1], 'R'] },
-      alts: {}, tags: A };
+      alts: {}, tags: A,
+      spots: { mum9: [m.x, m.y, 20, 120], dad9: [f.x, f.y, 20, 120], alleleA: [bm[0], bm[1], 20, 14], alleleO: [bf[0], bf[1], 20, 14] } };
   }
 
   /* 2 · the 23 pairs of a body cell, in a karyogram's order */
   var LEN = [248, 242, 198, 190, 181, 171, 159, 145, 138, 134, 135, 133, 114, 107, 102, 90, 83, 80, 59, 64, 47, 51];
   function karyo(sex) {
     var rows = [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9, 10, 11], [12, 13, 14, 15, 16, 17], [18, 19, 20, 21, 'sex']];
-    var out = '', pts = {}, S = .30, W = 6.5, SP = .7, y0 = [52, 136, 214, 284];
+    var out = '', pts = {}, spots = {}, S = .30, W = 6.5, SP = .7, y0 = [52, 136, 214, 284];
     rows.forEach(function (row, ri) {
       var span = 520 / row.length;
       row.forEach(function (c, ci) {
@@ -77,16 +79,18 @@
           out += D.chromo({ x: cx - 10, y: base - lx / 2, len: lx, w: W, who: 'mum', copies: 2, spread: SP });
           out += D.chromo({ x: cx + 10, y: base - ly / 2, len: ly, w: W, who: 'dad', copies: 2, spread: SP, cls: sex === 'm' ? 'chr--y' : '' });
           pts.sex = [cx + 16, base - ly / 2, 'R'];
+          spots.sex = [cx, base - lx / 2, 24, lx / 2 + 4];
           return;
         }
         var l = LEN[c] * S;
         out += D.chromo({ x: cx - 10, y: base - l / 2, len: l, w: W, who: 'mum', copies: 2, spread: SP, bands: c === 8 ? [.8] : [] });
         out += D.chromo({ x: cx + 10, y: base - l / 2, len: l, w: W, who: 'dad', copies: 2, spread: SP, bands: c === 8 ? [.8] : [] });
-        if (c === 0) pts.pair1 = [cx - 14, base - l / 2 - 4, 'L'];
-        if (c === 8) pts.pair9 = [cx + 17, base - l / 2 + l * .78, 'R'];
+        /* a pair's light: both chromosomes, from the top of the longer to the line they stand on */
+        if (c === 0) { pts.pair1 = [cx - 14, base - l / 2 - 4, 'L']; spots.pair1 = [cx, base - l / 2, 25, l / 2 + 4]; }
+        if (c === 8) { pts.pair9 = [cx + 17, base - l / 2 + l * .78, 'R']; spots.pair9 = [cx, base - l / 2, 25, l / 2 + 4]; }
       });
     });
-    return { w: 520, h: 330, svg: out, pts: pts, alts: {} };
+    return { w: 520, h: 330, svg: out, pts: pts, alts: {}, spots: spots };
   }
 
   /* 3 · a cell making a protein: the gene in the nucleus, mRNA leaving through a pore, a ribosome in the cytoplasm */
@@ -105,21 +109,24 @@
     [['aa2', 224, 230], ['aa3', 240, 252], ['aa1', 206, 262], ['aa4', 258, 230]].forEach(function (q) { out += '<circle class="aa ' + q[0] + '" cx="' + q[1] + '" cy="' + q[2] + '" r="7"/>'; });
     return { w: 360, h: 320, svg: out,
       pts: { nucleus: [40, 150, 'L'], gene: [100, 155, 'L'], mrna: [232, 126, 'R'], pore: [199, 132, 'R'], ribosome: [306, 104, 'R'], protein: [300, 206, 'R'], aminoacids: [206, 262, 'L'] },
-      alts: { gene: [[110, 180]], mrna: [[250, 120]], protein: [[296, 218]] } };
+      alts: { gene: [[110, 180]], mrna: [[250, 120]], protein: [[296, 218]] },
+      spots: { nucleus: [118, 150, 80, 68], gene: [124, 168, 24, 18], mrna: [220, 125, 104, 14, -11.6], pore: [195, 132, 9, 11],
+               ribosome: [283, 114, 26, 22], protein: [286, 182, 22, 44], aminoacids: [232, 246, 34, 26] } };
   }
 
   /* 4 · the same genes in every cell; a cell expresses only some: one length of DNA with four genes, lit where expressed */
   var GENES = [['amylase', 'the gene for amylase (an enzyme)'], ['carrier', 'the gene for a carrier protein in the membrane'], ['receptor', 'the gene for a receptor for a neurotransmitter'], ['haemo', 'the gene for haemoglobin']];
   function express(on) {
-    var out = '', pts = {};
+    var out = '', pts = {}, spots = {};
     out += '<rect class="exg__dna" x="40" y="40" width="40" height="300" rx="20"/>';
     GENES.forEach(function (g, i) {
       var y = 70 + i * 74, lit = (on || []).indexOf(g[0]) >= 0;
       out += '<rect class="exg__gene' + (lit ? ' is-on' : '') + '" x="40" y="' + y + '" width="40" height="34" rx="4"/>';
       if (lit) out += '<path class="exg__out" d="M86 ' + (y + 17) + ' L120 ' + (y + 17) + '"/><circle class="exg__prot" cx="132" cy="' + (y + 17) + '" r="9"/>';
       pts[g[0]] = [80, y + 17, 'R'];
+      spots[g[0]] = [60, y + 17, 22, 19];
     });
-    return { w: 160, h: 380, svg: out, pts: pts, alts: {} };
+    return { w: 160, h: 380, svg: out, pts: pts, alts: {}, spots: spots };
   }
 
   /* 5 · mitosis: one cell of 4 chromosomes, then two cells of 4 */
@@ -133,7 +140,8 @@
     });
     var s0 = D.threadStart(90, 155, .72, .85);
     return { w: 400, h: 300, svg: out,
-      pts: { parent: [20, 150, 'L'], daughter: [382, 78, 'R'], daughter2: [382, 222, 'R'], chromosome: [s0[0], s0[1], 'L'] }, alts: {} };
+      pts: { parent: [20, 150, 'L'], daughter: [382, 78, 'R'], daughter2: [382, 222, 'R'], chromosome: [s0[0], s0[1], 'L'] }, alts: {},
+      spots: { parent: [90, 150, 72, 64], daughter: [320, 78, 62, 54], daughter2: [320, 222, 62, 54], chromosome: [77, 133, 18, 8] } };
   }
 
   /* 7 · meiosis: one cell of 4 (2 pairs), four cells of 2 (one of each pair) */
@@ -147,7 +155,8 @@
       /* one of each pair, as long thin lines: the long one (pair A) and the short one (pair B) */
       out += thread([[cx - 15, cy - 6], [cx - 6, cy - 12], [cx + 4, cy - 5], [cx + 13, cy - 10]], k[0], 2.4) + thread([[cx - 9, cy + 9], [cx, cy + 4], [cx + 10, cy + 10]], k[1], 2.4);
     });
-    return { w: 400, h: 320, svg: out, pts: { parent: [12, 160, 'L'], gamete: [394, 92, 'R'], gamete2: [394, 228, 'R'] }, alts: {} };
+    return { w: 400, h: 320, svg: out, pts: { parent: [12, 160, 'L'], gamete: [394, 92, 'R'], gamete2: [394, 228, 'R'] }, alts: {},
+      spots: { parent: [74, 160, 62, 58], gamete: [354, 92, 40, 38], gamete2: [354, 228, 40, 38] } };
   }
 
   /* 8 · three genotypes of one gene: the two chromosomes of a pair, an allele at the same place on each */
@@ -160,7 +169,8 @@
       out += D.allele(a.x, 136, g[1], { cls: 'al--on' }) + D.allele(b.x, 136, g[2], { cls: 'al--on' });
       pts[g[0]] = [x, 214, i === 0 ? 'L' : 'R'];
     });
-    return { w: 360, h: 240, svg: out, pts: { RR: [46, 60, 'L'], Rr: [196, 60, 'R'], rr: [314, 60, 'R'] }, alts: {} };
+    return { w: 360, h: 240, svg: out, pts: { RR: [46, 60, 'L'], Rr: [196, 60, 'R'], rr: [314, 60, 'R'] }, alts: {},
+      spots: { RR: [62, 130, 32, 76], Rr: [180, 130, 32, 76], rr: [298, 130, 32, 76] } };
   }
 
   /* 9 · the layout of a genetic diagram, its lines named, for a pupil to read from top to bottom */
@@ -176,7 +186,9 @@
     o.og.forEach(function (g, i) { out += D.allele(72 + i * 72, y[3], g, { cls: 'gd__al' }); });
     o.op.forEach(function (p, i) { out += '<text class="gd__w gd__w--s" x="' + (72 + i * 72) + '" y="' + y[4] + '" text-anchor="middle">' + p + '</text>'; });
     return { w: 360, h: 290, svg: out,
-      pts: { pp: [40, y[0] - 6, 'L'], pg: [60, y[1] - 6, 'L'], gam: [55, y[2] - 6, 'L'], og: [44, y[3] - 6, 'L'], op: [36, y[4] - 6, 'L'] }, alts: {} };
+      pts: { pp: [40, y[0] - 6, 'L'], pg: [60, y[1] - 6, 'L'], gam: [55, y[2] - 6, 'L'], og: [44, y[3] - 6, 'L'], op: [36, y[4] - 6, 'L'] }, alts: {},
+      /* a whole line of the diagram, from its first word to its last */
+      spots: { pp: [180, y[0] - 7, 128, 14], pg: [180, y[1] - 7, 118, 14], gam: [180, y[2] - 6, 132, 19], og: [180, y[3] - 7, 136, 14], op: [180, y[4] - 6, 146, 12] } };
   }
 
   /* 11 · a family over three generations: dry earwax (shaded), the recessive allele w; wet earwax, the dominant W.
@@ -207,7 +219,7 @@
 
   /* 12 · the four blood groups, each the pair of chromosome 9 with its two alleles */
   function abo() {
-    var out = '', pts = {};
+    var out = '', pts = {}, spots = {};
     [['A', 'IᴬIᴬ'], ['B', 'IᴮIᵒ'], ['AB', 'IᴬIᴮ'], ['O', 'IᵒIᵒ']].forEach(function (g, i) {
       var x = 50 + i * 92, al = global.Genes.parse(g[1]);
       var a = { x: x - 13, y: 120, len: 150, w: 20, who: 'mum', bands: [.8] }, b = { x: x + 13, y: 120, len: 150, w: 20, who: 'dad', bands: [.8] };
@@ -215,8 +227,9 @@
       var ya = D.bandAt(a, .8)[1];
       out += D.allele(a.x, ya - 18, al[0].b + '^' + al[0].s, { cls: 'al--tag' }) + D.allele(b.x, ya - 18, al[1].b + '^' + al[1].s, { cls: 'al--tag' });
       pts['g' + g[0]] = [x, 36, i < 2 ? 'L' : 'R'];
+      spots['g' + g[0]] = [x, 116, 30, 82];
     });
-    return { w: 380, h: 230, svg: out, pts: pts, alts: {} };
+    return { w: 380, h: 230, svg: out, pts: pts, alts: {}, spots: spots };
   }
 
   /* 13 · the sex chromosomes: the colour-vision gene on the X, none on the Y */
@@ -227,7 +240,8 @@
     out += D.chromo(X1) + D.chromo(X2) + D.chromo(X3) + D.chromo(Y);
     var g1 = D.bandAt(X1, .12), g3 = D.bandAt(X3, .12);
     return { w: 340, h: 260, svg: out,
-      pts: { female: [50, 210, 'L'], male: [290, 230, 'R'], xgene: [g1[0] - 14, g1[1], 'L'], ygene: [290, 150, 'R'], xgene2: [g3[0] - 14, g3[1], 'L'] }, alts: {} };
+      pts: { female: [50, 210, 'L'], male: [290, 230, 'R'], xgene: [g1[0] - 14, g1[1], 'L'], ygene: [290, 150, 'R'], xgene2: [g3[0] - 14, g3[1], 'L'] }, alts: {},
+      spots: { female: [84, 150, 38, 98], male: [256, 150, 38, 98], xgene: [g1[0], g1[1], 18, 12], xgene2: [g3[0], g3[1], 18, 12], ygene: [Y.x, Y.y, 17, 55] } };
   }
 
   /* 14 · three ways to write alleles */
@@ -237,7 +251,8 @@
     out += D.allele(62, 82, 'R', { size: 34 }) + D.allele(62, 134, 'r', { size: 34 }) + D.allele(62, 186, 'Rr', { size: 30 });
     out += D.allele(180, 82, 'Iᴬ', { size: 34 }) + D.allele(180, 134, 'Iᵒ', { size: 34 }) + D.allele(180, 186, 'IᴬIᴮ', { size: 28 });
     out += D.allele(298, 82, 'Xᴮ', { size: 34 }) + D.allele(298, 134, 'Y', { size: 34 }) + D.allele(298, 186, 'XᵇY', { size: 28 });
-    return { w: 360, h: 220, svg: out, pts: { dom: [8, 40, 'L'], codom: [180, 30, 'R'], sex: [352, 40, 'R'] }, alts: {} };
+    return { w: 360, h: 220, svg: out, pts: { dom: [8, 40, 'L'], codom: [180, 30, 'R'], sex: [352, 40, 'R'] }, alts: {},
+      spots: { dom: [62, 110, 56, 100], codom: [180, 110, 56, 100], sex: [298, 110, 56, 100] } };
   }
 
   /* 6 · what mitosis is for: a cell dividing, four arrows to its four uses (named on the picture), and a stem cell whose
@@ -256,7 +271,10 @@
     out += D.cell(244, 226, 26, 24, 'cellb--stem') + D.nucleus(244, 226, 9, 9);
     out += '<ellipse class="cellb cellb--spec" cx="246" cy="300" rx="34" ry="16"/>' + D.nucleus(232, 300, 7, 6);
     return { w: 410, h: 330, svg: out,
-      pts: { growth: [40, 22, 'L'], repair: [368, 22, 'R'], replace: [40, 172, 'L'], asexual: [368, 172, 'R'], stem: [90, 262, 'L'] }, alts: {} };
+      pts: { growth: [40, 22, 'L'], repair: [368, 22, 'R'], replace: [40, 172, 'L'], asexual: [368, 172, 'R'], stem: [90, 262, 'L'] }, alts: {},
+      /* a use: its dot and the arrow to it; the stem cells: the cell that divides and its two daughters */
+      spots: { growth: [92, 40, 50, 28, 26], repair: [316, 40, 50, 28, -26], replace: [92, 155, 50, 28, -26], asexual: [316, 155, 50, 28, 26],
+               stem: [185, 260, 96, 58] } };
   }
 
   /* 1 · a line or a cross: one chromosome in a working cell (a line), the same chromosome copied and about to divide (a
@@ -270,7 +288,8 @@
     out += '<path class="arr" d="M110 270 L110 296"/><path class="arrh" d="M103 294 L110 306 L117 294 Z"/>';
     out += D.chromo({ x: 78, y: 360, len: 84, w: 15, who: 'mum', bands: [.78] }) + D.chromo({ x: 142, y: 360, len: 84, w: 15, who: 'mum', bands: [.78] });
     return { w: 220, h: 410, svg: out,
-      pts: { line: [44, 60, 'L'], cross: [134, 188, 'R'], lines: [62, 340, 'L'], lines2: [150, 340, 'R'] }, alts: {} };
+      pts: { line: [44, 60, 'L'], cross: [134, 188, 'R'], lines: [62, 340, 'L'], lines2: [150, 340, 'R'] }, alts: {},
+      spots: { line: [112, 59, 72, 20], cross: [110, 214, 32, 52], lines: [78, 360, 14, 46], lines2: [142, 360, 14, 46] } };
   }
 
   var MAKE = {

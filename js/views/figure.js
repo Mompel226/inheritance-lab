@@ -9,6 +9,7 @@
 
    spec: { kind:'figure', parts:[…], names:{ part: 'its name on the picture' }, beyond:{ part: 1 },
            modes:[{ id, name, img, iw, ih, x0, y0, w, h, pts:{ part:[x, y, side?, r?] }, alts:{ part:[[x, y], …] },
+                    spots:{ part:[cx, cy, rx, ry, rot?] } (where the light falls: on the whole part, centred), veil,
                     names, say, alt, credit, cannot:{ part: 'why' }, heads:[{ x, t, y? }], narrow:{ … } }] }
    `img` is a file in assets/photos: a photograph or one of the lab's own drawings (an SVG). Points are in the picture's
    own pixels or viewBox units. `alts` are other points ON a part, where its name may stand when names crowd, so every
@@ -56,6 +57,7 @@
       m.w = m.w || sc.w; m.h = m.h || sc.h; m.scene = sc.svg;
       if (!m.pts || !Object.keys(m.pts).length) m.pts = sc.pts;
       m.alts = Object.assign({}, sc.alts || {}, m.alts || {});
+      m.spots = Object.assign({}, sc.spots || {}, m.spots || {});
     });
     var modes = spec.modes.map(function (m, k) {
       /* a mode shares its colour with the block of What you need to know named as it (app.js exam-part--k) */
@@ -233,10 +235,19 @@
         g.addEventListener('click', function () { ctx.pick(k); });
         g.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ctx.pick(k); } });
       });
-      var pt = lit && m.pts[lit];
-      if (pt) {
-        var rad = pt[3] || Math.max(m.w, m.h) / 9;
-        M.hole.setAttribute('cx', pt[0]); M.hole.setAttribute('cy', pt[1]); M.hole.setAttribute('rx', rad); M.hole.setAttribute('ry', rad);
+      /* the light: `spots` { part: [cx, cy, rx, ry, rot?] } is centred on the part and as large as it, its edge soft but the
+         whole part lit (Daniel, 4 Nov 2026: "make sure that that light is in the right spot … better centered or expanded");
+         without one, a circle at the end of the part's line */
+      var sp = lit && (m.spots || {})[lit], pt = lit && m.pts[lit];
+      if (sp || pt) {
+        var big = Math.max(m.w, m.h) / 40, sd = big, c;
+        if (sp) { sd = Math.max(2, Math.min(big, .3 * Math.min(sp[2], sp[3]))); c = [sp[0], sp[1], sp[2] + sd * 1.4, sp[3] + sd * 1.4, sp[4] || 0]; }
+        else { var rad = pt[3] || Math.max(m.w, m.h) / 9; c = [pt[0], pt[1], rad, rad, 0]; }
+        M.blur.setAttribute('stdDeviation', String(sd));
+        M.hole.setAttribute('cx', c[0]); M.hole.setAttribute('cy', c[1]); M.hole.setAttribute('rx', c[2]); M.hole.setAttribute('ry', c[3]);
+        if (c[4]) M.hole.setAttribute('transform', 'rotate(' + c[4] + ' ' + c[0] + ' ' + c[1] + ')'); else M.hole.removeAttribute('transform');
+        /* `veil` (0…1): a darker veil for a dark photograph, where the usual one cannot be seen */
+        M.veil.style.fill = m.veil ? 'rgba(14,20,27,' + m.veil + ')' : '';
         M.veil.classList.add('is-on');
       } else M.veil.classList.remove('is-on');
     }

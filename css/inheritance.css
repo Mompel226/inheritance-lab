@@ -21,6 +21,8 @@
   --cell-fill:#F7F3EA; --cell-edge:#8A7F6A; --nuc-fill:#EFE7FA; --nuc-edge:#7C6A9E; --cyto:#F7F3EA;
   --dna-a:#2F6DB5; --dna-b:#C8322F; --rib:#6B4F2A; --mrna:#B4285F; --aa1:#1E5BB8; --aa2:#B5530F; --aa3:#15803D; --aa4:#7438B0;
   --shade:#3B4652; --g-ok:#13856C; --g-no:#B03A2E; --mito:#D9E7C3; --mito-edge:#5B7A2E;
+  /* "From a cell to a gene": a new strand of DNA, the proteins DNA is wound round (histones) */
+  --dna-new:#7C3AED; --histone:#E9A8C0; --histone-edge:#A64D72; --histone-2:#F6CFDC;
 }
 @media (prefers-color-scheme: dark){
 :root:not([data-theme="light"]){
@@ -32,6 +34,7 @@
   --cell-fill:#2A2620; --cell-edge:#A89C84; --nuc-fill:#2A2338; --nuc-edge:#A994CF; --cyto:#2A2620;
   --dna-a:#6FA8EC; --dna-b:#F06A5E; --rib:#D6B98A; --mrna:#F48FB4; --aa1:#8DB9FF; --aa2:#F5A35C; --aa3:#6EDB9A; --aa4:#CFA9F7;
   --shade:#C8D1DA; --g-ok:#5EE0B0; --g-no:#F28B7E; --mito:#33402A; --mito-edge:#A9C77A;
+  --dna-new:#C4B5FD; --histone:#8E4A66; --histone-edge:#E7A3BE; --histone-2:#A85F7E;
 }
 }
 :root[data-theme="dark"]{
@@ -43,6 +46,7 @@
   --cell-fill:#2A2620; --cell-edge:#A89C84; --nuc-fill:#2A2338; --nuc-edge:#A994CF; --cyto:#2A2620;
   --dna-a:#6FA8EC; --dna-b:#F06A5E; --rib:#D6B98A; --mrna:#F48FB4; --aa1:#8DB9FF; --aa2:#F5A35C; --aa3:#6EDB9A; --aa4:#CFA9F7;
   --shade:#C8D1DA; --g-ok:#5EE0B0; --g-no:#F28B7E; --mito:#33402A; --mito-edge:#A9C77A;
+  --dna-new:#C4B5FD; --histone:#8E4A66; --histone-edge:#E7A3BE; --histone-2:#A85F7E;
 }
 /* ---------- the header: the shelf's own colours, never the other labs' green ---------- */
 .hdr{background:var(--hdr-bg);color:var(--hdr-ink);border-bottom:1px solid var(--hdr-line);box-shadow:none}
@@ -347,6 +351,27 @@ p,li,dd,figcaption{text-wrap:pretty}
 .zm__box{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-dasharray:4 3}
 .zm__line{fill:none;stroke:var(--grey);stroke-width:1.2;stroke-dasharray:3 4}
 .zm__pane{fill:var(--card-2);stroke:var(--edge);stroke-width:1.2}
+/* "From a cell to a gene" (js/w-zoom.js, 4 Nov 2026): the nucleus's inner membrane, ribosomes, a mitochondrion's folds;
+   the copies coiling into a cross; the new strands of DNA, the enzymes that copy it, the proteins it is wound round.
+   Fades use the opacity attribute, so these rules dim with stroke- and fill-opacity only */
+.zm__env{fill:none;stroke:var(--nuc-edge);stroke-width:1;stroke-opacity:.6}
+.zm__rib{fill:var(--rib)}
+.zm__cr{fill:none;stroke:var(--mito-edge);stroke-width:1;stroke-linecap:round}
+.zm__arm{fill:none;stroke-linecap:round}
+.zm__arm--mum{stroke:var(--mum)} .zm__arm--dad{stroke:var(--dad)} .zm__arm--faint{stroke:var(--shade);stroke-opacity:.22}
+.ch__cen.zm__cen--faint{fill:var(--shade);fill-opacity:.3;stroke:none}
+.dna__b.zm__b{stroke-width:3.4} .dna__b.zm__b7{stroke-width:5.6}
+.dna__s.zm__old{stroke-width:5} .dna__s.zm__new{stroke:var(--dna-new);stroke-width:5}
+.dna__s.zm__s7{stroke-width:9} .dna__s.zm__back{stroke-opacity:.5}
+.zm__enz{fill:var(--accent-tint);fill-opacity:.9;stroke:var(--accent);stroke-width:1.4}
+.zm__loop{fill:var(--mum-2);fill-opacity:.35;stroke:var(--mum);stroke-width:2.2;stroke-linejoin:round}
+.zm__loop--b{fill:none;stroke:var(--mum-2);stroke-width:2}
+.zm__axis{stroke:var(--mum);stroke-width:7;stroke-linecap:round;stroke-opacity:.5}
+.zm__dna{fill:none;stroke:var(--shade);stroke-linecap:round}
+.zm__dna--back{stroke-opacity:.55}
+.zm__tick{stroke:var(--card-2);stroke-width:1.6;stroke-linecap:round}
+.zm__hist{fill:var(--histone);stroke:var(--histone-edge);stroke-width:1.2}
+.zm__histl{fill:var(--histone-2);fill-opacity:.85}
 .dna__s{fill:none;stroke:var(--shade);stroke-width:3;stroke-linecap:round}
 .dna__b{stroke-width:3.2;stroke-linecap:round}
 .dna__b--A,.dna__fill--A{stroke:var(--dna-a);fill:var(--dna-a)} .dna__b--T,.dna__fill--T{stroke:var(--dna-b);fill:var(--dna-b)}
