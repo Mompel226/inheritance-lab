@@ -138,24 +138,26 @@
      The territories of the 46 chromosomes are w-zoom's (the same seeds and colours: two pairs coloured, orange from the
      mother, blue from the father, the rest grey). The gene followed is on the thread w-zoom follows, chromosome 9 from the
      mother (TER[0]), a yellow band along it. */
+  /* long threads that fill the nucleus, as in "From a cell to a gene" (Daniel, 5 Nov 2026: "you have made changes in the
+     first that you have not made in other animations"): the same territories, folds and fine wiggle (m) */
   var TER = [
-    { who: 'mum', c: [110, 120], R: 50, n: 9, a: 0, x: 0, len: 80, w: 13 },
-    { who: 'dad', c: [236, 258], R: 50, n: 9, a: 35, x: 28, len: 80, w: 13 },
-    { who: 'mum', c: [98, 262], R: 38, n: 7, a: -50, x: -40, len: 56, w: 11 },
-    { who: 'dad', c: [240, 126], R: 38, n: 7, a: 70, x: 64, len: 56, w: 11 },
-    { who: 'faint', c: [175, 64], R: 28, n: 4, a: 15, x: 80, len: 44, w: 9 },
-    { who: 'faint', c: [172, 188], R: 38, n: 5, a: -20, x: -15, len: 56, w: 10 },
-    { who: 'faint', c: [168, 318], R: 30, n: 4, a: 50, x: 30, len: 46, w: 9 },
-    { who: 'faint', c: [286, 190], R: 20, n: 3, a: 90, x: 5, len: 32, w: 8 },
-    { who: 'faint', c: [56, 186], R: 22, n: 3, a: 10, x: -70, len: 34, w: 8 }
+    { who: 'mum', c: [110, 120], R: 64, n: 15, a: 0, m: 1.6, x: 0, len: 80, w: 13 },
+    { who: 'dad', c: [236, 258], R: 64, n: 15, a: 35, m: 1.6, x: 28, len: 80, w: 13 },
+    { who: 'mum', c: [98, 262], R: 54, n: 12, a: -50, m: 1.6, x: -40, len: 56, w: 11 },
+    { who: 'dad', c: [240, 126], R: 54, n: 12, a: 70, m: 1.6, x: 64, len: 56, w: 11 },
+    { who: 'faint', c: [175, 58], R: 38, n: 8, a: 15, m: 1.4, x: 80, len: 44, w: 9 },
+    { who: 'faint', c: [172, 188], R: 50, n: 10, a: -20, m: 1.4, x: -15, len: 56, w: 10 },
+    { who: 'faint', c: [168, 322], R: 38, n: 8, a: 50, m: 1.4, x: 30, len: 46, w: 9 },
+    { who: 'faint', c: [290, 190], R: 28, n: 6, a: 90, m: 1.4, x: 5, len: 32, w: 8 },
+    { who: 'faint', c: [52, 186], R: 30, n: 6, a: 10, m: 1.4, x: -70, len: 34, w: 8 }
   ];
   (function () {
     var R = K.rng(5);
-    for (var tries = 0; tries < 900 && TER.length < 21; tries++) {
-      var r = 14 + R() * 14, c = [30 + R() * 280, 30 + R() * 320], ok = true;
-      for (var k = 0; k < 12 && ok; k++) { var a = k * PI / 6, x = c[0] + r * Math.cos(a), y = c[1] + r * Math.sin(a); if (Math.pow((x - CX) / 136, 2) + Math.pow((y - CY) / 154, 2) > 1) ok = false; }
-      TER.forEach(function (T) { if (dist(T.c, c) < T.R + r + 5) ok = false; });
-      if (ok) TER.push({ who: 'faint', c: c, R: r, n: r > 22 ? 4 : 3, a: Math.round(R() * 180), x: Math.round(R() * 180 - 90), len: Math.round(r * 1.5), w: 7 });
+    for (var tries = 0; tries < 1400 && TER.length < 24; tries++) {
+      var r = 18 + R() * 14, c = [30 + R() * 280, 30 + R() * 320], ok = true;
+      for (var k = 0; k < 12 && ok; k++) { var a = k * PI / 6, x = c[0] + r * Math.cos(a), y = c[1] + r * Math.sin(a); if (Math.pow((x - CX) / 140, 2) + Math.pow((y - CY) / 158, 2) > 1) ok = false; }
+      TER.forEach(function (T) { if (dist(T.c, c) < (T.R + r) * .74) ok = false; });
+      if (ok) TER.push({ who: 'faint', c: c, R: r, n: Math.max(4, Math.round(r / 4.4)), a: Math.round(R() * 180), m: 1.4, x: Math.round(R() * 180 - 90), len: Math.round(r * 1.2), w: 7 });
     }
   })();
   var TERB = TER;
@@ -630,25 +632,13 @@
     if (t < M[8] + TZ + 9.4) return mix(LS0, [RX0 - 4, 168], ease(seg(loc(8, t), TZ + 7, TZ + 9.4)));
     var k = apart(t); return [ribX(t) - 4 + 120 * k, 168 - 100 * k];
   }
-  /* the ribosome's RNA, coiled inside each part, and its proteins on the outside */
-  function coils(rx, ry, seed, n) {
-    var R = K.rng(seed), P = [[0, 0]], p = [0, 0], a = R() * 2 * PI;
-    for (var i = 0; i < n; i++) {
-      a += (R() - .5) * 1.5;
-      var q = [p[0] + Math.cos(a) * 8, p[1] + Math.sin(a) * 8];
-      if (Math.pow(q[0] / (rx * .8), 2) + Math.pow(q[1] / (ry * .74), 2) > 1) { a = Math.atan2(-p[1], -p[0]) + (R() - .5); q = [p[0] + Math.cos(a) * 8, p[1] + Math.sin(a) * 8]; }
-      P.push(q); p = q;
-    }
-    return D.smooth(P);
-  }
-  var SSC = coils(96, 34, 61, 70), LSC = coils(104, 74, 67, 150);
-  var SSP = [[-70, 10, 9, 6], [-20, 24, 11, 6], [40, 22, 10, 6], [78, 6, 8, 7], [8, -2, 7, 5]];
-  var LSP = [[-86, -10, 10, 8], [-50, -54, 12, 8], [10, -66, 11, 7], [62, -46, 12, 8], [90, 4, 9, 9], [-30, 30, 9, 6]];
-  function subunit(shape, cl, pr, c, cls) {
-    var out = '<path class="' + cls + '" d="' + closed(place(shape, c)) + '"/>';
-    out += '<path class="pt__rrna" d="' + pl(place(cl, c)) + '"/>';
-    pr.forEach(function (q) { out += '<ellipse class="pt__rpro" cx="' + n1(c[0] + q[0]) + '" cy="' + n1(c[1] + q[1]) + '" rx="' + q[2] + '" ry="' + q[3] + '"/>'; });
-    return out;
+  /* a part of the ribosome: one smooth shape, a lighter centre for its depth (Daniel, 5 Nov 2026: the coiled RNA and the
+     protein dots drawn inside it looked "very clunky … not very clear what those lines are … and the dots"); the step
+     says what it is made of */
+  function subunit(shape, c, cls) {
+    var P = place(shape, c), cx = 0, cy = 0; P.forEach(function (p) { cx += p[0]; cy += p[1]; }); cx /= P.length; cy /= P.length;
+    var Q = P.map(function (p) { return [cx + (p[0] - cx) * .62, cy + (p[1] - cy) * .5 - 4]; });
+    return '<path class="' + cls + '" d="' + closed(P) + '"/><path class="pt__sheen" d="' + closed(Q) + '"/>';
   }
   /* a tRNA (anticodon at the bottom, its three bases, the amino acid's place at the top), drawn with its anticodon's
      middle at (0, 0) */
@@ -733,8 +723,8 @@
     var xl = c[0] - (CX + 30) / s, xr = c[0] + (CX + 30) / s;
     var out = ground('zm__cyto') + '<g transform="translate(' + CX + ' ' + CY + ') scale(' + r4(s) + ') translate(' + n1(-c[0]) + ' ' + n1(-c[1]) + ')">';
     var ss = ssPos(t), ls = lsPos(t);
-    out += subunit(SSH, SSC, SSP, ss, 'pt__ss');
-    out += subunit(LSH, LSC, LSP, ls, 'pt__ls');
+    out += subunit(SSH, ss, 'pt__ss');
+    out += subunit(LSH, ls, 'pt__ls');
     if (t >= M[8] + TZ + 9.4 && apart(t) < 1) out += '<path class="pt__tun" d="M' + n1(rx - 2) + ' 136 L' + n1(rx - 10) + ' 112 L' + n1(rx - 18) + ' 98 L' + n1(ls[1] < 168 ? rx - 26 : rx - 26) + ' 90"' + op(1 - apart(t)) + '/>';
     /* the mRNA: the groups of three bases (shaded in turn) once tRNA is shown, its bases and their letters, its backbone */
     var ck = t < M[9] ? 0 : seg(loc(9, t), 2.6, 3.6), mr = '';
@@ -791,12 +781,10 @@
     var cm = camF(t), left = cm.c[0] - (CX - 18) / cm.s;
     if (k === 8) {
       if (loc(8, t) < TZ + 9.6) return [];
-      var ls = lsPos(t), ss = ssPos(t), lc = LSC.reduce(function (a, p) { return p[0] < a[0] ? p : a; }, LSC[0]), q00 = trnaPose(0, t);
+      var ls = lsPos(t), ss = ssPos(t), q00 = trnaPose(0, t);
       it('ls', 'the large part of a ribosome (IB: large subunit)', [ls[0] + 104, ls[1] - 6], 'R');
       it('ss', 'the small part (IB: small subunit)', [ss[0] + 92, ss[1] + 2], 'R');
-      it('rrna', 'RNA, coiled (IB: rRNA)', add(ls, lc), 'L', LSC.filter(function (p) { return p[0] < -50; }).slice(0, 6).map(function (p) { return add(ls, p); }));
       it('met', 'the first amino acid, on a small RNA (IB: tRNA)', add(tipOf(q00), [0, -6.5]), 'T');
-      it('pro', 'a protein of the ribosome', add(ss, [SSP[0][0], SSP[0][1]]), 'L', [add(ss, [SSP[1][0], SSP[1][1]]), add(ss, [SSP[0][0] + 4, SSP[0][1] + 4])]);
       it('mr', 'mRNA', [FREF[0] + 3, FYB], 'L');
       return out;
     }

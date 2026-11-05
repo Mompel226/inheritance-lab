@@ -272,7 +272,7 @@
 /* ============================================================
    Say — how to say the hard words (Daniel, 5 Nov 2026: "some … keywords are hard to pronounce … have an option to
    listen to the right pronunciation. In American and British English, if possible, if just one is available, just
-   one"). Each word: a spelling guide (uh-LEEL) and, where Wikimedia Commons has one, a recording by a real speaker
+   one"). Each word: a spelling guide (uh-LEEL) and, where Wikimedia Commons has a clear one, a recording by a real speaker
    (assets/say/<word>-uk.mp3, -us.mp3; credited in assets/say/CREDITS.md and, as it plays, under the word); for the
    rest, the browser's own British or American voice. Say.html(term) gives the guide and the two buttons for a key-word
    card or a glossary row (a phrase gets them when one of its words is here: the voice says the whole phrase); a press
@@ -283,36 +283,36 @@
   var DIR = 'assets/say/';
   /* word: [spelling guide, { uk / us: [speaker, licence, its Commons page] }] */
   var W = {
-    "allele": ["uh-LEEL (UK also AL-eel)", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-allele.wav"], "us": ["Wodencafe", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Wodencafe-allele.wav"]}],
-    "chromosome": ["KROH-muh-sohm", {"uk": ["ATMarsden", "CC BY 4.0", "https://commons.wikimedia.org/wiki/File:en-uk-chromosome.ogg"], "us": ["BirdHopper", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:en-us-chromosome.ogg"]}],
-    "chromatid": ["KROH-muh-tid", {"us": ["Dvortygirl", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:En-us-chromatid.ogg"]}],
-    "gene": ["jeen", {"us": ["Dvortygirl", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:En-us-gene.ogg"]}],
-    "genome": ["JEE-nohm", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-genome.wav"], "us": ["Wodencafe", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Wodencafe-genome.wav"]}],
+    "allele": ["uh-LEEL (UK also AL-eel)", {"us": ["Wodencafe", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Wodencafe-allele.wav"]}],
+    "chromosome": ["KROH-muh-sohm", {"us": ["BirdHopper", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:en-us-chromosome.ogg"]}],
+    "chromatid": ["KROH-muh-tid", {}],
+    "gene": ["jeen", {}],
+    "genome": ["JEE-nohm", {"us": ["Wodencafe", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Wodencafe-genome.wav"]}],
     "genotype": ["JEN-uh-type or JEE-nuh-type", {"us": ["Denendaden", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Denendaden-genotype.wav"]}],
     "phenotype": ["FEE-nuh-type", {"us": ["Denendaden", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Denendaden-phenotype.wav"]}],
-    "phenotypic": ["fee-nuh-TIP-ik", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-phenotypic.wav"]}],
+    "phenotypic": ["fee-nuh-TIP-ik", {}],
     "homozygous": ["hoh-muh-ZY-gus", {"us": ["Denendaden", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Denendaden-homozygous.wav"]}],
     "heterozygous": ["het-uh-roh-ZY-gus", {}],
-    "diploid": ["DIP-loyd", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-diploid.wav"]}],
+    "diploid": ["DIP-loyd", {}],
     "haploid": ["HAP-loyd", {}],
     "ribosome": ["RY-buh-sohm", {}],
-    "mitosis": ["my-TOH-sis", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-mitosis.wav"]}],
+    "mitosis": ["my-TOH-sis", {}],
     "meiosis": ["my-OH-sis", {"us": ["Emw", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:en-us-meiosis.ogg"]}],
-    "gamete": ["GAM-eet", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-gamete.wav"]}],
-    "zygote": ["ZY-goht", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-zygote.wav"], "us": ["Naomi Persephone Amethyst", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-zygote.wav"]}],
-    "nucleus": ["NYOO-klee-us (US NOO-klee-us)", {"us": ["Dvortygirl", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:en-us-nucleus.ogg"]}],
+    "gamete": ["GAM-eet", {}],
+    "zygote": ["ZY-goht", {"us": ["Naomi Persephone Amethyst", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-zygote.wav"]}],
+    "nucleus": ["NYOO-klee-us (US NOO-klee-us)", {}],
     "nucleotide": ["NYOO-klee-uh-tide (US NOO-…)", {"us": ["Flame, not lame", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Flame%2C_not_lame-nucleotide.wav"]}],
     "fertilisation": ["fur-tih-ly-ZAY-shun", {"us": ["Vininn126", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vininn126-fertilization.wav"]}],
     "codominance": ["koh-DOM-ih-nunss", {}],
     "codominant": ["koh-DOM-ih-nunt", {}],
-    "dominant": ["DOM-ih-nunt", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-dominant.wav"], "us": ["NaomiAmethyst", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-NaomiAmethyst-dominant.wav"]}],
+    "dominant": ["DOM-ih-nunt", {"us": ["NaomiAmethyst", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-NaomiAmethyst-dominant.wav"]}],
     "recessive": ["rih-SESS-iv", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-recessive.wav"]}],
     "monohybrid": ["mon-oh-HY-brid", {}],
     "Punnett": ["PUN-it", {}],
-    "pedigree": ["PED-ih-gree", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-pedigree.wav"]}],
-    "inheritance": ["in-HERR-ih-tunss", {"us": ["Neskaya", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:En-us-inheritance.ogg"]}],
+    "pedigree": ["PED-ih-gree", {}],
+    "inheritance": ["in-HERR-ih-tunss", {}],
     "asexual": ["ay-SEK-shoo-ul", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-asexual.wav"], "us": ["Naomi Persephone Amethyst", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-asexual.wav"]}],
-    "characteristic": ["karr-uk-tuh-RIS-tik", {"us": ["Dvortygirl", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:En-us-characteristic.ogg"]}],
+    "characteristic": ["karr-uk-tuh-RIS-tik", {}],
     "centromere": ["SEN-truh-meer", {}],
     "mRNA": ["em-ar-en-AY", {}],
     "cytoplasm": ["SY-tuh-plaz-um", {}],

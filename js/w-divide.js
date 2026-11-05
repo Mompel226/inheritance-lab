@@ -418,7 +418,7 @@
 
   /* ============================================================ a line or a cross? ============================================================ */
   var LZ = { LA: 96, LB: 0, w: 15, wd: 2 };
-  var PAIR = [{ id: 'Am', who: 'mum', A: true, c: [0, -.44], R: .46, n: 8, a: 6, x: 70 }, { id: 'Ad', who: 'dad', A: true, c: [0, .44], R: .46, n: 8, a: -8, x: 110 }];
+  var PAIR = [{ id: 'Am', who: 'mum', A: true, c: [0, -.44], R: .46, n: 13, a: 6, x: 70, m: 1.2 }, { id: 'Ad', who: 'dad', A: true, c: [0, .44], R: .46, n: 13, a: -8, x: 110, m: 1.2 }];
   var LC = { W: 300, H: 460, NU: nuc(150, 226, 112, 124), PT: [150, 40], PB: [150, 412], EQ: [[96, 226], [204, 226]], AX: [126, 174], AY: [86, 362],
              /* the new nuclei: well inside their cells (the audit: the lower one had poked out), first close round the rods */
              D1: nuc(150, 134, 80, 64), D2: nuc(150, 338, 80, 64), TN: [nuc(150, 110, 56, 34), nuc(150, 338, 56, 34)] };

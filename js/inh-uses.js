@@ -47,7 +47,7 @@
   /* ---------- the lab's cell, small ----------
      the four chromosomes of InhDraw.FOUR in the same territories (fewer folds: the nucleus is a few pixels across), their
      crosses and genes in proportion to the nucleus */
-  var FOURm = D.FOUR.map(function (q) { return Object.assign({}, q, { n: q.A ? 3 : 2 }); });
+  var FOURm = D.FOUR.map(function (q) { return Object.assign({}, q, { n: q.A ? 3 : 2, m: 0 }); });
   function sizes(rn) { return { LA: rn * .95, LB: rn * .56, w: Math.max(1.3, rn * .17), wd: Math.max(.55, rn * .07) }; }
   function terr(N, z) { return D.terr(FOURm, N, z); }
   /* a cell at rest: its outline, its nucleus and the nucleus's four thin lines; drawn once, then kept */

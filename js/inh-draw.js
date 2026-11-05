@@ -311,8 +311,11 @@
         else out += '<path class="' + arm + '" d="' + poly(armPts(rd, 0, tl)) + '" stroke-width="' + aw + '"' + ao + '/><path class="zm__arm zm__arm--' + other + '" d="' + poly(armPts(rd, tl, 1)) + '" stroke-width="' + aw + '"' + ao + '/>';
       }
       /* where the copy has been made, the two threads lie side by side; ahead of it, one thread */
-      var ends = c ? Math.max(2, Math.round(copy * (N - 1))) : N;
-      var S = o.one ? base : shift(base, function (i) { var f = Math.min(1, Math.max(0, (copy * (N - 1) - i) / 14)), j = o.join ? Math.min(1, Math.abs(i - iC) / 14) : 1; return (c ? 1.7 : -1.7) * f * j * j * (3 - 2 * j); });
+      /* the copying fork, where the two copies narrow into the line not yet copied: it runs on past the end of the thread
+         (by its own length, TP points), so a copied chromosome is two copies right to both its ends, never one thread at
+         the far end (Daniel, 5 Nov 2026: "when you copy, at the end, not separated, and it looks like a snake") */
+      var TP = 14, FK = copy * (N - 1 + TP), ends = c ? Math.max(2, Math.min(N, Math.round(FK))) : N;
+      var S = o.one ? base : shift(base, function (i) { var f = Math.min(1, Math.max(0, (FK - i) / TP)), j = o.join ? Math.min(1, Math.abs(i - iC) / 14) : 1; return (c ? 1.7 : -1.7) * f * j * j * (3 - 2 * j); });
       var A = S.slice(0, ends).map(function (p, i) { return mix(p, rodAt(rd, i / (N - 1)), two ? k1 : kk); }), Nn = normals(A);
       var Q = A.map(function (p, i) { var s = i / (N - 1), a = 2 * Math.PI * turns * s, q = Nn[i]; return [p[0] + q[1][0] * r * Math.sin(a) + q[0][0] * r * .5 * Math.cos(a), p[1] + q[1][1] * r * Math.sin(a) + q[0][1] * r * .5 * Math.cos(a)]; });
       var sw = n1(lerp(wd, wd * 1.3, kk)), so = opa(1 - .4 * body);
@@ -329,11 +332,13 @@
       '" stroke-width="' + n1(T.w * .45) + '"' + opa(body * (1 - k3) * (faint ? 1 : .9)) + '/>';
     /* joined at one point: the dot of the centromere on the thread, once the copy has passed it */
     if (o.join && !o.one && body < 1 && copy * (N - 1) > iC + 7) {
-      var pc = mix(base[iC], rodAt(crossRod(T, 0), CROSS.cen), kk);
+      var pc = mix(base[iC], rodAt(crossRod(X || T, 0), CROSS.cen), kk);
       if (o.rods) pc = mix(base[iC], o.rods(0).cen, kk);
       out += '<circle class="ch__cen ch--' + (faint ? 'mum zm__cen--faint' : T.who) + '" cx="' + n1(pc[0]) + '" cy="' + n1(pc[1]) + '" r="' + n1(Math.max(2.6, wd * 1.9)) + '"' + opa(Math.min(1, (copy * (N - 1) - iC - 7) / 10) * (1 - body)) + '/>';
     }
-    if (!o.split && body > 0 && o.cen !== false) { var cn = (o.rods ? o.rods(0) : crossRod(T, 0)).cen; out += '<circle class="ch__cen ch--' + (faint ? 'mum zm__cen--faint' : T.who) + '" cx="' + n1(cn[0]) + '" cy="' + n1(cn[1]) + '" r="' + n1(T.w * .42) + '"' + opa(body) + '/>'; }
+    /* the centromere on the cross itself: where it stands now (o.cross, a chromosome that moved as it coiled), never at
+       its old place in the nucleus (Daniel, 5 Nov 2026: "centromeres … get separated … or is it just a bug?") */
+    if (!o.split && body > 0 && o.cen !== false) { var cn = (o.rods ? o.rods(0) : crossRod(X || T, 0)).cen; out += '<circle class="ch__cen ch--' + (faint ? 'mum zm__cen--faint' : T.who) + '" cx="' + n1(cn[0]) + '" cy="' + n1(cn[1]) + '" r="' + n1(T.w * .42) + '"' + opa(body) + '/>'; }
     return out;
   }
   function envelope(cx, cy, rx, ry, np, o) {
@@ -420,14 +425,17 @@
      tmix(T, U, k), at(T, c, x)   a territory between two; the same chromosome with its cross centred at c, at angle x
      veePair(T, Te, p, q, k, horiz)   the two copies of the cross Te pulled apart, joining point first, to p and q: each a V
              whose arms close only as the copies separate (k), so an arm never swings through the other copy */
-  var FOUR = [{ id: 'Am', who: 'mum', A: true, c: [-.38, -.34], R: .38, n: 7, a: 12, x: 15 },
-              { id: 'Ad', who: 'dad', A: true, c: [.38, .36], R: .38, n: 7, a: -28, x: -20 },
-              { id: 'Bm', who: 'mum', A: false, c: [-.36, .44], R: .285, n: 5, a: 64, x: 35 },
-              { id: 'Bd', who: 'dad', A: false, c: [.40, -.40], R: .285, n: 5, a: -70, x: -30 }];
-  function TWO(whoA, whoB) { return [{ id: 'A', who: whoA, A: true, c: [-.04, -.40], R: .46, n: 7, a: 8, x: 0 }, { id: 'B', who: whoB, A: false, c: [.05, .48], R: .345, n: 5, a: -10, x: 0 }]; }
+  /* long threads with their fine wiggle (m), in every animation's working nucleus, as in "From a cell to a gene" (Daniel,
+     5 Nov 2026: "you have made changes in the first that you have not made in other animations … the chromosomes being
+     very short"): a thread holds more than the cross it coils into */
+  var FOUR = [{ id: 'Am', who: 'mum', A: true, c: [-.38, -.34], R: .4, n: 12, a: 12, x: 15, m: 1.2 },
+              { id: 'Ad', who: 'dad', A: true, c: [.38, .36], R: .4, n: 12, a: -28, x: -20, m: 1.2 },
+              { id: 'Bm', who: 'mum', A: false, c: [-.36, .44], R: .3, n: 9, a: 64, x: 35, m: 1.2 },
+              { id: 'Bd', who: 'dad', A: false, c: [.40, -.40], R: .3, n: 9, a: -70, x: -30, m: 1.2 }];
+  function TWO(whoA, whoB) { return [{ id: 'A', who: whoA, A: true, c: [-.04, -.40], R: .46, n: 12, a: 8, x: 0, m: 1.2 }, { id: 'B', who: whoB, A: false, c: [.05, .48], R: .345, n: 9, a: -10, x: 0, m: 1.2 }]; }
   function terr(lay, nu, s) {
     var m = Math.min(nu.rx, nu.ry);
-    return lay.map(function (q) { return { id: q.id, who: q.who, A: q.A, c: [nu.cx + q.c[0] * nu.rx, nu.cy + q.c[1] * nu.ry], R: q.R * m, n: q.n, a: q.a, x: q.x,
+    return lay.map(function (q) { return { id: q.id, who: q.who, A: q.A, c: [nu.cx + q.c[0] * nu.rx, nu.cy + q.c[1] * nu.ry], R: q.R * m, n: q.n, a: q.a, x: q.x, m: q.m,
                                           len: q.A ? s.LA : s.LB, w: q.A ? s.w : s.w * .9, band: q.A ? .78 : .85 }; });
   }
   function tmix(T, U, k) { return Object.assign({}, T, { c: mix(T.c, U.c, k), R: lerp(T.R, U.R, k) }); }
@@ -456,10 +464,10 @@
      it thins where it lies (the coil loosens, the body fades), then its thin line unfolds into the territory; the gene
      stays a band on the line throughout (the audit, 5 Nov 2026: no fuzzy balls) */
   function uncoil(T, ph, u, wd, rod, o) {
-    var N = 300, rp = [], k, base;
+    var tp0 = territory(T, ph), N = nPts(T, tp0), rp = [], k, base;
     for (var i = 0; i < N; i++) rp.push(rodAt(rod, i / (N - 1)));
     if (u < .5) { k = lerp(1, .22, u / .5); base = rp; }
-    else { var m = (u - .5) / .5; m = m * m * (3 - 2 * m); k = lerp(.22, 0, m); var tp = resample(territory(T, ph), N); base = rp.map(function (p, j) { return mix(p, tp[j], m); }); }
+    else { var m = (u - .5) / .5; m = m * m * (3 - 2 * m); k = lerp(.22, 0, m); var tp = resample(tp0, N); base = rp.map(function (p, j) { return mix(p, tp[j], m); }); }
     return coiled(T, ph, k, wd, Object.assign({ one: true, rods: function () { return rod; }, base: base }, o || {}));
   }
   var SEQ = 'ATGGCCTACGTTAGCATCGGATCCAGTTACGCTAGGCATTCAGCATGACTGGTACCGATTAGC', PAIR = { A: 'T', T: 'A', C: 'G', G: 'C' };

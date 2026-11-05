@@ -617,19 +617,19 @@ p,li,dd,figcaption{text-wrap:pretty}
    opacity attribute, so nothing here sets a CSS opacity. */
 :root{
   --pt-u:#E07B00; --pt-trna:#6D28D9; --pt-trna-tint:#EDE4FB; --pt-npc:#4B6584; --pt-lum:#E4DAF2;
-  --pt-rib:#D9C2A0; --pt-rib-rna:#6B4F2A; --pt-rib-pro:#BFA27A; --pt-tun:#F3E9DA; --pt-cod-0:#FFF1B8; --pt-cod-1:#DCEBFF;
+  --pt-rib:#D9C2A0; --pt-rib-rna:#6B4F2A; --pt-rib-hi:#E9DCC6; --pt-tun:#F3E9DA; --pt-cod-0:#FFF1B8; --pt-cod-1:#DCEBFF;
   --pt-lt-light:#FFFFFF; --pt-lt-dark:#1A1A1A; --pt-bond:#C2410C;
 }
 @media (prefers-color-scheme: dark){
 :root:not([data-theme="light"]){
   --pt-u:#FDBA74; --pt-trna:#C4B5FD; --pt-trna-tint:#2C2142; --pt-npc:#9FB3CC; --pt-lum:#2F2740;
-  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-pro:#8A7150; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
+  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-hi:#6E5A42; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
   --pt-lt-light:#0A141C; --pt-lt-dark:#0A141C; --pt-bond:#FB923C;
 }
 }
 :root[data-theme="dark"]{
   --pt-u:#FDBA74; --pt-trna:#C4B5FD; --pt-trna-tint:#2C2142; --pt-npc:#9FB3CC; --pt-lum:#2F2740;
-  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-pro:#8A7150; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
+  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-hi:#6E5A42; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
   --pt-lt-light:#0A141C; --pt-lt-dark:#0A141C; --pt-bond:#FB923C;
 }
 .dna__b--U,.dna__fill--U{stroke:var(--pt-u);fill:var(--pt-u)}
@@ -655,8 +655,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .pt__npc{fill:var(--pt-npc);fill-opacity:.9}
 .pt__npcf{fill:none;stroke:var(--pt-npc);stroke-width:3;stroke-linecap:round}
 .pt__ss,.pt__ls{fill:var(--pt-rib);stroke:var(--pt-rib-rna);stroke-width:1.6}
-.pt__rrna{fill:none;stroke:var(--pt-rib-rna);stroke-width:1.5;stroke-opacity:.75;stroke-linejoin:round}
-.pt__rpro{fill:var(--pt-rib-pro);stroke:var(--pt-rib-rna);stroke-width:.8}
+.pt__sheen{fill:var(--pt-rib-hi);opacity:.7;stroke:none}
 .pt__tun{fill:none;stroke:var(--pt-tun);stroke-width:18;stroke-linecap:round;stroke-linejoin:round}
 .pt__trna{fill:var(--pt-trna-tint);stroke:var(--pt-trna);stroke-width:1.8;stroke-linejoin:round}
 .pt__nb{stroke:none}

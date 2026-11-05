@@ -201,8 +201,9 @@
     S.box.__seek = function (t) { fit(); return sp.seek(t); };
     /* Play all's own clock, for the tools that time it (tools/flow-names.mjs) */
     S.box.__flow = sp.flow; S.box.__playEnd = sp.end;
-    /* how long Play all waits on a step's names: 0.8 s and 0.3 s a word for the longest (about 3 words a second, for
-       readers of English as an additional language), 0.4 s more for each other name, at most 6 s */
+    /* how long Play all waits on a step's names: 0.5 s and 0.2 s a word for the longest, 0.2 s more for each other name,
+       at most 4 s (Daniel, 5 Nov 2026: first "you can barely read them", then "now it's too long … midterm"); Next
+       step still waits for as long as the reader likes */
     if (sp.flow) sp.flow.need = function () {
       var pk = S.fig.querySelector('.pinkey'), texts = [];
       if (pk && !pk.hidden) Array.prototype.forEach.call(pk.children, function (li) { texts.push(li.textContent.replace(/^\s*\d+\s*/, '')); });
@@ -210,7 +211,7 @@
       texts = texts.filter(function (x) { return /\S/.test(x); });
       if (!texts.length) return .35;
       var mx = Math.max.apply(null, texts.map(function (x) { return x.trim().split(/\s+/).length; }));
-      return Math.min(6, .8 + .3 * mx + .4 * (texts.length - 1));
+      return Math.min(4, .5 + .2 * mx + .2 * (texts.length - 1));
     };
     /* in a card, the animation plays all its steps as soon as its card opens (Daniel, 4 Nov 2026: "as soon as you open
        that, the full animation should play … if the user wants to go one by one or stop it, it just has to scroll
