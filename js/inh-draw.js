@@ -228,7 +228,16 @@
     return P;
   }
   function placeT(T, P) { var a = (T.a || 0) * Math.PI / 180; return P.map(function (p) { var q = rot(p, a); return [T.c[0] + q[0], T.c[1] + q[1]]; }); }
-  function territory(T, ph) { return placeT(T, smooth(folds(T, ph))); }
+  /* T.m: a fine wiggle along the thread, m units each side, about every 11 units of its length: a long thread of DNA
+     lies crinkled, never as straight runs (Daniel, 5 Nov 2026: "show actually that they're very long strands of DNA …
+     otherwise it feels that when the chromosome coils, suddenly you get more DNA for free") */
+  function territory(T, ph) {
+    var P = placeT(T, smooth(folds(T, ph)));
+    if (!T.m) return P;
+    var d = 0; for (var i = 1; i < P.length; i++) d += dist(P[i - 1], P[i]);
+    var Q = resample(P, Math.round(d / 2.2)), Nq = normals(Q), seed = T.c[0] * .37 + T.c[1] * .11;
+    return Q.map(function (q, i) { var s = i * 2.2, w = T.m * (Math.sin(s * .57 + seed) + .45 * Math.sin(s * 1.31 + seed * 2.3 + ph * .6)); return [q[0] + Nq[i][1][0] * w, q[1] + Nq[i][1][1] * w]; });
+  }
   /* the raw point in the middle of the middle fold (a zoom into the thread goes there: it runs across) */
   function territoryMid(T, ph) {
     var raw = placeT(T, folds(T, ph))[Math.floor(T.n / 2) * 7 + 3], P = territory(T, ph), best = 0;
@@ -263,6 +272,8 @@
   var GENE = .04;
   function part(P, s0, s1) { var n = P.length - 1, i0 = Math.max(0, Math.round(s0 * n)), i1 = Math.min(n, Math.round(s1 * n)); return i1 > i0 ? P.slice(i0, i1 + 1) : null; }
   function armPts(rd, s0, s1) { var out = [rodAt(rd, s0)], c = rd.up / (rd.up + rd.dn); if (s0 < c && s1 > c) out.push(rd.p0); out.push(rodAt(rd, s1)); return out; }
+  /* points along a thread: 300, or for a long crinkled one (T.m) one every 1.8 units, at most 900 */
+  function nPts(T, P) { if (!T.m) return 300; var d = 0; for (var i = 1; i < P.length; i++) d += dist(P[i - 1], P[i]); return Math.max(300, Math.min(900, Math.round(d / 1.8))); }
   function sstep(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }
   function coiled(T, ph, k, wd, o) {
     o = o || {};
@@ -271,10 +282,10 @@
     function genes(P, w, op) { var g = ''; bands.forEach(function (f) { var Q = part(P, f - GENE, f + GENE); if (Q) g += '<path class="thr thr--gene" d="' + poly(Q) + '" stroke-width="' + n1(w) + '"' + opa(op) + '/>'; }); return g; }
     if (k < 0 && o.copy == null) {
       if (!bands.length && !tails.length) return '<path class="' + cls + '" d="' + poly(territory(T, ph)) + '" stroke-width="' + wd + '"/>';
-      var P1 = resample(o.base || territory(T, ph), 300), q1 = tails[0] != null ? part(P1, tails[0], 1) : null;
+      var P10 = o.base || territory(T, ph), P1 = resample(P10, nPts(T, P10)), q1 = tails[0] != null ? part(P1, tails[0], 1) : null;
       return '<path class="' + cls + '" d="' + poly(P1) + '" stroke-width="' + wd + '"/>' + (q1 ? '<path class="thr thr--' + other + '" d="' + poly(q1) + '" stroke-width="' + wd + '"/>' : '') + genes(P1, wd * 2.2, bop);
     }
-    var N = 300, base = resample(o.base || territory(T, ph), N), out = '', kk = Math.max(0, k), turns = Math.round(T.len * .42), r = T.w * .46 * Math.pow(kk, .8);
+    var P0 = o.base || territory(T, ph), N = nPts(T, P0), base = resample(P0, N), out = '', kk = Math.max(0, k), turns = Math.round(T.len * .42), r = T.w * .46 * Math.pow(kk, .8);
     var body = Math.min(1, Math.max(0, (kk - .72) / .28)), arm = faint ? 'zm__arm zm__arm--faint' : 'zm__arm zm__arm--' + T.who;
     var copy = o.copy == null ? 1 : o.copy, copies = o.one ? [0] : [0, 1], iC = Math.round(CROSS.cen * (N - 1));
     /* coiling in place, in three movements, so a pupil can follow each copy into its own side of the cross (Daniel,

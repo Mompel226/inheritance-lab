@@ -72,32 +72,34 @@
 
   /* ---------- the chromosomes of a working nucleus (steps 1, 2, 8 and 9): their territories ----------
      In the nucleus of step 2 (centre 170, 190; radii 150, 168): c the territory's centre, R its radius, n its folds, a the
-     angle of the folds; x, len, w the angle, length and width of the cross it coils into. The first two are the pair
-     followed, chromosome 9 from the mother and from the father (100 units: about 3 µm in this 10 µm picture, the size it
-     has again in step 11); the next two another pair; the rest grey. */
+     angle of the folds, m its fine wiggle; x, len, w the angle, length and width of the cross it coils into. The first two
+     are the pair followed, chromosome 9 from the mother and from the father (100 units: about 3 µm in this 10 µm picture,
+     the size it has again in step 11); the next two another pair; the rest grey. Each thread is long, its territory wide
+     and the territories touch, so the nucleus is full of thread and coiling packs a long thread into a short cross, never
+     a short thread into more (Daniel, 5 Nov 2026: "don't be afraid of increasing the size … otherwise it feels that when
+     the chromosome coils, suddenly you get more DNA for free"): chromosome 9's thread is about 1,600 units, more than
+     the 1,150 of thread one copy of its cross would make. */
   var TER = [
-    { who: 'mum', c: [110, 120], R: 50, n: 9, a: 0, x: 0, len: 100, w: 15, band: .9 },
-    { who: 'dad', c: [236, 258], R: 50, n: 9, a: 35, x: 28, len: 100, w: 15, band: .9 },
-    { who: 'mum', c: [98, 262], R: 38, n: 7, a: -50, x: -40, len: 56, w: 11 },
-    { who: 'dad', c: [240, 126], R: 38, n: 7, a: 70, x: 64, len: 56, w: 11 },
-    { who: 'faint', c: [175, 64], R: 28, n: 4, a: 15, x: 80, len: 44, w: 9 },
-    { who: 'faint', c: [172, 188], R: 38, n: 5, a: -20, x: -15, len: 56, w: 10 },
-    { who: 'faint', c: [168, 318], R: 30, n: 4, a: 50, x: 30, len: 46, w: 9 },
-    { who: 'faint', c: [286, 190], R: 20, n: 3, a: 90, x: 5, len: 32, w: 8 },
-    { who: 'faint', c: [56, 186], R: 22, n: 3, a: 10, x: -70, len: 34, w: 8 }
+    { who: 'mum', c: [110, 120], R: 64, n: 15, a: 0, m: 1.6, x: 0, len: 100, w: 15, band: .9 },
+    { who: 'dad', c: [236, 258], R: 64, n: 15, a: 35, m: 1.6, x: 28, len: 100, w: 15, band: .9 },
+    { who: 'mum', c: [98, 262], R: 54, n: 12, a: -50, m: 1.6, x: -40, len: 56, w: 11 },
+    { who: 'dad', c: [240, 126], R: 54, n: 12, a: 70, m: 1.6, x: 64, len: 56, w: 11 },
+    { who: 'faint', c: [175, 58], R: 38, n: 8, a: 15, m: 1.4, x: 80, len: 44, w: 9 },
+    { who: 'faint', c: [172, 188], R: 50, n: 10, a: -20, m: 1.4, x: -15, len: 56, w: 10 },
+    { who: 'faint', c: [168, 322], R: 38, n: 8, a: 50, m: 1.4, x: 30, len: 46, w: 9 },
+    { who: 'faint', c: [290, 190], R: 28, n: 6, a: 90, m: 1.4, x: 5, len: 32, w: 8 },
+    { who: 'faint', c: [52, 186], R: 30, n: 6, a: 10, m: 1.4, x: -70, len: 34, w: 8 }
   ];
-  /* more of the 46, in grey, in the room left (never overlapping a territory) */
+  /* more of the 46, in grey, in the room left: they may touch their neighbours, as real territories do */
   (function () {
     var R = K.rng(5);
-    for (var tries = 0; tries < 900 && TER.length < 21; tries++) {
-      var r = 14 + R() * 14, c = [30 + R() * 280, 30 + R() * 320], ok = true;
-      for (var k = 0; k < 12 && ok; k++) { var a = k * PI / 6, x = c[0] + r * Math.cos(a), y = c[1] + r * Math.sin(a); if (Math.pow((x - CX) / 136, 2) + Math.pow((y - CY) / 154, 2) > 1) ok = false; }
-      TER.forEach(function (T) { if (dist(T.c, c) < T.R + r + 5) ok = false; });
-      if (ok) TER.push({ who: 'faint', c: c, R: r, n: r > 22 ? 4 : 3, a: Math.round(R() * 180), x: Math.round(R() * 180 - 90), len: Math.round(r * 1.5), w: 7 });
+    for (var tries = 0; tries < 1400 && TER.length < 24; tries++) {
+      var r = 18 + R() * 14, c = [30 + R() * 280, 30 + R() * 320], ok = true;
+      for (var k = 0; k < 12 && ok; k++) { var a = k * PI / 6, x = c[0] + r * Math.cos(a), y = c[1] + r * Math.sin(a); if (Math.pow((x - CX) / 140, 2) + Math.pow((y - CY) / 158, 2) > 1) ok = false; }
+      TER.forEach(function (T) { if (dist(T.c, c) < (T.R + r) * .74) ok = false; });
+      if (ok) TER.push({ who: 'faint', c: c, R: r, n: Math.max(4, Math.round(r / 4.4)), a: Math.round(R() * 180), m: 1.4, x: Math.round(R() * 180 - 90), len: Math.round(r * 1.2), w: 7 });
     }
   })();
-  /* the ABO gene's band shows only once a gene has been met, from "Back in the nucleus" on, and it is named there (Daniel,
-     5 Nov 2026: "students are going to be like, why … do we have now in these chromosomes one section colored?") */
   function nucleusFrame(t, kk, wd, bop) {
     var out = D.envelope(CX, CY, 150, 168, 18);
     TER.slice().reverse().forEach(function (T) { out += D.coiled(T, t * .5, kk, wd, T.band && bop > .01 ? { band: T.band, bandOp: bop } : null); });
