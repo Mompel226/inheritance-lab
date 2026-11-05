@@ -53,12 +53,14 @@
     { h: 'Back in the nucleus', p: 'Back in the nucleus: each chromosome is now two identical threads, side by side, held together most firmly at one point. The yellow length on chromosome 9 is one gene, the **ABO gene**, at the same place on both threads. The cell is ready to divide.' },
     { h: 'Coiling into a cross', p: 'Each copy coils, again and again, until it is short and thick. The copies stay joined at one point, so the chromosome is now a cross. You see a cross only while a cell divides.' },
     { h: 'Inside one copy', p: 'Enlarged: the end of the long arm of one copy. Its DNA and proteins are folded into thousands of loops. The ABO gene, lit yellow, is a short length of one loop: about 20,000 base pairs. The yellow band on a drawing of a chromosome marks its place, but is drawn much larger than the gene.' },
-    { h: 'A pair, and two alleles', p: 'Back to the whole pair: chromosome 9 from the mother and from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one and Iᵒ on the other; both copies carry the same allele.' }
+    { h: 'A pair, and two alleles', p: 'Back to the whole pair: chromosome 9 from the mother and from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one and Iᵒ on the other; both copies carry the same allele.' },
+    { h: 'Two alleles: different bases', p: 'Enlarged: the same part of the ABO gene on the two chromosomes. **Iᴬ** and **Iᵒ** have the same bases, except one: a G is missing in Iᵒ. The bases are read in threes, so after the gap every three is different, and the protein of Iᵒ does not work. **Iᴮ** differs from Iᴬ in 7 bases: its protein works a little differently, which gives blood group B.' },
+    { h: 'Genotype and phenotype', p: 'Back to the pair. The alleles a person has are their **genotype**: this person’s genotype is IᴬIᵒ. The feature that can be observed is their **phenotype**: this person’s phenotype is blood group A, because Iᴬ is dominant to Iᵒ.' }
   ];
-  var M = [0, 7, 18, 30, 39, 49, 59, 69, 81, 92, 103, 114];
-  var SEE = ['a body cell', 'its nucleus', 'DNA round proteins', 'a gene', 'part of the gene: its DNA', 'the DNA being copied', 'two identical molecules', 'the copied chromosomes', 'the chromosomes coiling', 'part of one copy', 'one pair'];
+  var M = [0, 7, 18, 30, 39, 49, 59, 69, 81, 92, 103, 114, 125, 133];
+  var SEE = ['a body cell', 'its nucleus', 'DNA round proteins', 'a gene', 'part of the gene: its DNA', 'the DNA being copied', 'two identical molecules', 'the copied chromosomes', 'the chromosomes coiling', 'part of one copy', 'one pair', 'the bases of two alleles', 'one pair'];
   var NM8 = 'about 8 nm (0.000008 mm)', UM10 = 'about 10 µm (0.01 mm)';
-  var SIZE = ['about 25 µm (0.025 mm)', UM10, 'about 70 nm (0.00007 mm)', 'about 230 nm (0.00023 mm)', NM8, NM8, NM8, UM10, UM10, 'about 0.6 µm (0.0006 mm)', 'about 4 µm (0.004 mm)'];
+  var SIZE = ['about 25 µm (0.025 mm)', UM10, 'about 70 nm (0.00007 mm)', 'about 230 nm (0.00023 mm)', NM8, NM8, NM8, UM10, UM10, 'about 0.6 µm (0.0006 mm)', 'about 4 µm (0.004 mm)', NM8, 'about 4 µm (0.004 mm)'];
   function op(o) { return o < .999 ? ' opacity="' + n1(Math.max(0, o) * 100) / 100 + '"' : ''; }
   function rot(p, a) { var c = Math.cos(a), s = Math.sin(a); return [p[0] * c - p[1] * s, p[0] * s + p[1] * c]; }
   function mix(p, q, k) { return [lerp(p[0], q[0], k), lerp(p[1], q[1], k)]; }
@@ -365,8 +367,83 @@
             { id: 'o', text: 'the allele Iᵒ (blood group O), on both copies', x: bf[0] + 11, y: bf[1], side: 'R' }];
   }
 
-  var FR = [frame1, frame2, frame3, frameGene, helixFrame, helixFrame, helixFrame, frameN, frameN, frame10, frame11];
-  var LB = [labels1, labels2, labels3, labelsGene, labelsDNA, labels6, labels7, labels8, labels9, labels10, labels11];
+  /* ---------- step 12: two alleles, their bases (Daniel, 5 Nov 2026: "show a close-up look of the gene, and then show where
+     some bases are different … and so you can start talking about genotype and phenotype") ----------
+     The ABO gene's coding bases 250–264 (codons 84–88), from NCBI NM_020469.3 (the A allele, A1.01): Iᴬ as it is; the
+     common Iᵒ (O01) the same with the G at 261 missing (c.261delG). Read in threes, every three after the gap differs
+     and the protein stops early, so it does not work. The bands of the two chromosomes grow into the two rows; in Iᵒ the
+     G drops out; then the groups of three, red where they differ */
+  var SEQA = 'GTCCTCGTGGTGACC', NB = SEQA.length, GAP = 11, DX = 21, X0 = CX - (NB - 1) * DX / 2, Y1 = 140, Y2 = 238, BH9 = C9.len * .085;
+  function slotX(i) { return X0 + i * DX; }
+  function rowOf(y, from, k) {
+    var cx = lerp(from[0], CX, k), cy = lerp(from[1], y, k), w = lerp(C9.w, slotX(NB - 1) - slotX(0) + 28, k), hh = lerp(BH9, 36, k);
+    return '<rect class="dna__gene zm__row" x="' + n1(cx - w / 2) + '" y="' + n1(cy - hh / 2) + '" width="' + n1(w) + '" height="' + n1(hh) + '" rx="' + n1(lerp(2, 6, k)) + '"/>';
+  }
+  function tile(b, x, y, o, dy) {
+    return '<g' + op(o) + '><rect class="pt__nb dna__fill--' + b + '" x="' + n1(x - 9) + '" y="' + n1(y - 12 + (dy || 0)) + '" width="18" height="24" rx="3"/>' +
+      '<text class="pt__lt pt__lt--' + b + '" x="' + n1(x) + '" y="' + n1(y + (dy || 0) + .7) + '" font-size="14">' + b + '</text></g>';
+  }
+  function bracket(a, b, y, cls, open) {
+    var x0 = slotX(a) - 9, x1 = slotX(b) + 9;
+    return '<path class="zm__cod' + (cls ? ' ' + cls : '') + '" d="M' + n1(x0) + ' ' + n1(y + 5) + ' L' + n1(x0) + ' ' + n1(y) + ' L' + n1(x1) + ' ' + n1(y) + (open ? '' : ' L' + n1(x1) + ' ' + n1(y + 5)) + '"/>';
+  }
+  /* the groups of three: Iᴬ in step; Iᵒ the same until the gap, then shifted by one (the last one runs on) */
+  var CODA = [[0, 2], [3, 5], [6, 8], [9, 11], [12, 14]];
+  var CODO = [[0, 2], [3, 5], [6, 8], [9, 12], [13, 14]];
+  function rows(u, tilesOp) {
+    var out = '', ko = 1 - seg(u, 4.2, 5.4), kd = ease(seg(u, 4.2, 5.4));
+    for (var i = 0; i < NB; i++) {
+      var oa = tilesOp * seg(u, 2.2 + i * .045, 2.8 + i * .045);
+      out += tile(SEQA[i], slotX(i), Y1, oa);
+      out += i === GAP ? (ko > .02 ? tile(SEQA[i], slotX(i), Y2, oa * ko, 18 * kd) : '') : tile(SEQA[i], slotX(i), Y2, oa);
+    }
+    var kg = seg(u, 5, 5.6) * tilesOp;
+    if (kg > .02) out += '<rect class="zm__gap" x="' + n1(slotX(GAP) - 9) + '" y="' + n1(Y2 - 12) + '" width="18" height="24" rx="3"' + op(kg) + '/>';
+    var kb = seg(u, 5.8, 6.8) * tilesOp;
+    if (kb > .02) {
+      var br = '';
+      CODA.forEach(function (c) { br += bracket(c[0], c[1], Y1 - 21); });
+      CODO.forEach(function (c, j) { br += bracket(c[0], c[1], Y2 - 21, j >= 3 ? 'zm__cod--x' : '', j === CODO.length - 1); });
+      out += '<g' + op(kb) + '>' + br + '</g>';
+    }
+    return out;
+  }
+  var BANDM = function () { return band(96, 0); }, BANDF = function () { return band(244, 1); };
+  function frame12(t) {
+    var u = loc(11, t), k = ease(seg(u, .4, 2.6)), out = NUCL;
+    var o11 = 1 - seg(u, .8, 2.4);
+    if (o11 > .02) out += '<g' + op(o11) + '>' + frame11(M[11] - .001) + '</g>';
+    out += rowOf(Y1, BANDM(), k) + rowOf(Y2, BANDF(), k);
+    return out + rows(u, 1);
+  }
+  function labels12(t) {
+    var u = loc(11, t);
+    if (u < 6.8) return [];
+    return [{ id: 'a', text: 'Iᴬ, from the mother', x: slotX(0) - 14, y: Y1, side: 'L' },
+            { id: 'o', text: 'Iᵒ, from the father', x: slotX(0) - 14, y: Y2, side: 'L' },
+            { id: 'g', text: 'a G missing in Iᵒ', x: slotX(GAP), y: Y2 + 12, side: 'B' },
+            { id: 't', text: 'read in threes: after the gap, every three differs', x: slotX(NB - 1) + 9, y: Y2 - 21, side: 'R' }];
+  }
+  /* ---------- step 13: genotype and phenotype: the rows go back into the bands of the pair ---------- */
+  function cap(y, a, b, o) {
+    return '<g' + op(o) + '><rect class="zm__cap" x="' + n1(CX - 128) + '" y="' + n1(y - 14) + '" width="256" height="28" rx="14"/>' +
+      '<text class="zm__captxt" x="' + CX + '" y="' + n1(y + .5) + '"><tspan class="zm__capb">' + a + '</tspan> ' + b + '</text></g>';
+  }
+  function frame13(t) {
+    /* the bases fade first, then the rows shrink back into the bands as the pair comes back */
+    var u = loc(12, t), k = 1 - ease(seg(u, .8, 2.8)), out = NUCL;
+    out += '<g' + op(seg(u, .9, 2.4)) + '>' + frame11(M[11] - .001) + '</g>';
+    if (k > .02) out += rowOf(Y1, BANDM(), k) + rowOf(Y2, BANDF(), k);
+    var ot = 1 - seg(u, 0, .9);
+    if (ot > .02) out += rows(9, ot);
+    var kc = seg(u, 3, 3.8);
+    if (kc > .02) out += cap(330, 'genotype:', 'IᴬIᵒ', kc) + cap(362, 'phenotype:', 'blood group A', seg(u, 3.5, 4.3));
+    return out;
+  }
+  function labels13(t) { return loc(12, t) < 2.8 ? [] : labels11(t); }
+
+  var FR = [frame1, frame2, frame3, frameGene, helixFrame, helixFrame, helixFrame, frameN, frameN, frame10, frame11, frame12, frame13];
+  var LB = [labels1, labels2, labels3, labelsGene, labelsDNA, labels6, labels7, labels8, labels9, labels10, labels11, labels12, labels13];
   /* how each step comes out of the one before. `in`: from the point F of the old picture, z times enlarged, turning so the
      part at F (at angle ang there) lies along the new picture; `out`: the old picture shrinking into the point F of the new
      one, where it lies at angle ang; tz its length (model seconds). null: the same picture goes on */
@@ -379,7 +456,9 @@
     { z: 47, out: true, tz: TZ8, F: function () { var m = D.territoryMid(TER[0], M[7] * .5); return { p: m.p, ang: m.ang }; } },
     null,
     { z: 15.5, F: function () { return { p: D.rodAt(D.crossRod(TER[0], 0), F10), ang: 0 }; } },
-    { z: 9.9, out: true, F: function () { return { p: band(96, 0, F10), ang: -(ARM - TH9) }; } }];
+    { z: 9.9, out: true, F: function () { return { p: band(96, 0, F10), ang: -(ARM - TH9) }; } },
+    /* steps 12 and 13 carry their own way in: the bands grow into the rows of bases, and back */
+    null, null];
   function grp(svg, P, a, s, Q, o) {
     return '<g' + op(o) + ' transform="translate(' + n1(P[0]) + ' ' + n1(P[1]) + ') rotate(' + n1(a * 180 / PI) + ') scale(' + Math.round(s * 10000) / 10000 + ') translate(' + n1(-Q[0]) + ' ' + n1(-Q[1]) + ')">' + svg + '</g>';
   }
@@ -425,7 +504,7 @@
   }
 
   function zoom(spec) {
-    var S = K.shell(spec, 'zm', 'From a cell to a gene', 'A body cell; its nucleus; one chromosome enlarged, its DNA wound round proteins; the DNA itself and its bases; a gene; the DNA replicated; the copied chromosomes coiling into crosses; one copy enlarged; the pair the gene is on, with its two alleles.',
+    var S = K.shell(spec, 'zm', 'From a cell to a gene', 'A body cell; its nucleus; one chromosome enlarged, its DNA wound round proteins; the DNA itself and its bases; a gene; the DNA replicated; the copied chromosomes coiling into crosses; one copy enlarged; the pair the gene is on, with its two alleles; the bases of the two alleles, one base missing in one; genotype and phenotype.',
       [['see', 'You see:'], ['size', 'Across the picture:']]);
     var svg = S.svg, NSV = K.NS, uid = 'zm' + Math.random().toString(36).slice(2, 7);
     var defs = document.createElementNS(NSV, 'defs'), cp = document.createElementNS(NSV, 'clipPath'), cr = document.createElementNS(NSV, 'rect');
@@ -449,9 +528,9 @@
        "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'zm', [
       /* each name only in the steps whose picture shows its part (the steps from 0) */
-      { key: [['mum', 'from the mother', [0, 1, 7, 8, 9, 10]], ['dad', 'from the father', [0, 1, 7, 8, 10]], ['other', 'other chromosomes', [0, 1, 7, 8]], ['mito', 'mitochondria', [0]],
-              ['dna', 'DNA', [2, 3, 4, 5, 6]], ['hist', 'proteins (IB: histones)', [2, 3, 9]], ['dnagene', 'a gene', [3, 4, 9]], ['gene', 'a gene', [7, 8, 10]],
-              ['bases', 'the four bases', [2, 4, 5, 6], 'ATCG'], ['strand', 'a new strand', [5, 6]], ['enz', 'enzymes', [5]]] }
+      { key: [['mum', 'from the mother', [0, 1, 7, 8, 9, 10, 12]], ['dad', 'from the father', [0, 1, 7, 8, 10, 12]], ['other', 'other chromosomes', [0, 1, 7, 8]], ['mito', 'mitochondria', [0]],
+              ['dna', 'DNA', [2, 3, 4, 5, 6]], ['hist', 'proteins (IB: histones)', [2, 3, 9]], ['dnagene', 'a gene', [3, 4, 9, 11]], ['gene', 'a gene', [7, 8, 10, 12]],
+              ['bases', 'the four bases', [2, 4, 5, 6, 11], 'ATCG'], ['strand', 'a new strand', [5, 6]], ['enz', 'enzymes', [5]]] }
     ], function (Dw, nar) {
       narrow = nar;
       lay = frameOf(svg, bg, model, cr, Dw, nar);

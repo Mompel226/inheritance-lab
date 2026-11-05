@@ -326,8 +326,9 @@
   }
   /* fertilisation: three gametes fade; the top-left one becomes a sperm cell and the egg cell comes in (both rest, named);
      the sperm swims to the egg, its nucleus enters, swells and fuses with the egg's. In the zygote the chromosomes take its
-     own parents' colours: from the sperm, its father (blue); from the egg, its mother (orange) (the audit, 5 Nov 2026) */
-  var FT = { fd: [57.4, 58.6], sp: [57.8, 60.6], eg: [58.2, 60.6], rest: [60.6, 62.4], sw: [62.4, 64], inn: [64, 65.2], swell: [65, 66.6], fu: [66.6, 69], rc: [67.4, 69.2] };
+     own parents' colours: from the sperm, its father (blue); from the egg, its mother (orange) (the audit, 5 Nov 2026).
+     The two cells rest 3.6 s while they are named, long enough to read them in Play all (tools/flow-names.mjs) */
+  var FT = { fd: [57.4, 58.6], sp: [57.8, 60.6], eg: [58.2, 60.6], rest: [60.6, 64.2], sw: [64.2, 65.8], inn: [65.8, 67], swell: [66.8, 68.4], fu: [68.4, 70.4], rc: [69, 70.6] };
   function fert(t, ph, g) {
     function k(n) { return ease(seg(t, FT[n][0], FT[n][1])); }
     var out = '', fd = 1 - seg(t, FT.fd[0], FT.fd[1]), sp = k('sp'), eg = k('eg'), sw = k('sw'), inn = k('inn'), swell = k('swell'), fu = k('fu'), rc = k('rc');
@@ -347,7 +348,7 @@
     /* the sperm cell: the gamete shrinks into a small head with a tail, rests, swims to the egg, and enters it */
     var hx = lerp(lerp(92, 70, sp), 116, sw), hy = lerp(lerp(134, 200, sp), 250, sw);
     hx = lerp(hx, PN.cx, inn); hy = lerp(hy, PN.cy, inn);
-    var hrx = lerp(66, 9, sp), hry = lerp(100, 13, sp), head = 1 - seg(t, 64.8, 65.6), tail = sp * (1 - seg(t, 64, 65));
+    var hrx = lerp(66, 9, sp), hry = lerp(100, 13, sp), head = 1 - seg(t, 66.6, 67.4), tail = sp * (1 - seg(t, 65.8, 66.8));
     if (tail > .02) {
       var Pt = [], L = 64 * sp;
       for (var i = 0; i <= 14; i++) { var f = i / 14, d = hry + L * f; Pt.push([hx - d * .62 + 4 * Math.sin(f * 9 + t * 3) * .7, hy - d * .78 + 4 * Math.sin(f * 9 + t * 3) * .55]); }
@@ -362,7 +363,7 @@
     /* the chromosomes: the sperm's (orange A, blue B: which of the man's parents each came from) fade while the head is
        small and come back as its nucleus swells; the egg's grey; in the zygote, the sperm's blue and the egg's orange */
     var Z = terr(FOUR, ZN), gs = terr(TWO('mum', 'dad'), sn), ge = terr(TWO('other', 'other'), en);
-    var so = Math.max(1 - seg(sp, 0, .5), seg(t, 65.2, 66.4));
+    var so = Math.max(1 - seg(sp, 0, .5), seg(t, 67, 68.2));
     var to = [[gs[0], Z[0], so, 'dad'], [gs[1], Z[3], so, 'dad'], [ge[0], Z[1], 1, 'mum'], [ge[1], Z[2], 1, 'mum']];
     g.Z = [];
     to.forEach(function (q) {
@@ -395,7 +396,7 @@
       return [{ id: 'g0', text: 'a haploid cell', x: 26, y: 134, side: 'L' }, { id: 'g1', text: 'a cell: one of each pair', x: 294, y: 134, side: 'R' }, { id: 'g2', text: 'a cell of the other kind', x: 294, y: 366, side: 'R' }]; }
     /* the sperm cell and the egg cell, named while they rest; the zygote at the end */
     if (t >= FT.rest[0] && t < FT.rest[1]) return [{ id: 's', text: 'a sperm cell', x: g.head[0], y: g.head[1], side: 'L' }, { id: 'e', text: 'an egg cell, from another person', x: g.egg[0], y: g.egg[1], side: 'R' }];
-    if (!rest(t, 69.2)) return [];
+    if (!rest(t, FT.rc[1])) return [];
     /* both parents' names on the left, each on its nearest chromosome (the zygote's name, three lines, fills the right) */
     var mum = g.Z[2].c[0] < g.Z[3].c[0] ? g.Z[2] : g.Z[3];   /* g.Z: the sperm cell's two, then the egg cell's two */
     var dad = g.Z[0], a = leftOf(thr(dad, ph).filter(function (p) { return p[1] < dad.c[1]; })), b = leftOf(thr(mum, ph).filter(function (p) { return p[1] > mum.c[1]; }));   /* the upper half of one, the lower half of the other: the two names stand apart */

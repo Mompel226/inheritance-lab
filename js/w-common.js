@@ -153,7 +153,7 @@
       playAll: function () { run(0, END); }, playing: function () { return playing; },
       time: function () { return T; },
       seek: function (t) { stop(); started = t > 0; stopAt = null; T = Math.max(0, Math.min(END, t)); paint(T); return STEPS.map(function (s) { return s.t; }); },
-      onStep: null, steps: STEPS.length
+      onStep: null, steps: STEPS.length, flow: opts.flow || null, end: END
     };
     return api;
   }

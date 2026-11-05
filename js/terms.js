@@ -34,12 +34,12 @@
              'X chromosome', 'X chromosomes', 'Y chromosome', 'Y chromosomes', 'sex chromosomes', 'sex chromosome',
              'gamete', 'gametes', 'egg cell', 'egg cells', 'sperm cell', 'sperm cells', 'zygote', 'embryo',
              'testes', 'testis', 'ovaries', 'anthers', 'ovules', 'daughter cell', 'daughter cells', 'stem cell', 'stem cells',
-             'bone marrow', 'pores', 'pore'],
+             'bone marrow', 'pores', 'pore', 'chromatid', 'chromatids'],
     proc:   ['mitosis', 'meiosis', 'fertilisation', 'fertilised', 'exact replication', 'replication', 'nuclear division',
              'reduction division', 'inheritance', 'asexual reproduction', 'sexual reproduction', 'test cross', 'expressed',
              'not expressed', 'gene expression', 'transmission'],
     subst:  ['DNA', 'mRNA', 'messenger RNA', 'protein', 'proteins', 'amino acid', 'amino acids', 'bases', 'sequence of bases',
-             'enzyme', 'enzymes', 'amylase', 'receptors for neurotransmitters', 'membrane carriers', 'carrier proteins'],
+             'enzyme', 'enzymes', 'amylase', 'receptors for neurotransmitters', 'membrane carriers', 'carrier proteins', 'genetic material'],
     plain:  ['allele', 'alleles', 'genotype', 'genotypes', 'phenotype', 'phenotypes', 'homozygous', 'heterozygous',
              'dominant allele', 'recessive allele', 'dominant', 'recessive', 'pure-breeding', 'codominance', 'codominant',
              'blood group', 'blood groups', 'ABO blood groups', 'sex-linked characteristic', 'sex-linked', 'sex linkage',
@@ -47,7 +47,7 @@
              'Punnett square', 'monohybrid cross', 'phenotypic ratio', 'ratio', 'likelihood', 'probability', 'haploid', 'diploid',
              'genetically identical', 'genetically different', 'chromosome number', 'halved', 'maintained', 'one set', 'two sets',
              '23 pairs', 'raised letter', 'raised letters', 'capital', 'specialised', 'unspecialised',
-             'growth', 'repair of damaged tissues', 'replacement of cells']
+             'growth', 'repair of damaged tissues', 'replacement of cells', 'genome']
   };
 
   /* --------- what happens when you click a term ---------

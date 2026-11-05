@@ -148,7 +148,7 @@
   function mitIB(t, ph, g) {
     var out = '', body = '';
     /* the cell grows about a tenth in G1 and G2 (the audit, 5 Nov 2026: what the text says is drawn) */
-    var grow = seg(t, .5, 6.5) + seg(t, 14.4, 19), el = ease(seg(t, 44.4, 50)), cy = ease(seg(t, 63.6, 69));
+    var grow = seg(t, .5, 6.5) + seg(t, 14.4, 19), el = ease(seg(t, 44.4, 50)), cy = ease(seg(t, 64.6, 69.4));
     var rx = lerp(122 + 6 * grow - 6 * el, 128, cy), ry = lerp(178 + 9 * grow + 8 * el, 108, cy);
     var P = D.pinch(160, lerp(240, 128, cy), lerp(240, 352, cy), rx, ry, false);
     out += P.svg + (t >= 60.4 ? '<g' + op(seg(t, 60.4, 61.2)) + '>' + ring(P, 160, false) + '</g>' : '');
@@ -235,9 +235,9 @@
     if (k === 6 && t >= 50 && g.v.length) { var v = g.v[0][0], ve = leftOf([v.top, v.bot]); it.push({ id: 'v', text: 'a chromatid, centromere first', x: ve[0], y: ve[1], side: 'L' }, { id: 'p', text: 'a pole: a centrosome', x: g.cA[0] + 9, y: g.cA[1], side: 'R' }); }
     if (k === 7 && t >= 59.6) it.push({ id: 'nm', text: 'a new nuclear membrane', x: D1.cx - D1.rx, y: D1.cy, side: 'L' }, { id: 'nl', text: 'the nucleolus (beyond IB)', x: D2.cx + 11, y: D2.cy + 2, side: 'R' });
     if (k === 8) {
-      /* the ring is named only while it holds still, before it pinches the cell */
-      if (t >= 61.2 && t < 63.6) it.push({ id: 'r', text: 'a ring of actin and myosin', x: 160 - g.cell.w - 3.6, y: g.cell.m, side: 'L' });
-      if (t >= 69) it.push({ id: 'cm', text: 'cell membrane', x: 160 + g.rx, y: g.top, side: 'R' }, { id: 'mi', text: 'a mitochondrion: each cell gets some', x: g.mito[0][0] - 7.5, y: g.mito[0][1], side: 'L' });
+      /* the ring is named only while it holds still, before it pinches the cell: 3.4 s, long enough to read in Play all */
+      if (t >= 61.2 && t < 64.6) it.push({ id: 'r', text: 'a ring of actin and myosin', x: 160 - g.cell.w - 3.6, y: g.cell.m, side: 'L' });
+      if (t >= 69.4) it.push({ id: 'cm', text: 'cell membrane', x: 160 + g.rx, y: g.top, side: 'R' }, { id: 'mi', text: 'a mitochondrion: each cell gets some', x: g.mito[0][0] - 7.5, y: g.mito[0][1], side: 'L' });
     }
     return it;
   }

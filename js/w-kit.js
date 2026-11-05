@@ -45,16 +45,23 @@
       return M[M.length - 1];
     };
   }
-  /* Play all skips each step's reading hold: once a step's motion has run (and a short beat, so the eye sees the step
-     change), it goes on with the next step's motion */
+  /* Play all skips each step's reading hold: once a step's motion has run, it waits only while the names that came with
+     it are read, then goes on with the next step's motion. f.need() (set by mount) reads the names on the picture once
+     the step's last frame is drawn; with none, a short beat (.35 s) so the eye sees the step change (Daniel, 5 Nov 2026:
+     "when you play it all, sometimes some sections go so fast, the labels that appear, you can barely read them") */
   function readerFlow(R, M, P) {
-    return function (t) {
+    var held = {}, seen = {};
+    function f(t) {
       for (var i = 0; i + 1 < R.length; i++) if (t < R[i + 1]) {
-        var run = Math.min((M[i + 1] - M[i]) / paceOf(P, i), R[i + 1] - R[i]);
-        return t > R[i] + run + .35 ? R[i + 1] : t;
+        var end = R[i] + Math.min((M[i + 1] - M[i]) / paceOf(P, i), R[i + 1] - R[i]);
+        if (t <= end) return t;
+        if (held[i] == null) { if (!seen[i]) { seen[i] = 1; return t; } held[i] = f.need ? f.need() : .35; }
+        return t > end + held[i] ? R[i + 1] : t;
       }
       return t;
-    };
+    }
+    f.need = null;
+    return f;
   }
   function readerSteps(steps, R) { return steps.map(function (s, i) { var o = {}; for (var k in s) o[k] = s[k]; o.t = R[i]; return o; }); }
 
@@ -192,6 +199,19 @@
     S.box.__onMove = function () { if (stg) stg.mount(); };
     S.box.__onReset = function () { sp.stop(); if (ro) ro.disconnect(); if (stg) stg.detach(); };
     S.box.__seek = function (t) { fit(); return sp.seek(t); };
+    /* Play all's own clock, for the tools that time it (tools/flow-names.mjs) */
+    S.box.__flow = sp.flow; S.box.__playEnd = sp.end;
+    /* how long Play all waits on a step's names: 0.8 s and 0.3 s a word for the longest (about 3 words a second, for
+       readers of English as an additional language), 0.4 s more for each other name, at most 6 s */
+    if (sp.flow) sp.flow.need = function () {
+      var pk = S.fig.querySelector('.pinkey'), texts = [];
+      if (pk && !pk.hidden) Array.prototype.forEach.call(pk.children, function (li) { texts.push(li.textContent.replace(/^\s*\d+\s*/, '')); });
+      else Array.prototype.forEach.call(S.svg.querySelectorAll('.lb__txt'), function (tx) { var sp2 = tx.querySelectorAll('tspan'); texts.push(sp2.length ? Array.prototype.map.call(sp2, function (q) { return q.textContent; }).join(' ') : tx.textContent); });
+      texts = texts.filter(function (x) { return /\S/.test(x); });
+      if (!texts.length) return .35;
+      var mx = Math.max.apply(null, texts.map(function (x) { return x.trim().split(/\s+/).length; }));
+      return Math.min(6, .8 + .3 * mx + .4 * (texts.length - 1));
+    };
     /* in a card, the animation plays all its steps as soon as its card opens (Daniel, 4 Nov 2026: "as soon as you open
        that, the full animation should play … if the user wants to go one by one or stop it, it just has to scroll
        down"); it pauses when the card closes or the widget is hidden (the IGCSE / IB switch), and plays again when

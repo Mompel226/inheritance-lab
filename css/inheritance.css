@@ -377,6 +377,13 @@ p,li,dd,figcaption{text-wrap:pretty}
 .al.al--band{fill:var(--gene-ink);font-size:15px}
 .dna__b.zm__tk{stroke-width:2.2;stroke-linecap:butt}
 .zm__gene10{fill:none;stroke:var(--gene);stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+/* step 12: the groups of three under the bases (red where Iᵒ is read differently), the gap of the missing base; step 13's
+   two lines in the picture: genotype and phenotype */
+.zm__cod{fill:none;stroke:var(--grey);stroke-width:1.8;stroke-linejoin:round} .zm__cod.zm__cod--x{stroke:var(--g-no);stroke-width:2.4}
+.zm__gap{fill:none;stroke:var(--ink);stroke-width:1.2;stroke-dasharray:2.5 2}
+.zm__row{opacity:.45}
+.zm__cap{fill:var(--card);stroke:var(--edge);stroke-width:1}
+.zm__captxt{font-family:var(--font);font-size:15px;fill:var(--ink);text-anchor:middle;dominant-baseline:central} .zm__capb{font-weight:700}
 .dna__s{fill:none;stroke:var(--shade);stroke-width:3;stroke-linecap:round}
 .dna__b{stroke-width:3.2;stroke-linecap:round}
 .dna__b--A,.dna__fill--A{stroke:var(--dna-a);fill:var(--dna-a)} .dna__b--T,.dna__fill--T{stroke:var(--dna-b);fill:var(--dna-b)}
