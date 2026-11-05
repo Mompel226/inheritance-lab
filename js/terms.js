@@ -268,3 +268,104 @@
   }
   if (document.body) watch(); else document.addEventListener('DOMContentLoaded', watch);
 })();
+
+/* ============================================================
+   Say — how to say the hard words (Daniel, 5 Nov 2026: "some … keywords are hard to pronounce … have an option to
+   listen to the right pronunciation. In American and British English, if possible, if just one is available, just
+   one"). Each word: a spelling guide (uh-LEEL) and, where Wikimedia Commons has one, a recording by a real speaker
+   (assets/say/<word>-uk.mp3, -us.mp3; credited in assets/say/CREDITS.md and, as it plays, under the word); for the
+   rest, the browser's own British or American voice. Say.html(term) gives the guide and the two buttons for a key-word
+   card or a glossary row (a phrase gets them when one of its words is here: the voice says the whole phrase); a press
+   plays, and never turns the card.
+   ============================================================ */
+(function (global) {
+  'use strict';
+  var DIR = 'assets/say/';
+  /* word: [spelling guide, { uk / us: [speaker, licence, its Commons page] }] */
+  var W = {
+    "allele": ["uh-LEEL (UK also AL-eel)", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-allele.wav"], "us": ["Wodencafe", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Wodencafe-allele.wav"]}],
+    "chromosome": ["KROH-muh-sohm", {"uk": ["ATMarsden", "CC BY 4.0", "https://commons.wikimedia.org/wiki/File:en-uk-chromosome.ogg"], "us": ["BirdHopper", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:en-us-chromosome.ogg"]}],
+    "chromatid": ["KROH-muh-tid", {"us": ["Dvortygirl", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:En-us-chromatid.ogg"]}],
+    "gene": ["jeen", {"us": ["Dvortygirl", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:En-us-gene.ogg"]}],
+    "genome": ["JEE-nohm", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-genome.wav"], "us": ["Wodencafe", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Wodencafe-genome.wav"]}],
+    "genotype": ["JEN-uh-type or JEE-nuh-type", {"us": ["Denendaden", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Denendaden-genotype.wav"]}],
+    "phenotype": ["FEE-nuh-type", {"us": ["Denendaden", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Denendaden-phenotype.wav"]}],
+    "phenotypic": ["fee-nuh-TIP-ik", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-phenotypic.wav"]}],
+    "homozygous": ["hoh-muh-ZY-gus", {"us": ["Denendaden", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Denendaden-homozygous.wav"]}],
+    "heterozygous": ["het-uh-roh-ZY-gus", {}],
+    "diploid": ["DIP-loyd", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-diploid.wav"]}],
+    "haploid": ["HAP-loyd", {}],
+    "ribosome": ["RY-buh-sohm", {}],
+    "mitosis": ["my-TOH-sis", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-mitosis.wav"]}],
+    "meiosis": ["my-OH-sis", {"us": ["Emw", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:en-us-meiosis.ogg"]}],
+    "gamete": ["GAM-eet", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-gamete.wav"]}],
+    "zygote": ["ZY-goht", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-zygote.wav"], "us": ["Naomi Persephone Amethyst", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-zygote.wav"]}],
+    "nucleus": ["NYOO-klee-us (US NOO-klee-us)", {"us": ["Dvortygirl", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:en-us-nucleus.ogg"]}],
+    "nucleotide": ["NYOO-klee-uh-tide (US NOO-…)", {"us": ["Flame, not lame", "CC0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Flame%2C_not_lame-nucleotide.wav"]}],
+    "fertilisation": ["fur-tih-ly-ZAY-shun", {"us": ["Vininn126", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vininn126-fertilization.wav"]}],
+    "codominance": ["koh-DOM-ih-nunss", {}],
+    "codominant": ["koh-DOM-ih-nunt", {}],
+    "dominant": ["DOM-ih-nunt", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-dominant.wav"], "us": ["NaomiAmethyst", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-NaomiAmethyst-dominant.wav"]}],
+    "recessive": ["rih-SESS-iv", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-recessive.wav"]}],
+    "monohybrid": ["mon-oh-HY-brid", {}],
+    "Punnett": ["PUN-it", {}],
+    "pedigree": ["PED-ih-gree", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-pedigree.wav"]}],
+    "inheritance": ["in-HERR-ih-tunss", {"us": ["Neskaya", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:En-us-inheritance.ogg"]}],
+    "asexual": ["ay-SEK-shoo-ul", {"uk": ["Vealhurl", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Vealhurl-asexual.wav"], "us": ["Naomi Persephone Amethyst", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-asexual.wav"]}],
+    "characteristic": ["karr-uk-tuh-RIS-tik", {"us": ["Dvortygirl", "CC BY-SA 3.0", "https://commons.wikimedia.org/wiki/File:En-us-characteristic.ogg"]}],
+    "centromere": ["SEN-truh-meer", {}],
+    "mRNA": ["em-ar-en-AY", {}],
+    "cytoplasm": ["SY-tuh-plaz-um", {}],
+    "mitochondria": ["my-tuh-KON-dree-uh", {}],
+    "chiasma": ["ky-AZ-muh", {}],
+    "homologous": ["huh-MOL-uh-gus", {}]
+  };
+  var LOW = {}; Object.keys(W).forEach(function (w) { LOW[w.toLowerCase()] = w; });
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function one(w) { var l = String(w).toLowerCase(); return LOW[l] || LOW[l.replace(/s$/, '')] || LOW[l.replace(/es$/, '')] || null; }
+  /* the words of a term that are here: the term itself, or each of its words */
+  function words(term) { var w = one(term); if (w) return [w]; return String(term).split(/[\s-]+/).map(one).filter(Boolean); }
+  var ICON = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2z" fill="currentColor"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.6 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+  function html(term) {
+    var ws = words(term); if (!ws.length) return '';
+    var name = { uk: 'British English', us: 'American English' };
+    return '<span class="say" data-say="' + esc(term) + '"><span class="say__g">' + esc(ws.map(function (w) { return W[w][0]; }).join(' · ')) + '</span>' +
+      '<span class="say__bs">' + ['uk', 'us'].map(function (a) { return '<button type="button" class="say__b" data-acc="' + a + '" aria-label="Listen to ' + esc(term) + ', ' + name[a] + '">' + ICON + a.toUpperCase() + '</button>'; }).join('') + '</span></span>';
+  }
+  var audio = null, busy = null;
+  function done() { if (busy) busy.classList.remove('is-playing'); busy = null; }
+  function credit(box, c) {
+    var el = box.querySelector('.say__c'); if (!el) { el = document.createElement('span'); el.className = 'say__c'; box.appendChild(el); }
+    el.innerHTML = c ? 'Recording: ' + esc(c[0]) + ', <a href="' + esc(c[2]) + '" target="_blank" rel="noopener">Wikimedia Commons</a>, ' + esc(c[1]) : '';
+    el.hidden = !c;
+  }
+  function voice(a) {
+    var vs = []; try { vs = global.speechSynthesis ? global.speechSynthesis.getVoices() : []; } catch (e) {}
+    var want = a === 'uk' ? /^en[-_]GB/i : /^en[-_]US/i;
+    return vs.filter(function (v) { return want.test(v.lang) && v.localService; })[0] || vs.filter(function (v) { return want.test(v.lang); })[0] || null;
+  }
+  function speak(text, a, btn) {
+    if (!global.speechSynthesis || !global.SpeechSynthesisUtterance) { done(); return; }
+    var u = new SpeechSynthesisUtterance(text), v = voice(a);
+    u.lang = a === 'uk' ? 'en-GB' : 'en-US'; if (v) u.voice = v; u.rate = .85;
+    u.onend = u.onerror = done;
+    try { global.speechSynthesis.cancel(); global.speechSynthesis.speak(u); } catch (e) { done(); }
+  }
+  function play(btn) {
+    var box = btn.closest('.say'), term = box.getAttribute('data-say'), a = btn.getAttribute('data-acc'), ws = words(term);
+    if (audio) { try { audio.pause(); } catch (e) {} audio = null; }
+    try { if (global.speechSynthesis) global.speechSynthesis.cancel(); } catch (e) {}
+    done(); busy = btn; btn.classList.add('is-playing');
+    var w = ws.length === 1 && one(term) ? ws[0] : null, c = w && W[w][1][a];
+    credit(box, c || null);
+    if (!c) { speak(term, a, btn); return; }
+    audio = new Audio(DIR + w.toLowerCase() + '-' + a + '.mp3');
+    audio.onended = done;
+    audio.onerror = function () { credit(box, null); speak(term, a, btn); };
+    var p = audio.play(); if (p && p.catch) p.catch(function () { credit(box, null); speak(term, a, btn); });
+  }
+  /* before the card or the row hears it: a press plays, it never turns the card */
+  document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.say__b'); if (!b) return; e.stopPropagation(); e.preventDefault(); play(b); }, true);
+  document.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('.say__b')) e.stopPropagation(); }, true);
+  global.Say = { html: html, words: words };
+})(window);

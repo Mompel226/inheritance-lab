@@ -75,7 +75,7 @@ correctly. The `tools/` named here stay on Daniel's computer: they are not in th
 node tools/build.mjs
 ```
 
-Picture credits: [`assets/photos/CREDITS.md`](assets/photos/CREDITS.md).
+Picture credits: [`assets/photos/CREDITS.md`](assets/photos/CREDITS.md). Pronunciation recordings (the 🔊 UK and 🔊 US buttons beside the hard words, by real speakers on Wikimedia Commons): [`assets/say/CREDITS.md`](assets/say/CREDITS.md).
 
 </details>
 
@@ -93,7 +93,7 @@ Made by **Dr Daniel Mompel Riera** ·
 software and let anyone else use it, *including over a network*, you have to publish your source under the same licence.
 You may not sell the teaching material or use it commercially, and the credit has to stay.
 
-**Not covered:** third-party images and media keep their own licences — see the picture credits.
+**Not covered:** third-party images, recordings and media keep their own licences — see the picture and recording credits.
 
 © 2026 Dr Daniel Mompel Riera. I hold the copyright, so I can grant other terms: if you want to use any of this
 commercially, ask me at <dmompelriera@nlcsjeju.kr>.
