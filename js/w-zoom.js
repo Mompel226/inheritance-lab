@@ -5,8 +5,8 @@
      2 the nucleus of a working cell: each chromosome a long, very thin thread folded in its own part of the nucleus;
        23 pairs; chromosome 9 from the mother and from the father;
      3 one thread enlarged: DNA wound round small balls of protein (histones), almost twice round each;
-     4 the DNA between two of them: a double helix; its bases grow in; bonds between the pairs hold the strands together;
-     5 a gene: a length of DNA that codes for a protein, thousands of base pairs long, longer than the picture;
+     4 a gene: seen from further away, one lit stretch of the string of beads (about 1,400 base pairs, 7 beads);
+     5 the DNA of the gene, between two beads: a double helix, its bases (already marked on the beads' DNA), the bonds;
      6 replication begins: an enzyme at the fork separates the strands, an enzyme on each old strand makes a new one;
      7 replication ends: two identical molecules of DNA, each one old strand and one new;
      8 back in the nucleus: each chromosome two identical threads, side by side;
@@ -46,19 +46,19 @@
     { h: 'A body cell', p: 'A cell from your body, about 25 micrometres across. Its **nucleus** holds the **chromosomes**: 46 in a human body cell.' },
     { h: 'Inside the nucleus', p: 'In a working cell each chromosome is a long, very thin thread of **DNA**, folded many times in its own part of the nucleus. Chromosomes are in pairs: 23 pairs in a human body cell. One of each pair came from the mother, and one from the father. Two pairs are coloured here.' },
     { h: 'Wound round proteins', p: 'Enlarged: the thread is DNA wound round small balls of protein, almost twice round each, like thread round beads. This is the first step in packing about 2 metres of DNA into one nucleus.' },
-    { h: 'The DNA', p: 'Enlarged again: the DNA between two balls of protein. It is two strands twisted into a **double helix**, with **bases** between them. Bonds between the pairs of bases hold the two strands together, and the bases always pair in the same way: A with T, and C with G.' },
-    { h: 'A gene', p: 'A **gene** is a length of DNA that codes for a protein. A gene is thousands of base pairs long, so this picture shows only a small part of one. One chromosome carries many genes.' },
+    { h: 'A gene', p: 'Seen from a little further away: a **gene** is a length of DNA that codes for a protein. This gene, lit in yellow, is about 1,400 base pairs long, wound round 7 balls of protein; most genes are longer, thousands of base pairs. One chromosome carries many genes.' },
+    { h: 'The DNA of the gene', p: 'Enlarged: part of the gene, between two balls of protein. The DNA is two strands twisted into a **double helix**, with **bases** between them. Bonds between the pairs of bases hold the two strands together, and the bases always pair in the same way: A with T, and C with G.' },
     { h: 'Replication begins', p: 'Before a cell divides, its DNA is copied exactly: this exact copying is called **replication**. An enzyme separates the two strands, and an enzyme makes a new strand along each old one: each new base pairs with the base opposite it, A with T and C with G.' },
     { h: 'Two identical molecules', p: 'The whole chromosome is copied in this way. The result is two identical molecules of DNA, each with one old strand and one new strand: the chromosome is now two identical copies.' },
     { h: 'Back in the nucleus', p: 'Back in the nucleus: each chromosome is now two identical threads, side by side, held together most firmly at one point. The cell is ready to divide.' },
     { h: 'Coiling into a cross', p: 'Each copy coils, again and again, until it is short and thick. The copies stay joined at one point, so the chromosome is now a cross. You see a cross only while a cell divides.' },
     { h: 'Inside one copy', p: 'Enlarged: part of one copy. The same thread of DNA and proteins is folded into thousands of loops, packed tightly side by side.' },
-    { h: 'A pair, and two alleles', p: 'Chromosomes are in pairs, one from each parent: here, chromosome 9 from the mother and chromosome 9 from the father. The **ABO gene** is at the same place on both, near the end of the long arm. This person has the **allele** Iᴬ (blood group A) on one and the allele Iᵒ (blood group O) on the other. The two copies of a chromosome are identical, so both carry the same allele.' }
+    { h: 'A pair, and two alleles', p: 'Chromosomes are in pairs: here, chromosome 9 from the mother and from the father. The **ABO gene** is at the same place on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one and Iᵒ on the other; both copies of a chromosome carry the same allele.' }
   ];
-  var M = [0, 7, 18, 30, 40, 47, 57, 67, 79, 90, 101, 112];
-  var SEE = ['a body cell', 'its nucleus', 'DNA round proteins', 'the DNA', 'a gene', 'the DNA being copied', 'two identical molecules', 'the copied chromosomes', 'the chromosomes coiling', 'part of one copy', 'one pair'];
+  var M = [0, 7, 18, 30, 39, 49, 59, 69, 81, 92, 103, 114];
+  var SEE = ['a body cell', 'its nucleus', 'DNA round proteins', 'a gene', 'part of the gene: its DNA', 'the DNA being copied', 'two identical molecules', 'the copied chromosomes', 'the chromosomes coiling', 'part of one copy', 'one pair'];
   var NM8 = 'about 8 nm (0.000008 mm)', UM10 = 'about 10 µm (0.01 mm)';
-  var SIZE = ['about 25 µm (0.025 mm)', UM10, 'about 70 nm (0.00007 mm)', NM8, NM8, NM8, NM8, UM10, UM10, 'about 0.6 µm (0.0006 mm)', 'about 4 µm (0.004 mm)'];
+  var SIZE = ['about 25 µm (0.025 mm)', UM10, 'about 70 nm (0.00007 mm)', 'about 230 nm (0.00023 mm)', NM8, NM8, NM8, UM10, UM10, 'about 0.6 µm (0.0006 mm)', 'about 4 µm (0.004 mm)'];
   function op(o) { return o < .999 ? ' opacity="' + n1(Math.max(0, o) * 100) / 100 + '"' : ''; }
   function rot(p, a) { var c = Math.cos(a), s = Math.sin(a); return [p[0] * c - p[1] * s, p[0] * s + p[1] * c]; }
   function mix(p, q, k) { return [lerp(p[0], q[0], k), lerp(p[1], q[1], k)]; }
@@ -152,7 +152,7 @@
   /* five beads along the thread's line, a little up and down, the DNA between them short (about 20 base pairs) */
   var BEADS = [[22, 176, .30], [96, 206, -.26], [170, 176, .26], [244, 206, -.28], [318, 176, .24]];
   function chain(t) {
-    return D.beads(BEADS.map(function (b, i) { return { c: [b[0] + 1.6 * Math.sin(t * .7 + i), b[1] + 1.6 * Math.cos(t * .6 + i * 2)], a: b[2] }; }), { inAt: [-14, 160], outAt: [W + 14, 204], w: W });
+    return D.beads(BEADS.map(function (b, i) { return { c: [b[0] + 1.6 * Math.sin(t * .7 + i), b[1] + 1.6 * Math.cos(t * .6 + i * 2)], a: b[2] }; }), { inAt: [-14, 160], outAt: [W + 14, 204], w: W, bases: true });
   }
   function frame3(t) { return NUCL + chain(t).svg; }
   function linkerMid(t, i) { var P = chain(t).linker(i == null ? 1 : i), j = Math.floor(P.length / 2), a = P[j - 1], b = P[j + 1]; return { p: P[j], ang: Math.atan2(b[1] - a[1], b[0] - a[0]) }; }
@@ -163,7 +163,40 @@
             { id: 'lnk', text: 'DNA between them', x: m[0], y: m[1], side: 'T' }];
   }
 
-  /* ---------- steps 4–7: the DNA itself; a gene; replication ---------- */
+  /* ---------- step 4: a gene, a lit stretch of the string of beads (Daniel, 5 Nov 2026: "show a gene first while it's
+     rounded up inside the histones. You highlight in yellow that section, and then you zoom in and you see the DNA") ----
+     The view three times further away: step 3's five beads are beads 4–8 of a row of thirteen (in step 3's own units,
+     drawn at a third), and the thread folds back below as a second row; the gene is beads 3–9, about 1,400 base pairs
+     (about 200 a bead). */
+  var G4 = [170, 120];
+  function row(t, dy, j0) {
+    var L = [], S3 = [.30, -.26, .26, -.28, .24];
+    for (var i = 0; i < 13; i++) {
+      var j = i - 4 + j0, a = !j0 && i >= 4 && i <= 8 ? S3[i - 4] : (i % 2 ? -.27 : .27);
+      L.push({ c: [CX + (i - 6) * 74 + 1.6 * Math.sin(t * .7 + j), CY + dy + (i % 2 ? 16 : -14) + 1.6 * Math.cos(t * .6 + j * 2)], a: a });
+    }
+    return D.beads(L, { inAt: [CX - 6.5 * 74 - 40, CY + dy - 20], outAt: [CX + 6.5 * 74 + 40, CY + dy + 10], w: W, bases: true });
+  }
+  function toG4(p) { return [G4[0] + (p[0] - CX) / 3, G4[1] + (p[1] - CY) / 3]; }
+  function hiK(t) { return seg(loc(3, t), TZ + .3, TZ + 1.5); }
+  function frameGene(t) {
+    var k = hiK(t), out = NUCL + '<g transform="translate(' + G4[0] + ' ' + G4[1] + ') scale(' + n1(1000 / 3) / 1000 + ') translate(' + (-CX) + ' ' + (-CY) + ')">';
+    if (k > 0) out += '<g' + op(k) + '><rect class="dna__gene" x="' + (CX - 3 * 74 - 46) + '" y="' + (CY - 54) + '" width="' + (6 * 74 + 92) + '" height="112" rx="34"/></g>';
+    return out + row(t, 0, 0).svg + row(t, 420, 20).svg + '</g>';
+  }
+  function geneLinker(t) {
+    var P = row(t, 0, 0).linker(6), i = Math.floor(P.length / 2), a = P[i - 1], b = P[i + 1];
+    return { p: toG4(P[i]), ang: Math.atan2(b[1] - a[1], b[0] - a[0]) };
+  }
+  function labelsGene(t) {
+    if (hiK(t) < .99) return [];
+    var bead = toG4([CX + 5 * 74, CY + 420 + 16]), out = toG4([CX - 5 * 74, CY + 16]);
+    return [{ id: 'gene', text: 'a gene: one length of the DNA', x: G4[0], y: G4[1] - 18, side: 'T' },
+            { id: 'out', text: 'DNA outside this gene', x: out[0], y: out[1], side: 'L' },
+            { id: 'his', text: 'DNA wound round proteins (IB: histones)', x: bead[0], y: bead[1], side: 'R' }];
+  }
+
+  /* ---------- steps 5–7: the DNA of the gene; replication ---------- */
   var HX = { y: CY, A: 40, P: 150 };
   function hph(t) { return .3 + t * .22; }   /* the helix turns slowly, the same in steps 4 to 7 */
   /* the enzymes where they work: helicase at the fork's tip, DNA polymerase on each old strand, `gap` behind the fork,
@@ -175,13 +208,13 @@
     return lerp(175, W + 120, ease(seg(loc(6, t), .4, 8.4)));
   }
   function dOf(x, Xf) { if (x >= Xf) return 0; var k = Math.min(1, (Xf - x) / FORK.S); return FORK.D * k * k * (3 - 2 * k); }
-  function litK(t) { return t < M[4] ? seg(loc(3, t), TZ + .3, TZ + 3.3) : 1; }
-  function geneK(t) { return t < M[4] ? 0 : t < M[5] ? seg(loc(4, t), .2, 1.4) : t < M[6] ? 1 - seg(loc(5, t), 0, 1) : 0; }
+  /* the gene's yellow: all over the picture while it shows part of the gene, fading as replication begins */
+  function geneK(t) { return t < M[4] ? 0 : t < M[5] ? 1 : t < M[6] ? 1 - seg(loc(5, t), 0, 1) : 0; }
   function helixFrame(t) {
     var Xf = forkX(t), gk = geneK(t), out = NUCL, yb = HX.y - HX.A - 14;
-    if (gk > 0) out += '<g' + op(gk) + '><rect class="dna__gene" x="-10" y="' + yb + '" width="' + (W + 20) + '" height="' + (2 * HX.A + 28) + '" rx="8"/>' +
-      '<path class="gn__br" d="M10 ' + (yb - 16) + ' L330 ' + (yb - 16) + ' M18 ' + (yb - 22) + ' L10 ' + (yb - 16) + ' L18 ' + (yb - 10) + ' M322 ' + (yb - 22) + ' L330 ' + (yb - 16) + ' L322 ' + (yb - 10) + '"/></g>';
-    out += D.duplex({ x0: -14, x1: W + 14, y: HX.y, A: HX.A, P: HX.P, ph: hph(t), lit: litK(t), fork: Xf > -900 ? { x: Xf, D: FORK.D, S: FORK.S, gap: FORK.gap } : null });
+    if (gk > 0) out += '<g' + op(gk) + '><rect class="dna__gene" x="-3000" y="' + yb + '" width="' + (W + 6000) + '" height="' + (2 * HX.A + 28) + '"/></g>';
+    /* the bases are drawn from the first moment of the zoom: they were already there, as the marks on the DNA of the beads */
+    out += D.duplex({ x0: -14, x1: W + 14, y: HX.y, A: HX.A, P: HX.P, ph: hph(t), lit: 1, fork: Xf > -900 ? { x: Xf, D: FORK.D, S: FORK.S, gap: FORK.gap } : null });
     if (Xf > -40 && Xf < W + 60) {
       var xp = Xf - FORK.gap - 2, dp = dOf(xp, Xf);
       out += '<ellipse class="zm__enz" cx="' + n1(Xf + 8) + '" cy="' + HX.y + '" rx="16" ry="30"/>';
@@ -195,16 +228,11 @@
   }
   function rungX(fromX) { for (var j = 0; j < 60; j++) { var x = 4 + j * HX.P / 10 - 14; if (x >= fromX) return x; } return fromX; }
   function basesItem(t) { var xb = rungX(312); return { id: 'bas', text: 'bases: A with T, C with G', x: xb, y: (strandY(t, xb, 'a') * 3 + strandY(t, xb, 'b')) / 4, side: 'R' }; }
-  function labels4(t) {
-    if (litK(t) < .99) return [];
+  function labelsDNA(t) {
     var xm = rungX(166);
     return [{ id: 'dna', text: 'DNA: two strands twisted into a double helix', x: 20, y: strandY(t, 20, 'a'), side: 'L' }, basesItem(t),
-            { id: 'bond', text: 'bonds between the bases hold the strands together', x: xm, y: (strandY(t, xm, 'a') + strandY(t, xm, 'b')) / 2, side: 'T' }];
-  }
-  function labels5(t) {
-    if (geneK(t) < .95) return [];
-    return [{ id: 'dna', text: 'DNA', x: 20, y: strandY(t, 20, 'a'), side: 'L' },
-            { id: 'gene', text: 'a gene: thousands of base pairs long; about 20 shown here', x: 250, y: HX.y - HX.A - 30, side: 'T' }];
+            { id: 'bond', text: 'bonds between the bases hold the strands together', x: xm, y: (strandY(t, xm, 'a') + strandY(t, xm, 'b')) / 2, side: 'T' },
+            { id: 'gene', text: 'part of the gene (yellow)', x: 250, y: HX.y + HX.A + 14, side: 'B' }];
   }
   function labels6(t) {
     if (loc(5, t) < 7.8) return [];
@@ -310,16 +338,17 @@
             { id: 'o', text: 'the allele Iᵒ (blood group O), on both copies', x: bf[0] + 11, y: bf[1], side: 'R' }];
   }
 
-  var FR = [frame1, frame2, frame3, helixFrame, helixFrame, helixFrame, helixFrame, frameN, frameN, frame10, frame11];
-  var LB = [labels1, labels2, labels3, labels4, labels5, labels6, labels7, labels8, labels9, labels10, labels11];
+  var FR = [frame1, frame2, frame3, frameGene, helixFrame, helixFrame, helixFrame, frameN, frameN, frame10, frame11];
+  var LB = [labels1, labels2, labels3, labelsGene, labelsDNA, labels6, labels7, labels8, labels9, labels10, labels11];
   /* how each step comes out of the one before. `in`: from the point F of the old picture, z times enlarged, turning so the
      part at F (at angle ang there) lies along the new picture; `out`: the old picture shrinking into the point F of the new
      one, where it lies at angle ang; tz its length (model seconds). null: the same picture goes on */
   var ZM = [null,
     { z: Z1, F: function () { return { p: [NU1[0], NU1[1]], ang: 0 }; } },
     { z: 40, F: function () { var m = D.territoryMid(TER[0], M[2] * .5); return { p: m.p, ang: m.ang }; } },
-    { z: 8.8, F: function () { return linkerMid(M[3]); } },
-    null, null, null,
+    { z: 3, out: true, F: function () { return { p: G4, ang: 0 }; } },
+    { z: 28, F: function () { return geneLinker(M[4]); } },
+    null, null,
     { z: 47, out: true, tz: TZ8, F: function () { var m = D.territoryMid(TER[0], M[7] * .5); return { p: m.p, ang: m.ang }; } },
     null,
     { z: 15.5, F: function () { var rd = D.crossRod(TER[0], 0); return { p: mix(rd.p0, rd.top, .5), ang: 0 }; } },
@@ -388,10 +417,10 @@
       S.pill('see', SEE[sc.k], 'ok'); S.pill('size', SIZE[sc.k], 'ok');
     }
     var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });
+    /* the notes stay short: two lines (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text") */
     return K.mount(S, sp, 'zm', [
-      ['Steps 2 to 5 enlarge one chromosome of a working cell down to its DNA and a gene; steps 6 and 7 replicate it; steps 8 and 9 coil the two copies into a cross; step 10 enlarges one copy; step 11 shows the pair.'],
-      ['Key: orange, a chromosome from the mother; blue, from the father; grey, other chromosomes. Pink, the proteins DNA is wound round. In the DNA: grey, its strands (violet, a new strand); the bases A blue, T red, C yellow, G green; a yellow band, a gene. Green, the enzymes that copy DNA.'],
-      ['The width across each picture is real; the colours are not. Beyond 0610: the proteins DNA is wound round (steps 3 and 10) and how DNA is copied (steps 6 and 7). To show them clearly, the two new molecules of DNA are drawn apart (in a cell they stay close together), and both new strands are drawn made in one piece (one is really made in short pieces).']
+      ['Key: orange, from the mother · blue, from the father · grey, other chromosomes · pink, proteins · yellow, a gene · violet, a new strand · green, enzymes. Bases: A blue, T red, C yellow, G green.'],
+      ['Sizes are real; colours are not.']
     ], function (Dw, nar) {
       narrow = nar;
       lay = frameOf(svg, bg, model, cr, Dw, nar);

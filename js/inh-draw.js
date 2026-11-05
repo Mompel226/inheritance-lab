@@ -237,11 +237,13 @@
     return { p: P[best], ang: Math.atan2(b[1] - a[1], b[0] - a[0]) };
   }
   var CROSS = { cen: .42, arm: 24 * Math.PI / 180 };
-  function crossRod(T, c) {
-    var sg = c ? 1 : -1, r = T.w / 2, up = CROSS.cen * T.len - r, dn = (1 - CROSS.cen) * T.len - r, a = (T.x || 0) * Math.PI / 180;
+  /* arm (optional): how far each arm leans; 0 gives the two copies side by side, parallel, the shape they coil into
+     before their arms open into the cross */
+  function crossRod(T, c, arm) {
+    var sg = c ? 1 : -1, r = T.w / 2, up = CROSS.cen * T.len - r, dn = (1 - CROSS.cen) * T.len - r, a = (T.x || 0) * Math.PI / 180, th = arm == null ? CROSS.arm : arm;
     var p0 = [sg * r * .7, (CROSS.cen - .5) * T.len];
     function P(q) { var z = rot(q, a); return [T.c[0] + z[0], T.c[1] + z[1]]; }
-    return { p0: P(p0), top: P([p0[0] + sg * up * Math.sin(CROSS.arm), p0[1] - up * Math.cos(CROSS.arm)]), bot: P([p0[0] + sg * dn * Math.sin(CROSS.arm), p0[1] + dn * Math.cos(CROSS.arm)]),
+    return { p0: P(p0), top: P([p0[0] + sg * up * Math.sin(th), p0[1] - up * Math.cos(th)]), bot: P([p0[0] + sg * dn * Math.sin(th), p0[1] + dn * Math.cos(th)]),
              up: up, dn: dn, cen: P([0, (CROSS.cen - .5) * T.len]) };
   }
   /* a straight single rod of the same chromosome (a copy on its own), centred at (x, y), at angle a (radians, 0 upright) */
@@ -260,6 +262,7 @@
   var GENE = .04;
   function part(P, s0, s1) { var n = P.length - 1, i0 = Math.max(0, Math.round(s0 * n)), i1 = Math.min(n, Math.round(s1 * n)); return i1 > i0 ? P.slice(i0, i1 + 1) : null; }
   function armPts(rd, s0, s1) { var out = [rodAt(rd, s0)], c = rd.up / (rd.up + rd.dn); if (s0 < c && s1 > c) out.push(rd.p0); out.push(rodAt(rd, s1)); return out; }
+  function sstep(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }
   function coiled(T, ph, k, wd, o) {
     o = o || {};
     var faint = T.who === 'faint', cls = faint ? 'thr thr--faint' : 'thr thr--' + T.who;
@@ -273,8 +276,22 @@
     var N = 300, base = resample(o.base || territory(T, ph), N), out = '', kk = Math.max(0, k), turns = Math.round(T.len * .42), r = T.w * .46 * Math.pow(kk, .8);
     var body = Math.min(1, Math.max(0, (kk - .72) / .28)), arm = faint ? 'zm__arm zm__arm--faint' : 'zm__arm zm__arm--' + T.who;
     var copy = o.copy == null ? 1 : o.copy, copies = o.one ? [0] : [0, 1], iC = Math.round(CROSS.cen * (N - 1));
+    /* coiling in place, in three movements, so a pupil can follow each copy into its own side of the cross (Daniel,
+       5 Nov 2026: "one strand becomes one side of the cross and the other becomes the other side … could be done more
+       clearly"): the two copies shorten into two thin parallel strands with a gap between them, linked at one point
+       (k1); each coils into a short, thick rod, clearly two (k2); then their arms swing apart from the joining point
+       and the two become the cross (k3) */
+    /* o.cross: the cross it coils into stands at another place (a chromosome moving as it coils); its three movements are
+       the same */
+    var X = o.cross || (o.rods ? null : T), two = !!X && !o.one, k1 = two ? sstep(kk / .35) : 1, k2 = two ? sstep((kk - .3) / .35) : 1, k3 = two ? sstep((kk - .68) / .32) : 1;
+    if (two) { r = T.w * .46 * lerp(.22, 1, k2) * Math.pow(k1, .8); body = sstep((kk - .5) / .2); }
+    function parRod(c) { var q = crossRod(X, c, 0), g = (c ? 1 : -1) * T.w * .75, dd = rot([g - (c ? 1 : -1) * T.w * .35, 0], (X.x || 0) * Math.PI / 180);
+      function m(p) { return [p[0] + dd[0], p[1] + dd[1]]; }
+      return { p0: m(q.p0), top: m(q.top), bot: m(q.bot), up: q.up, dn: q.dn, cen: q.cen }; }
+    var nowRods = [];
     copies.forEach(function (c) {
-      var rd = o.rods ? o.rods(c) : crossRod(T, c), tl = tails.length > 1 ? tails[c] : tails[0];
+      var rdF = X ? crossRod(X, c) : o.rods(c), rd = two ? mixRod(parRod(c), rdF, k3) : rdF, tl = tails.length > 1 ? tails[c] : tails[0];
+      nowRods[c] = rd;
       var aw = n1(T.w * .9), ao = opa(body * (faint ? 1 : .8));
       if (body > 0) {
         if (tl == null) out += '<path class="' + arm + '" d="M' + n1(rd.top[0]) + ' ' + n1(rd.top[1]) + ' L' + n1(rd.p0[0]) + ' ' + n1(rd.p0[1]) + ' L' + n1(rd.bot[0]) + ' ' + n1(rd.bot[1]) +
@@ -284,7 +301,7 @@
       /* where the copy has been made, the two threads lie side by side; ahead of it, one thread */
       var ends = c ? Math.max(2, Math.round(copy * (N - 1))) : N;
       var S = o.one ? base : shift(base, function (i) { var f = Math.min(1, Math.max(0, (copy * (N - 1) - i) / 14)), j = o.join ? Math.min(1, Math.abs(i - iC) / 14) : 1; return (c ? 1.7 : -1.7) * f * j * j * (3 - 2 * j); });
-      var A = S.slice(0, ends).map(function (p, i) { return mix(p, rodAt(rd, i / (N - 1)), kk); }), Nn = normals(A);
+      var A = S.slice(0, ends).map(function (p, i) { return mix(p, rodAt(rd, i / (N - 1)), two ? k1 : kk); }), Nn = normals(A);
       var Q = A.map(function (p, i) { var s = i / (N - 1), a = 2 * Math.PI * turns * s, q = Nn[i]; return [p[0] + q[1][0] * r * Math.sin(a) + q[0][0] * r * .5 * Math.cos(a), p[1] + q[1][1] * r * Math.sin(a) + q[0][1] * r * .5 * Math.cos(a)]; });
       var sw = n1(lerp(wd, wd * 1.3, kk)), so = opa(1 - .4 * body);
       var iT = tl == null ? Q.length : Math.round(tl * (N - 1)), own = tl == null ? Q : Q.slice(0, Math.min(Q.length, iT + 1));
@@ -295,6 +312,9 @@
       bands.forEach(function (f) { var i0 = Math.round((f - GENE) * (N - 1)), i1 = Math.round((f + GENE) * (N - 1)); if (i1 < Q.length) out += '<path class="thr thr--gene" d="' + poly(Q.slice(i0, i1 + 1)) + '" stroke-width="' + n1(lerp(wd * 2.2, wd * 1.3, kk)) + '"/>'; });
       if (o.split && body > 0 && o.cen !== false) out += '<circle class="ch__cen ch--' + (faint ? 'mum zm__cen--faint' : T.who) + '" cx="' + n1(rd.p0[0]) + '" cy="' + n1(rd.p0[1]) + '" r="' + n1(T.w * .42) + '"' + opa(body) + '/>';
     });
+    /* while the two coiled copies stand apart, a short link between them at their joining point: still one chromosome */
+    if (two && nowRods[1] && body > 0 && k3 < 1) out += '<path class="' + arm + '" d="M' + n1(nowRods[0].p0[0]) + ' ' + n1(nowRods[0].p0[1]) + ' L' + n1(nowRods[1].p0[0]) + ' ' + n1(nowRods[1].p0[1]) +
+      '" stroke-width="' + n1(T.w * .45) + '"' + opa(body * (1 - k3) * (faint ? 1 : .9)) + '/>';
     /* joined at one point: the dot of the centromere on the thread, once the copy has passed it */
     if (o.join && !o.one && body < 1 && copy * (N - 1) > iC + 7) {
       var pc = mix(base[iC], rodAt(crossRod(T, 0), CROSS.cen), kk);
@@ -472,13 +492,21 @@
     return back + mid + front;
   }
   /* DNA as a ribbon two strands wide, the twist of its double helix marked (one tick every half turn) */
-  function ribbon(P, w, tick, cls) {
+  /* bases (optional): each mark across the ribbon is a base pair, half in each base's colour (A–T, C–G), so the bases
+     are there before a zoom into the DNA shows the double helix (Daniel, 5 Nov 2026: "show the base pairs already as
+     you zoom in") */
+  function ribbon(P, w, tick, cls, bases) {
     var out = '<path class="zm__dna' + (cls || '') + '" d="' + poly(P) + '" stroke-width="' + w + '"/>', acc = 0, N = normals(P);
     for (var i = 1; i < P.length; i++) {
       acc += dist(P[i - 1], P[i]);
       if (acc >= tick) {
         acc = 0; var t0 = N[i][0], q = N[i][1], h = w * .46;
-        out += '<line class="zm__tick" x1="' + n1(P[i][0] - q[0] * h - t0[0] * 2.4) + '" y1="' + n1(P[i][1] - q[1] * h - t0[1] * 2.4) + '" x2="' + n1(P[i][0] + q[0] * h + t0[0] * 2.4) + '" y2="' + n1(P[i][1] + q[1] * h + t0[1] * 2.4) + '"/>';
+        var x1 = P[i][0] - q[0] * h - t0[0] * 2.4, y1 = P[i][1] - q[1] * h - t0[1] * 2.4, x2 = P[i][0] + q[0] * h + t0[0] * 2.4, y2 = P[i][1] + q[1] * h + t0[1] * 2.4;
+        if (bases) {
+          var b = SEQ.charAt(bases.n++ % SEQ.length), xm = (x1 + x2) / 2, ym = (y1 + y2) / 2;
+          out += '<line class="dna__b dna__b--' + b + ' zm__tk" x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(xm) + '" y2="' + n1(ym) + '"/>' +
+                 '<line class="dna__b dna__b--' + PAIR[b] + ' zm__tk" x1="' + n1(xm) + '" y1="' + n1(ym) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '"/>';
+        } else out += '<line class="zm__tick" x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '"/>';
       }
     }
     return out;
@@ -504,18 +532,18 @@
       var k = Math.min(70, dist(p0, p3) * .45);
       return bez(p0, [p0[0] + d0[0] * k, p0[1] + d0[1] * k], [p3[0] - d3[0] * k, p3[1] - d3[1] * k], p3, 24);
     }
-    var svg = '';
-    for (var i = -1; i < list.length; i++) svg += ribbon(linker(i), NUC.DW, NUC.TICK);
+    var svg = '', bs = o.bases ? { n: 0 } : null;
+    for (var i = -1; i < list.length; i++) svg += ribbon(linker(i), NUC.DW, NUC.TICK, '', bs);
     list.forEach(function (nc, i) {
       var rs = [], cur = null;
       for (var k = 0; k <= 80; k++) {
         var w = wrapAt(i, k / 80);
         if (!cur || cur.front !== w.front) { cur = { front: w.front, P: cur ? [cur.P[cur.P.length - 1], w.p] : [w.p] }; rs.push(cur); } else cur.P.push(w.p);
       }
-      rs.forEach(function (r) { if (!r.front && r.P.length > 1) svg += ribbon(r.P, NUC.DW, NUC.TICK, ' zm__dna--back'); });
+      rs.forEach(function (r) { if (!r.front && r.P.length > 1) svg += ribbon(r.P, NUC.DW, NUC.TICK, ' zm__dna--back', bs); });
       svg += '<g transform="translate(' + n1(nc.c[0]) + ' ' + n1(nc.c[1]) + ') rotate(' + n1(nc.a * 180 / Math.PI) + ')"><ellipse class="zm__hist" cx="0" cy="0" rx="24" ry="22"/>' +
         '<circle class="zm__histl" cx="-8.5" cy="-7.5" r="8.2"/><circle class="zm__histl" cx="8.5" cy="-7.5" r="8.2"/><circle class="zm__histl" cx="-8.5" cy="7.5" r="8.2"/><circle class="zm__histl" cx="8.5" cy="7.5" r="8.2"/></g>';
-      rs.forEach(function (r) { if (r.front && r.P.length > 1) svg += ribbon(r.P, NUC.DW, NUC.TICK); });
+      rs.forEach(function (r) { if (r.front && r.P.length > 1) svg += ribbon(r.P, NUC.DW, NUC.TICK, '', bs); });
     });
     return { svg: svg, wrapAt: wrapAt, linker: linker };
   }

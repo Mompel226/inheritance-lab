@@ -375,6 +375,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .zm__bead{fill:var(--histone);stroke:var(--histone-edge);stroke-width:.6}
 .zm__far{fill:var(--card-2)} .zm__cyto{fill:var(--cell-fill)} .zm__nucl{fill:var(--nuc-fill)}
 .al.al--band{fill:var(--gene-ink);font-size:15px}
+.dna__b.zm__tk{stroke-width:2.2;stroke-linecap:butt}
 .dna__s{fill:none;stroke:var(--shade);stroke-width:3;stroke-linecap:round}
 .dna__b{stroke-width:3.2;stroke-linecap:round}
 .dna__b--A,.dna__fill--A{stroke:var(--dna-a);fill:var(--dna-a)} .dna__b--T,.dna__fill--T{stroke:var(--dna-b);fill:var(--dna-b)}

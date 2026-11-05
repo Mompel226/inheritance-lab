@@ -920,11 +920,11 @@
     }
     var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, 1) });
     S.box.__end = R[R.length - 1];
+    /* the notes stay short: a key and one line (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so
+       much text") */
     return K.mount(S, sp, 'pt', [
-      ['Steps 1 to 3 enlarge a cell down to one gene. Steps 4 to 6: the gene is copied as mRNA (IB: transcription). Steps 7 and 8: the mRNA moves to the cytoplasm. Steps 9 to 13: a ribosome makes the protein (IB: translation).'],
-      ['Key: orange, a chromosome from the mother; blue, from the father; grey, other chromosomes, and the strands of DNA; the bases A blue, T red, C yellow, G green, and U orange (only in RNA); a yellow band, the gene; pink, the proteins DNA is wound round; rose, mRNA (messenger RNA); green, the enzyme that makes mRNA; pale green ovals, mitochondria; brown, a ribosome (dark lines, its RNA; darker round lumps, its proteins); lavender, the small RNA molecules that bring amino acids (IB: tRNA); circles, amino acids, each colour one kind (there are 20 kinds).'],
-      ['The width across each picture is real; the colours are not. To show them clearly: the DNA is drawn untwisted where the enzyme holds it open (step 5); the mRNA in step 7, and the bases and amino acids in steps 9 to 13, are drawn larger than real; and everything moves far more slowly than in a cell, where the enzyme adds about 20 to 60 bases each second and a ribosome about 5 amino acids.'],
-      ['Extension (beyond 0610; IB D1.2.1–D1.2.10, A1.2.7, B1.2.2; HL B2.2.6, D1.2.13, D1.2.15, D1.2.17): the enzyme is RNA polymerase; it copies one strand of the DNA (the template strand), and pairs A on the DNA with U. mRNA leaves the nucleus through pores. Each group of three bases of the mRNA is a codon; each small RNA that brings an amino acid is a tRNA, with an anticodon that pairs with one codon, and two tRNAs sit on the ribosome at a time. A peptide bond joins each amino acid to the chain. The code starts at the codon AUG and ends at a stop codon (here UAA). IB HL: copying starts at a promoter just before the gene, and before mRNA leaves the nucleus, parts of it (introns) are removed and a cap and a tail are added.', 'widget__note--ext']
+      ['Key: grey, DNA · bases A blue, T red, C yellow, G green, U orange (RNA only) · yellow, the gene · pink, proteins DNA is wound round · rose, mRNA · green, the enzyme · pale green, mitochondria · brown, a ribosome · lavender, small RNAs (IB: tRNA) · circles, amino acids.'],
+      ['Sizes are real; colours are not; the motion is slowed.']
     ], function (Dw, nar) {
       narrow = nar; lay = frameOf(svg, bg, model, cr, Dw, nar);
     });

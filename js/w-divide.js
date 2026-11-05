@@ -128,7 +128,7 @@
     var NU = MI.NU, mb = membranes(t, NU, MI.TN, [MI.D1, MI.D2], { brk: [19, 21.6], dim: [22.2, 23.4], gat: [37.4, 39.2], close: [39.2, 41], grow: [39.6, 44.4] }, false);
     out += mb.svg;
     var T0 = terr(FOUR, NU), T1 = terr(FOUR, mb.cur[0]), T2 = terr(FOUR, mb.cur[1]);
-    var cp = ease(seg(t, 6.4, 12.4)), co = ease(seg(t, 13.4, 18.6)), mid = ease(seg(t, 22.6, 26.4));
+    var cp = ease(seg(t, 6.4, 12.4)), co = ease(seg(t, 13.4, 20.6)), mid = ease(seg(t, 22.6, 26.4));
     var part = ease(seg(t, 30.4, 36)), un = seg(t, 39.6, 44.4);
     var body = '', top = [], bot = [];
     g.T0 = T0; g.x = []; g.v = [];
@@ -137,7 +137,7 @@
       else if (t < 13.4) body += chrom(T, ph, 0, { copy: cp });
       else if (t < 30.4) {
         var Tm = at(T, mix(T.c, MI.EQ[i], mid), lerp(T.x, 90, mid));
-        body += chrom(T, ph, co, { rods: function (c) { return D.crossRod(Tm, c); } });
+        body += chrom(T, ph, co, { cross: Tm });
         top.push(D.crossRod(Tm, 0).p0); bot.push(D.crossRod(Tm, 1).p0); g.x.push(Tm);
       } else {
         var V = veePair(T, at(T, MI.EQ[i], 90), [MI.AX[i], MI.AY[0]], [MI.AX[i], MI.AY[1]], part, false, 8);
@@ -201,12 +201,13 @@
     return byTime([0, 9.4, 33.2, 38.9, 48.2], ['4', '4, each two copies', '4 at each end', '4 in each new nucleus', '4 in each daughter cell'],
                   ['46', '46, each two copies', '46 at each end', '46 in each new nucleus', '46 in each daughter cell'], t);
   }
-  var KEY = 'Key: orange, a chromosome from the mother; blue, from the father; the yellow length or band, a gene, at the same place on both copies; grey lines, fibres (IB: spindle microtubules; together, the spindle); violet dots, pieces of the nuclear membrane.';
+  /* the notes under an animation stay short: a key and one line (Daniel, 5 Nov 2026: "I hate when you actually, below
+     steps, provide so much text that it makes it even heavier to read for students") */
+  var KEY = 'Key: orange, from the mother · blue, from the father · yellow, a gene · grey lines, fibres · violet dots, pieces of the nuclear membrane.';
   function mitosis(spec) {
     return widget(spec, 'dv', 'Mitosis, step by step', 'A body cell with four chromosomes copies them, they coil into crosses, fibres pull the copies apart, and two daughter cells each receive the same four.',
       MI_STEPS, MI_M, MI.W, MI.H, mitRender, mitLabels, mitPills, [
-        [KEY + ' Four chromosomes are drawn; a human body cell has 46. Not to scale: the nucleus is drawn larger than real, and a real thread of DNA is thousands of times longer than its cross.'],
-        ['Extension: press IB for the phases of mitosis, the spindle and the centrosomes.', 'widget__note--ext']
+        [KEY + ' 4 of the 46 chromosomes are drawn.']
       ]);
   }
   /* the IGCSE · IB switch (Daniel, 4 Nov 2026), as the Immunity Lab's first meeting: one level shown at a time; the IB one
@@ -290,7 +291,7 @@
         c = [c[0], lerp(c[1], yC, a1)];
         if (t >= 40.4) { c = mix(c, [160, yC + (T.A ? -26 : 30)], r2); x = lerp(90, 0, r2); }
         var Tm = at(T, c, x);
-        body += chrom(T, ph, co, { rods: function (q) { return D.crossRod(Tm, q); } });
+        body += chrom(T, ph, co, { cross: Tm });
         if (t < 40.4) (up ? top : bot).push(D.crossRod(Tm, 0).cen);
         else { var j = up ? 0 : 1; side[j * 2].push(D.crossRod(Tm, 0).p0); side[j * 2 + 1].push(D.crossRod(Tm, 1).p0); }
         g.x.push(Tm);
@@ -407,8 +408,7 @@
   function meiosis(spec) {
     return widget(spec, 'dv', 'Meiosis, step by step', 'A cell with two pairs of chromosomes divides twice to give four haploid cells with one chromosome of each pair; then a sperm cell and an egg cell fuse.',
       ME_STEPS, ME_M, ME.W, ME.H, meiRender, meiLabels, meiPills, [
-        [KEY + ' Grey: the chromosomes of the egg cell, from another person; in the zygote, blue from its father (the sperm cell) and orange from its mother (the egg cell). Four chromosomes are drawn; a human cell has 46. Not to scale: the nucleus is drawn larger than real, a real thread of DNA is thousands of times longer than its cross, and an egg cell is more than 20 times wider than a sperm cell’s head.'],
-        ['Extension: press IB for the phases of meiosis, with crossing over and random orientation.', 'widget__note--ext']
+        [KEY + ' Grey: the egg cell’s chromosomes. 4 of the 46 are drawn.']
       ]);
   }
   L.add('meiosis', function (spec) { return levels(spec, meiosis, global.InhDivideIB.meiosis, 'Meiosis'); });
@@ -435,7 +435,7 @@
     var mb = membranes(t, NU, LC.TN, [LC.D1, LC.D2], { brk: [20.6, 22.6], dim: [23.2, 24.2], gat: [38.4, 40], close: [40, 41.6], grow: [40.4, 45.6] }, false);
     out += mb.svg;
     var T0 = terr(PAIR, NU, LZ), T1 = terr(PAIR, mb.cur[0], LZ), T2 = terr(PAIR, mb.cur[1], LZ);
-    var cp = ease(seg(t, 6.4, 13)), co = ease(seg(t, 14.4, 20.4)), mid = ease(seg(t, 23.6, 27.4));
+    var cp = ease(seg(t, 6.4, 13)), co = ease(seg(t, 14.4, 22.6)), mid = ease(seg(t, 23.6, 27.4));
     var part = ease(seg(t, 31.4, 37)), un = seg(t, 40.4, 45.6);
     var top = [], bot = [];
     g.T0 = T0; g.x = []; g.v = []; g.T1 = T1; g.T2 = T2;
@@ -444,7 +444,7 @@
       else if (t < 14.4) body += chrom(T, ph, 0, { copy: cp }, LZ);
       else if (t < 31.4) {
         var Tm = at(T, mix(T.c, LC.EQ[i], mid), lerp(T.x, 90, mid));
-        body += chrom(T, ph, co, { rods: function (c) { return D.crossRod(Tm, c); } }, LZ);
+        body += chrom(T, ph, co, { cross: Tm }, LZ);
         top.push(D.crossRod(Tm, 0).p0); bot.push(D.crossRod(Tm, 1).p0); g.x.push(Tm);
       } else {
         var V = veePair(T, at(T, LC.EQ[i], 90), [LC.AX[i], LC.AY[0]], [LC.AX[i], LC.AY[1]], part, false, 8);
@@ -493,8 +493,7 @@
   function linecross(spec) {
     return widget(spec, 'dv', 'A line or a cross?', 'One pair of chromosomes, the mother’s and the father’s: long thin lines in a working cell; each copied, then coiled into a cross; the copies separate as single rods; two new cells, each with the pair as lines.',
       LC_STEPS, LC_M, LC.W, LC.H, lcRender, lcLabels, lcPills, [
-        ['Key: orange, the chromosome from the mother; blue, the same chromosome from the father; the yellow length or band, a gene; grey lines, fibres (IB: spindle microtubules; together, the spindle); violet dots, pieces of the nuclear membrane. Only one pair of the 46 chromosomes is drawn. A real thread of DNA is thousands of times longer than its cross; here it is drawn only a few times longer.'],
-        ['Beyond 0610: the two copies of a chromosome are called chromatids, and the point that joins them the centromere (IB D2.1.6). The syllabus calls them the copies of a chromosome.', 'widget__note--ext']
+        ['Key: orange, from the mother · blue, the same chromosome from the father · yellow, a gene · grey lines, fibres · violet dots, pieces of the nuclear membrane. One pair of the 46 is drawn.']
       ], [['n', 'Each chromosome:'], ['hu', 'The cell:']]);
   }
   L.add('linecross', linecross);

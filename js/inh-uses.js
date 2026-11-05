@@ -92,7 +92,9 @@
       var off = (SLOT[i] - 1.5) * sp, Lc = hz ? [o.c[0], o.c[1] + off] : [o.c[0] + off, o.c[1]];
       if (k < .42) {
         var Tm = D.at(T, mix(T.c, Lc, mid), lerp(T.x, xAng, mid));
-        out += D.coiled(T, 0, kk, z.wd, { band: T.band, rods: function (q) { return D.crossRod(Tm, q); } });
+        /* the copy grows along each line first (no jump from one line to two), and no joining-point dot: at this size
+           its ring would hide the cross; the short link between the two copies says they are one chromosome */
+        out += D.coiled(T, 0, kk, z.wd, { band: T.band, cross: Tm, copy: seg(k, 0, .1), cen: false });
         return;
       }
       var Te = D.at(T, Lc, xAng), lane = (hz ? Lc[1] : Lc[0]) * .7 + cc * .3;

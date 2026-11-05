@@ -179,7 +179,7 @@
       else if (t < 20.4) body += chrom(T, ph, 0, { copy: cp });
       else if (t < 44.4) {
         var Tm = D.at(T, mix(T.c, EQ[i], mid), lerp(T.x, 90, mid));
-        body += chrom(T, ph, co, { rods: function (c) { return D.crossRod(Tm, c); } });
+        body += chrom(T, ph, co, { cross: Tm });
         top.push(D.crossRod(Tm, 0).p0); bot.push(D.crossRod(Tm, 1).p0); g.x.push(Tm);
       } else {
         var V = D.veePair(T, D.at(T, EQ[i], 90), [AX[i], AY[0]], [AX[i], AY[1]], part, false);
@@ -254,8 +254,8 @@
   function mitosisIB(spec) {
     return widget(spec, 'Mitosis in detail (IB)', 'An animal cell with four chromosomes goes through G1, S, G2, prophase, metaphase, anaphase, telophase and cytokinesis.',
       MS, MM, W1, H1, mitIB, mitIBLabels, mitIBPills, [
-        ['Key: orange, a chromosome from the mother; blue, from the father; the yellow length or band, a gene; grey lines, spindle microtubules; the small L, the two centrioles of a centrosome; green ovals, mitochondria; pink beads, histones (proteins), with grey DNA wound round them; violet dots, the nuclear membrane in vesicles; red dots, the ring of actin and myosin. Four chromosomes are drawn; a human cell has 46. The cell, its chromosomes and their places are the same as at the IGCSE level. Not to scale: the chromosomes are drawn far thicker, and their threads far shorter, than real.'],
-        ['IB Biology guide: D2.1.2 cytokinesis, D2.1.5 replication, D2.1.6 condensation and movement, D2.1.7 the phases, D2.1.13–D2.1.14 the cell cycle and growth in interphase (HL), A2.2.8 centrioles, B2.2.6 the nuclear membrane in vesicles (HL). Beyond IB: kinetochores, the nucleolus, the word centrosome. In a plant cell there are no centrioles, and vesicles build a new membrane and cell wall across the middle instead of a ring.', 'widget__note--ib']
+        ['Key: orange, from the mother · blue, from the father · yellow, a gene · grey lines, spindle microtubules · small L, centrioles · green, mitochondria · pink, histones · violet dots, nuclear membrane vesicles · red dots, the actin–myosin ring.'],
+        ['IB guide: D2.1.2, D2.1.5–D2.1.7, D2.1.13–D2.1.14 (HL), A2.2.8, B2.2.6 (HL).', 'widget__note--ib']
       ]);
   }
 
@@ -348,9 +348,9 @@
         c = [c[0], lerp(c[1], yC, a1)];
         if (t >= 59.4) { x = lerp(90, 0, r2); c = mix(c, [160, yC + (T.A ? -26 : 30)], m2); }
         var Tm = D.at(T, c, x), tl = tails(i);
-        body += chrom(T, ph, co, { rods: function (q) { return D.crossRod(Tm, q); }, tail: tl });
+        body += chrom(T, ph, co, { cross: Tm, tail: tl });
         /* the exchange, as it happens: the old colours fade from the exchanged lengths */
-        if (tl && xo < 1) body += '<g' + op(1 - xo) + '>' + chrom(T, ph, co, { rods: function (q) { return D.crossRod(Tm, q); } }) + '</g>';
+        if (tl && xo < 1) body += '<g' + op(1 - xo) + '>' + chrom(T, ph, co, { cross: Tm }) + '</g>';
         var cu = D.crossRod(Tm, 0).cen;
         if (t < 59.4) (up ? kTop : kBot).push(cu);
         else { kL[j].push(D.crossRod(Tm, 0).p0); kR[j].push(D.crossRod(Tm, 1).p0); }
@@ -437,8 +437,8 @@
   function meiosisIB(spec) {
     return widget(spec, 'Meiosis in detail (IB)', 'An animal cell with two homologous pairs goes through both divisions of meiosis, with crossing over and random orientation, to four haploid cells.',
       ES, EM, W2, H2, meiIB, meiIBLabels, meiIBPills, [
-        ['Key: orange, a chromosome from the mother; blue, from the father (a chromatid of two colours has crossed over: drawn in the long pair only); the yellow length or band, a gene; grey lines, spindle microtubules; the small L, the centrioles of a centrosome; the dashed ring, a chiasma; the dashed line, the equator; violet dots, the nuclear membrane in vesicles; red dots, the ring of actin and myosin. The cell, its chromosomes and their places are the same as at the IGCSE level. Not to scale: the chromosomes are drawn far thicker, and their threads far shorter, than real.'],
-        ['IB Biology guide: D2.1.5 replication, D2.1.6 condensation and movement, D2.1.9 meiosis as a reduction division (two rounds of segregation), D2.1.11 random orientation and crossing over, D2.1.2 cytokinesis. Beyond IB: synapsis, chiasma. In an ovary the cytoplasm divides unequally: one large egg cell and small polar bodies (D2.1.3). At fertilisation two haploid gametes make a diploid zygote again (D2.1.9). If a pair fails to separate (non-disjunction), a gamete has one chromosome too many or too few: Down syndrome comes from an extra chromosome 21 (D2.1.10).', 'widget__note--ib']
+        ['Key: orange, from the mother · blue, from the father (two colours: crossed over) · yellow, a gene · grey lines, spindle microtubules · small L, centrioles · dashed ring, a chiasma · violet dots, nuclear membrane vesicles · red dots, the actin–myosin ring.'],
+        ['IB guide: D2.1.2, D2.1.5, D2.1.6, D2.1.9, D2.1.11.', 'widget__note--ib']
       ]);
   }
 
