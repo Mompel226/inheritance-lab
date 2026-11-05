@@ -1,6 +1,11 @@
 /* ============================================================
    inh-scenes.js — the stations' drawn pictures (js/views/figure.js draws a mode that names one as `draw`). Each scene is
-   { w, h, svg, pts: { part: [x, y, side] }, alts }: a point is ON its part, where the level line of its name ends.
+   { w, h, svg, pts: { part: [x, y, side] }, alts, mids, x0?, y0? }: a point is ON its part, where the line of its name
+   ends. Side 'L' or 'R': the name in a margin, its line level. Side 'T' or 'B' (5 Nov 2026, Daniel: labels "expanding
+   across the whole image … put it at the top if you need it"): the name above or below the picture, its line upright,
+   for a part that a level line could reach only across other parts; `mids` centres it over a pair while its line ends
+   on one chromosome of the two. A line never crosses another part: each point below was chosen so that the straight
+   path from it to its margin or band is clear (checked by the labels audit, every picture, every size).
    Only abstract things are drawn (chromosomes, genes, alleles, a nucleus, a family tree, a genetic diagram), each colour
    keyed under the picture by the station's view (`key`). Real cells, seeds and blood are photographs, never drawn.
 
@@ -48,8 +53,10 @@
     out += '<rect class="zm__pane" x="10" y="300" width="280" height="96" rx="10"/>';
     out += D.helix(22, 278, 348, 22, 3.2, .6, [.36, .66]);
     return { w: 300, h: 404, svg: out,
-      pts: { nucleus: [222, 64, 'R'], chromosome: [28, 222, 'L'], dna: [24, 352, 'L'], gene: [210, 322, 'R'] },
-      alts: { nucleus: [[226, 80], [220, 96]], gene: [[200, 370], [190, 328]] },
+      /* the gene from below, at the lowest point of a strand inside it: from the right its line ran over the rest of
+         the DNA */
+      pts: { nucleus: [222, 64, 'R'], chromosome: [28, 222, 'L'], dna: [24, 352, 'L'], gene: [154.4, 368.5, 'B'] },
+      alts: { nucleus: [[226, 80], [220, 96]] },
       spots: { nucleus: [176, 80, 52, 42], chromosome: [150, 221, 128, 24], dna: [150, 348, 132, 32], gene: [152, 348, 42, 32] } };
   }
 
@@ -67,30 +74,46 @@
 
   /* 2 · the 23 pairs of a body cell, in a karyogram's order */
   var LEN = [248, 242, 198, 190, 181, 171, 159, 145, 138, 134, 135, 133, 114, 107, 102, 90, 83, 80, 59, 64, 47, 51];
+  /* the rows of a karyogram in its groups, with a gap between groups (13–15 | 16–18, 19–20 | 21–22 | the sex pair): the
+     gap under pair 9 is where the line of its name rises from the band below, clear of every other pair */
+  var KROWS = [[[0, 52], [1, 156], [2, 260], [3, 364], [4, 468]],
+               [[5, 37], [6, 111], [7, 186], [8, 260], [9, 334], [10, 409], [11, 483]],
+               [[12, 40], [13, 120], [14, 200], [15, 320], [16, 400], [17, 480]],
+               [[18, 40], [19, 120], [20, 320], [21, 400], ['sex', 480]]];
+  /* the tip of the lower-left arm of a cross (InhDraw.chromo, copies 2): a point ON it, 2 units in from its end; up: the
+     upper-left arm's */
+  function lowTip(o, up) {
+    var r = o.w / 2, sp = o.spread, th = 24 * sp * Math.PI / 180, off = r * .55 + sp * r * .15, cen = .42, k = (up ? cen : 1 - cen) * o.len - 2;
+    return [o.x - off - k * Math.sin(th), o.y + (cen - .5) * o.len + (up ? -k : k) * Math.cos(th)];
+  }
   function karyo(sex) {
-    var rows = [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9, 10, 11], [12, 13, 14, 15, 16, 17], [18, 19, 20, 21, 'sex']];
-    var out = '', pts = {}, spots = {}, S = .30, W = 6.5, SP = .7, y0 = [52, 136, 214, 284];
-    rows.forEach(function (row, ri) {
-      var span = 520 / row.length;
-      row.forEach(function (c, ci) {
-        var cx = span * (ci + .5), base = y0[ri] + 40;
+    var out = '', pts = {}, spots = {}, mids = {}, alts = {}, S = .30, W = 6.5, SP = .7, y0 = [52, 136, 214, 284];
+    KROWS.forEach(function (row, ri) {
+      row.forEach(function (q) {
+        var c = q[0], cx = q[1], base = y0[ri] + 40;
         if (c === 'sex') {
           var lx = 156 * S, ly = (sex === 'm' ? 57 : 156) * S;
-          out += D.chromo({ x: cx - 10, y: base - lx / 2, len: lx, w: W, who: 'mum', copies: 2, spread: SP });
+          var X = { x: cx - 10, y: base - lx / 2, len: lx, w: W, who: 'mum', copies: 2, spread: SP };
+          out += D.chromo(X);
           out += D.chromo({ x: cx + 10, y: base - ly / 2, len: ly, w: W, who: 'dad', copies: 2, spread: SP, cls: sex === 'm' ? 'chr--y' : '' });
-          pts.sex = [cx + 16, base - ly / 2, 'R'];
+          /* named from below, its line up to the X: from the right it bent past the end of the drawing */
+          var tx = lowTip(X);
+          pts.sex = [tx[0], tx[1], 'B']; mids.sex = cx;
           spots.sex = [cx, base - lx / 2, 24, lx / 2 + 4];
           return;
         }
-        var l = LEN[c] * S;
-        out += D.chromo({ x: cx - 10, y: base - l / 2, len: l, w: W, who: 'mum', copies: 2, spread: SP, bands: c === 8 ? [.8] : [] });
+        var l = LEN[c] * S, mum = { x: cx - 10, y: base - l / 2, len: l, w: W, who: 'mum', copies: 2, spread: SP, bands: c === 8 ? [.8] : [] };
+        out += D.chromo(mum);
         out += D.chromo({ x: cx + 10, y: base - l / 2, len: l, w: W, who: 'dad', copies: 2, spread: SP, bands: c === 8 ? [.8] : [] });
         /* a pair's light: both chromosomes, from the top of the longer to the line they stand on */
-        if (c === 0) { pts.pair1 = [cx - 14, base - l / 2 - 4, 'L']; spots.pair1 = [cx, base - l / 2, 25, l / 2 + 4]; }
-        if (c === 8) { pts.pair9 = [cx + 17, base - l / 2 + l * .78, 'R']; spots.pair9 = [cx, base - l / 2, 25, l / 2 + 4]; }
+        /* pair 1 from the left (nothing stands to its left); its lower arm too, for a phone whose name is tall */
+        if (c === 0) { pts.pair1 = [cx - 14, base - l / 2 - 4, 'L']; alts.pair1 = [lowTip(mum), lowTip(mum, true)]; spots.pair1 = [cx, base - l / 2, 25, l / 2 + 4]; }
+        /* pair 9 from below, its line up through the gaps between groups to the arm that carries the ABO gene: from the
+           right it ran across pairs 10, 11 and 12 */
+        if (c === 8) { var t9 = lowTip(mum); pts.pair9 = [t9[0], t9[1], 'B']; mids.pair9 = cx; spots.pair9 = [cx, base - l / 2, 25, l / 2 + 4]; }
       });
     });
-    return { w: 520, h: 330, svg: out, pts: pts, alts: {}, spots: spots };
+    return { w: 520, h: 330, svg: out, pts: pts, alts: alts, spots: spots, mids: mids };
   }
 
   /* 3 · a cell making a protein: the gene in the nucleus, mRNA leaving through a pore, a ribosome in the cytoplasm */
@@ -108,9 +131,13 @@
     out += '<path class="pchain" d="M284 138 L268 160 L282 172 L294 186 L300 202 L296 218"/>';
     [['aa2', 224, 230], ['aa3', 240, 252], ['aa1', 206, 262], ['aa4', 258, 230]].forEach(function (q) { out += '<circle class="aa ' + q[0] + '" cx="' + q[1] + '" cy="' + q[2] + '" r="7"/>'; });
     return { w: 360, h: 320, svg: out,
-      pts: { nucleus: [40, 150, 'L'], gene: [100, 155, 'L'], mrna: [232, 126, 'R'], pore: [199, 132, 'R'], ribosome: [306, 104, 'R'], protein: [300, 206, 'R'], aminoacids: [206, 262, 'L'] },
-      alts: { gene: [[110, 180]], mrna: [[250, 120]], protein: [[296, 218]] },
-      spots: { nucleus: [118, 150, 80, 68], gene: [124, 168, 24, 18], mrna: [220, 125, 104, 14, -11.6], pore: [195, 132, 9, 11],
+      /* names all round, so none is left out and no line crosses a part (5 Nov 2026: from the sides the lines of the
+         pore and the mRNA ran along the mRNA and over the ribosome, and three names found no row): the pore and the
+         ribosome from above (the pore at the top of the nucleus, where no mRNA passes, so its line points at the gap
+         alone), the gene and the free amino acids from below, the mRNA at its end beyond the ribosome */
+      pts: { nucleus: [40, 150, 'L'], gene: [124, 186, 'B'], mrna: [318, 104.8, 'R'], pore: [112, 82, 'T'], ribosome: [282, 93, 'T'], protein: [300, 206, 'R'], aminoacids: [206, 267, 'B'] },
+      alts: { protein: [[296, 218]] },
+      spots: { nucleus: [118, 150, 80, 68], gene: [124, 168, 24, 18], mrna: [220, 125, 104, 14, -11.6], pore: [112, 84.5, 12, 9],
                ribosome: [283, 114, 26, 22], protein: [286, 182, 22, 44], aminoacids: [232, 246, 34, 26] } };
   }
 
@@ -122,7 +149,8 @@
     GENES.forEach(function (g, i) {
       var y = 70 + i * 74, lit = (on || []).indexOf(g[0]) >= 0;
       out += '<rect class="exg__gene' + (lit ? ' is-on' : '') + '" x="40" y="' + y + '" width="40" height="34" rx="4"/>';
-      if (lit) out += '<path class="exg__out" d="M86 ' + (y + 17) + ' L120 ' + (y + 17) + '"/><circle class="exg__prot" cx="132" cy="' + (y + 17) + '" r="9"/>';
+      /* its protein below the gene's line, never on it (5 Nov 2026: the line to the name ran through the protein) */
+      if (lit) out += '<path class="exg__out" d="M86 ' + (y + 27) + ' L110 ' + (y + 40) + '"/><circle class="exg__prot" cx="122" cy="' + (y + 46) + '" r="9"/>';
       pts[g[0]] = [80, y + 17, 'R'];
       spots[g[0]] = [60, y + 17, 22, 19];
     });
@@ -167,9 +195,10 @@
       var a = { x: x - 16, y: 130, len: 150, w: 22, who: 'mum', bands: [.5] }, b = { x: x + 16, y: 130, len: 150, w: 22, who: 'dad', bands: [.5] };
       out += D.chromo(a) + D.chromo(b);
       out += D.allele(a.x, 136, g[1], { cls: 'al--on' }) + D.allele(b.x, 136, g[2], { cls: 'al--on' });
-      pts[g[0]] = [x, 214, i === 0 ? 'L' : 'R'];
     });
-    return { w: 360, h: 240, svg: out, pts: { RR: [46, 60, 'L'], Rr: [196, 60, 'R'], rr: [314, 60, 'R'] }, alts: {},
+    /* each name above its pair, its line down to the tip of the pair's first chromosome: from the sides the lines of
+       Rr and rr ran across the other pairs and bent into each other (5 Nov 2026) */
+    return { w: 360, y0: 44, h: 172, svg: out, pts: { RR: [46, 58, 'T'], Rr: [164, 58, 'T'], rr: [282, 58, 'T'] }, mids: { RR: 62, Rr: 180, rr: 298 }, alts: {},
       spots: { RR: [62, 130, 32, 76], Rr: [180, 130, 32, 76], rr: [298, 130, 32, 76] } };
   }
 
@@ -219,17 +248,19 @@
 
   /* 12 · the four blood groups, each the pair of chromosome 9 with its two alleles */
   function abo() {
-    var out = '', pts = {}, spots = {};
+    var out = '', pts = {}, spots = {}, mids = {};
     [['A', 'IᴬIᴬ'], ['B', 'IᴮIᵒ'], ['AB', 'IᴬIᴮ'], ['O', 'IᵒIᵒ']].forEach(function (g, i) {
       var x = 50 + i * 92, al = global.Genes.parse(g[1]);
       var a = { x: x - 13, y: 120, len: 150, w: 20, who: 'mum', bands: [.8] }, b = { x: x + 13, y: 120, len: 150, w: 20, who: 'dad', bands: [.8] };
       out += D.chromo(a) + D.chromo(b);
       var ya = D.bandAt(a, .8)[1];
       out += D.allele(a.x, ya - 18, al[0].b + '^' + al[0].s, { cls: 'al--tag' }) + D.allele(b.x, ya - 18, al[1].b + '^' + al[1].s, { cls: 'al--tag' });
-      pts['g' + g[0]] = [x, 36, i < 2 ? 'L' : 'R'];
+      /* each group's name above its pair, its line down to the tip of the first chromosome: from the sides four names
+         at one height had lines lying on each other (5 Nov 2026) */
+      pts['g' + g[0]] = [a.x, 48, 'T']; mids['g' + g[0]] = x;
       spots['g' + g[0]] = [x, 116, 30, 82];
     });
-    return { w: 380, h: 230, svg: out, pts: pts, alts: {}, spots: spots };
+    return { w: 380, y0: 34, h: 172, svg: out, pts: pts, mids: mids, alts: {}, spots: spots };
   }
 
   /* 13 · the sex chromosomes: the colour-vision gene on the X, none on the Y */
@@ -240,7 +271,11 @@
     out += D.chromo(X1) + D.chromo(X2) + D.chromo(X3) + D.chromo(Y);
     var g1 = D.bandAt(X1, .12), g3 = D.bandAt(X3, .12);
     return { w: 340, h: 260, svg: out,
-      pts: { female: [50, 210, 'L'], male: [290, 230, 'R'], xgene: [g1[0] - 14, g1[1], 'L'], ygene: [290, 150, 'R'], xgene2: [g3[0] - 14, g3[1], 'L'] }, alts: {},
+      /* the woman and the man named below their pairs; the woman's gene from the left, the man's from the right (above
+         the Y's top, so no line crosses a chromosome: from the left it ran across both of the woman's X, 5 Nov 2026);
+         the Y from the right, at its middle */
+      pts: { female: [X1.x, 242, 'B'], male: [X3.x, 242, 'B'], xgene: [g1[0] - 14, g1[1], 'L'], ygene: [Y.x + 14, Y.y, 'R'], xgene2: [g3[0] + 14, g3[1], 'R'] },
+      mids: { female: (X1.x + X2.x) / 2, male: (X3.x + Y.x) / 2 }, alts: {},
       spots: { female: [84, 150, 38, 98], male: [256, 150, 38, 98], xgene: [g1[0], g1[1], 18, 12], xgene2: [g3[0], g3[1], 18, 12], ygene: [Y.x, Y.y, 17, 55] } };
   }
 
@@ -251,7 +286,9 @@
     out += D.allele(62, 82, 'R', { size: 34 }) + D.allele(62, 134, 'r', { size: 34 }) + D.allele(62, 186, 'Rr', { size: 30 });
     out += D.allele(180, 82, 'Iᴬ', { size: 34 }) + D.allele(180, 134, 'Iᵒ', { size: 34 }) + D.allele(180, 186, 'IᴬIᴮ', { size: 28 });
     out += D.allele(298, 82, 'Xᴮ', { size: 34 }) + D.allele(298, 134, 'Y', { size: 34 }) + D.allele(298, 186, 'XᵇY', { size: 28 });
-    return { w: 360, h: 220, svg: out, pts: { dom: [8, 40, 'L'], codom: [180, 30, 'R'], sex: [352, 40, 'R'] }, alts: {},
+    /* each column named above it, its line down to the column's top edge: from the right, the middle column's line ran
+       across the third (5 Nov 2026) */
+    return { w: 360, h: 220, svg: out, pts: { dom: [62, 11.5, 'T'], codom: [180, 11.5, 'T'], sex: [298, 11.5, 'T'] }, alts: {},
       spots: { dom: [62, 110, 56, 100], codom: [180, 110, 56, 100], sex: [298, 110, 56, 100] } };
   }
 

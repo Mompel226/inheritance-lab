@@ -544,3 +544,11 @@ p,li,dd,figcaption{text-wrap:pretty}
 .dvnote summary{cursor:pointer;font-weight:600;color:var(--grey);list-style-position:inside}
 .dvnote summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .dvnote p{margin:8px 0 0}
+
+/* ---------- the names on every picture (5 Nov 2026, the "labels" side session) ---------- */
+@media (max-width:1000px) and (min-height:561px){
+  /* a drawing that scrolls with the page: its view as tall as its picture, key and notes together, so the caption never
+     covers the key's last line (on a phone the gene-expression and pairs pictures lost "a gene expressed", "the ABO gene") */
+  .platecol[data-kind="figure"] .viewhost,.platecol[data-kind="figure"] .cellv{flex:none}
+}
+/* ---------- end of the labels block ---------- */

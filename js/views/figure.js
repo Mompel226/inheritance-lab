@@ -8,13 +8,21 @@
    reason (`cannot`).
 
    spec: { kind:'figure', parts:[…], names:{ part: 'its name on the picture' }, beyond:{ part: 1 },
-           modes:[{ id, name, img, iw, ih, x0, y0, w, h, pts:{ part:[x, y, side?, r?] }, alts:{ part:[[x, y], …] },
+           modes:[{ id, name, img, iw, ih, x0, y0, w, h, pts:{ part:[x, y, side?, r?] }, alts:{ part:[[x, y], …] }, mids,
                     spots:{ part:[cx, cy, rx, ry, rot?] } (where the light falls: on the whole part, centred), veil,
                     names, say, alt, credit, cannot:{ part: 'why' }, heads:[{ x, t, y? }], narrow:{ … } }] }
    `img` is a file in assets/photos: a photograph or one of the lab's own drawings (an SVG). Points are in the picture's
    own pixels or viewBox units. `alts` are other points ON a part, where its name may stand when names crowd, so every
    line stays level; `beyond` names a part beyond 0610, left out first on a phone too narrow for every name.
-   `narrow` is the same picture arranged for a stage under 520 px. `key` ([[swatch class, words], …], on a mode or the
+   A side is 'L' or 'R' (a margin, the name's line level), or 'T' or 'B' (5 Nov 2026): the name stands in a band above or
+   below the picture, its line upright down (or up) to the part, for a part that a level line from either side could
+   reach only across other parts (CircLearn.labels, its bands); `mids` { part: x } centres such a name over a pair while
+   its line ends on one of the two. On a phone a band's names stay words while they fit, else become pins in the band.
+   `narrow` is the same picture arranged for a stage under 520 px.
+   A scene may bring a `film` (5 Nov 2026, for the divisions; js/inh-films.js): the film draws its own frames into the
+   picture and says which names stand at this moment (`film.pts()`, a part's name only while the part is at rest);
+   `pts` still lists every part it ever names, so the margins never jump and a card never changes mode. The view gives
+   it film.attach({ img, shown(), redraw(), lit() }): redraw() when its names change, lit() the part a card has lit. `key` ([[swatch class, words], …], on a mode or the
    whole view) is the drawing's key, in HTML under the picture, so it is never smaller than the page's words.
    ============================================================ */
 (function (global) {
@@ -55,9 +63,14 @@
       if (!m.draw || !global.LabScenes) return;
       var sc = global.LabScenes.get(m.draw); if (!sc) return;
       m.w = m.w || sc.w; m.h = m.h || sc.h; m.scene = sc.svg;
+      /* a scene may crop its own empty edge (x0, y0), so a band's lines stay short */
+      if (m.x0 == null && sc.x0 != null) m.x0 = sc.x0;
+      if (m.y0 == null && sc.y0 != null) m.y0 = sc.y0;
       if (!m.pts || !Object.keys(m.pts).length) m.pts = sc.pts;
       m.alts = Object.assign({}, sc.alts || {}, m.alts || {});
       m.spots = Object.assign({}, sc.spots || {}, m.spots || {});
+      m.mids = Object.assign({}, sc.mids || {}, m.mids || {});
+      if (sc.film) m.film = sc.film;
     });
     var modes = spec.modes.map(function (m, k) {
       /* a mode shares its colour with the block of What you need to know named as it (app.js exam-part--k) */
@@ -113,21 +126,32 @@
          five one-word lines) */
       var nameOf = function (p) { return labelOf(m, p); };
       var keys = Object.keys(m.pts);
-      var W0 = keys.reduce(function (n, p) { return Math.max(n, nameOf(p).split(' ').reduce(function (k, w) { return Math.max(k, w.length); }, 0)); }, 10);
-      var W1 = Math.min(18, keys.reduce(function (n, p) { return Math.max(n, nameOf(p).length); }, 0));
+      var side = keys.filter(function (p) { var sd = sideOf(M, p); return sd === 'L' || sd === 'R'; });
+      var W0 = side.reduce(function (n, p) { return Math.max(n, nameOf(p).split(' ').reduce(function (k, w) { return Math.max(k, w.length); }, 0)); }, 10);
+      var W1 = Math.min(18, side.reduce(function (n, p) { return Math.max(n, nameOf(p).length); }, 0));
+      /* the bands above and below: as tall as their names wrap at this font, over the picture's whole width */
+      function bandH(sd, f, L, R) {
+        var its = bandItems(M, sd);
+        if (!its.length) return { h: 0, n: 0, fits: true };
+        var B = global.CircLearn.labelBand(its, { font: f, bandL: (m.x0 || 0) - L + 4, bandR: (m.x0 || 0) + m.w + R - 4 });
+        return { h: B.lines * f * 1.18 + f * 1.1, n: B.lines, fits: B.fits };
+      }
       function sizes(W) {
         /* each margin as wide as ITS OWN longest line (a short word on one side leaves the picture more room) */
         var widest = function (side) { return keys.filter(function (p) { return sideOf(M, p) === side; })
           .reduce(function (n, p) { return Math.max(n, lineMax(nameOf(p), W)); }, 0); };
-        var wl = widest('L'), wr = widest('R'), f = 40, L, R, ppu;
+        var wl = widest('L'), wr = widest('R'), f = 40, L, R, ppu, bT, bB;
         /* 0.6 of the font a letter: a name of wide letters ("chromosome") needs more than the average 0.56 */
         for (var n = 0; n < 4; n++) {
           L = wl ? f * 0.6 * wl + 30 : 10; R = wr ? f * 0.6 * wr + 30 : 10;
-          ppu = Math.min(r.width / (m.w + L + R), r.height / (m.h + 20 + headU(m, f)));
+          bT = bandH('T', f, L, R); bB = bandH('B', f, L, R);
+          ppu = Math.min(r.width / (m.w + L + R), r.height / (m.h + 20 + headU(m, f) + bT.h + bB.h));
           f = Math.max(12, Math.min(m.w / 6, 14 / ppu));
         }
         L = wl ? f * 0.6 * wl + 30 : 10; R = wr ? f * 0.6 * wr + 30 : 10;
-        return { W: W, f: f, L: L, R: R, roomy: r.width / (m.w + L + R) >= r.height / (m.h + 20 + headU(m, f)) };
+        bT = bandH('T', f, L, R); bB = bandH('B', f, L, R);
+        var vh = m.h + 20 + headU(m, f) + bT.h + bB.h;
+        return { W: W, f: f, L: L, R: R, hT: bT.h, hB: bB.h, bandsFit: bT.fits && bB.fits, vh: vh, roomy: r.width / (m.w + L + R) >= r.height / vh };
       }
       var s = sizes(W0);
       for (var W = W1; W > W0; W--) { var t = sizes(W); if (t.roomy) { s = t; break; } }
@@ -135,15 +159,25 @@
       /* words in the margins would leave the picture under 60 % of the width (a wide micrograph, or a photograph on a
          phone): numbered pins in narrow margins and a key under the picture instead (8 Oct 2026 review: the electron
          micrograph was a strip a third of the stage wide; on a phone, 110 px) */
-      var pLab = Math.min(r.width / (m.w + s.L + s.R), r.height / (m.h + 20 + headU(m, s.f)));
+      var pLab = Math.min(r.width / (m.w + s.L + s.R), r.height / s.vh);
       /* on a phone pins whenever they make the picture clearly larger; on a wide screen only for a very wide picture,
-         because words beside the parts teach the names best */
+         because words beside the parts teach the names best; and whenever a band's names cannot stand apart */
       var narrow = r.width < 520, share = m.w * pLab / r.width;
+      if (!s.bandsFit && fitPins(M, r, keys, pLab, 0)) return;
       if ((narrow ? share < 0.75 : (share < 0.6 && m.w / m.h > 1.8)) && fitPins(M, r, keys, pLab, narrow ? 1.2 : 1.3)) return;
       M.pins = null;
-      var hu = headU(m, s.f);
-      M.svg.setAttribute('viewBox', ((m.x0 || 0) - s.L).toFixed(1) + ' ' + ((m.y0 || 0) - 10 - hu).toFixed(1) + ' ' + (m.w + s.L + s.R).toFixed(1) + ' ' + (m.h + 20 + hu).toFixed(1));
+      var hu = headU(m, s.f), y0 = m.y0 || 0;
+      M.svg.setAttribute('viewBox', ((m.x0 || 0) - s.L).toFixed(1) + ' ' + (y0 - 10 - hu - s.hT).toFixed(1) + ' ' + (m.w + s.L + s.R).toFixed(1) + ' ' + s.vh.toFixed(1));
+      /* where the bands' lines end: the top band's names stand above it, the bottom band's below */
+      M.band = { T: y0 - 10 - hu - s.f * .65, B: y0 + m.h + 10 + s.f * .65, L: (m.x0 || 0) - s.L + 4, R: (m.x0 || 0) + m.w + s.R - 4 };
       M.font = s.f;
+    }
+    /* a band's names (sides 'T' and 'B'), as CircLearn.labelBand reads them */
+    function bandItems(M, sd) {
+      var m = M.cur;
+      return Object.keys(m.pts).filter(function (p) { return sideOf(M, p) === sd; }).map(function (p) {
+        return { id: p, x: m.pts[p][0], y: m.pts[p][1], text: labelOf(m, p), mid: (m.mids || {})[p], opt: !!BEYOND[p] };
+      });
     }
     function headU(m, f) { return (m.heads || []).some(function (hd) { return hd.y == null; }) ? f * 1.7 : 0; }   /* room above, for headings above the picture */
     /* the pins' key goes beside the picture or under it (one or two columns), whichever leaves the picture larger;
@@ -156,7 +190,10 @@
     }
     function fitPins(M, r, keys, pLab, gain) {
       var m = M.cur, PX = 13, lh = PX * 1.3, gap = PX * 0.35;
-      var nl = keys.filter(function (p) { return sideOf(M, p) === 'L'; }).length, nr = keys.length - nl;
+      var nl = keys.filter(function (p) { return sideOf(M, p) === 'L'; }).length, nr = keys.filter(function (p) { return sideOf(M, p) === 'R'; }).length;
+      /* a band of pins above or below: a row of discs 1.44 fonts tall (CircLearn.pinLabels), and a little room */
+      var nbT = keys.some(function (p) { return sideOf(M, p) === 'T'; }) ? 1 : 0, nbB = keys.some(function (p) { return sideOf(M, p) === 'B'; }) ? 1 : 0;
+      var bandPx = (nbT + nbB) * (1.44 * PX + 8);
       var KW = keys.reduce(function (n, p) { return Math.max(n, labelOf(m, p).split(' ').reduce(function (k, w) { return Math.max(k, w.length); }, 0)); }, 12);
       var lines = keys.map(function (p) { return wrapWords(labelOf(m, p), KW); });
       var itemW = PX * (1.64 + 0.56 * lines.reduce(function (n, ls) { return Math.max(n, ls.reduce(function (k, l) { return Math.max(k, l.length); }, 0)); }, 0));
@@ -164,7 +201,7 @@
       var sidesPx = (nl ? 18.7 : 0) + (nr ? 18.7 : 0), sidesU = (nl ? 16 : 10) + (nr ? 16 : 10);
       var best = null, hB = colH(lines);
       if (hB <= r.height - 10) {
-        var pb = Math.min((r.width - sidesPx - itemW - PX) / (m.w + sidesU), (r.height - (m.heads ? PX * 1.7 : 0)) / (m.h + 20));
+        var pb = Math.min((r.width - sidesPx - itemW - PX) / (m.w + sidesU), (r.height - (m.heads ? PX * 1.7 : 0) - bandPx) / (m.h + 20));
         if (pb > 0) best = { p: pb, where: 'beside', cols: 1, h: hB };
       }
       [1, 2].forEach(function (cols) {
@@ -172,16 +209,20 @@
         /* the key is drawn in pin order, not in this order: size it for the tallest names sharing one column */
         var per = Math.ceil(lines.length / cols);
         var hh = colH(lines.slice().sort(function (x, y) { return y.length - x.length; }).slice(0, per));
-        var pp = Math.min((r.width - sidesPx) / (m.w + sidesU), (r.height - hh - PX - (m.heads ? PX * 1.7 : 0)) / (m.h + 20));
+        var pp = Math.min((r.width - sidesPx) / (m.w + sidesU), (r.height - hh - PX - (m.heads ? PX * 1.7 : 0) - bandPx) / (m.h + 20));
         if (pp > 0 && (!best || pp > best.p)) best = { p: pp, where: 'below', cols: cols, h: hh };
       });
       if (!best || best.p < pLab * gain) return false;   /* words beside the parts teach the names best: pins only when they make the picture far larger */
       var f = PX / best.p, colL = nl ? 16 + 1.44 * f : 10, colR = nr ? 16 + 1.44 * f : 10, x0 = m.x0 || 0, y0 = m.y0 || 0;
-      var hu = headU(m, f), vw = m.w + colL + colR, vh = m.h + 20 + hu;
-      if (best.where === 'beside') vw += (itemW + PX) / best.p; else vh += (best.h + PX) / best.p;
-      M.pins = { f: f, colL: colL, colR: colR, where: best.where, cols: best.cols, lines: lines, keys: keys, hU: best.h / best.p, vw: vw };
+      var hT = nbT * (1.44 * f + 8 / best.p), hB = nbB * (1.44 * f + 8 / best.p);
+      var hu = headU(m, f), vw = m.w + colL + colR, vh = m.h + 20 + hu + hT + hB;
+      /* a key beside the picture may be taller than it: the frame grows to hold the key, or its last names are cut off */
+      if (best.where === 'beside') { vw += (itemW + PX) / best.p; vh = Math.max(vh, best.h / best.p + 20 + hu + hT); } else vh += (best.h + PX) / best.p;
+      M.pins = { f: f, colL: colL, colR: colR, where: best.where, cols: best.cols, lines: lines, keys: keys, hU: best.h / best.p, vw: vw, hB: hB };
+      /* a top band's discs sit just under the frame's top edge, a bottom band's just under the picture */
+      M.band = { T: y0 - 10 - hu - hT + 2 + 1.44 * f, B: y0 + m.h + 10 + 2, L: x0 - colL + 2, R: x0 + m.w + colR - 2 };
       M.font = f;
-      M.svg.setAttribute('viewBox', (x0 - colL).toFixed(1) + ' ' + (y0 - 10 - hu).toFixed(1) + ' ' + vw.toFixed(1) + ' ' + vh.toFixed(1));
+      M.svg.setAttribute('viewBox', (x0 - colL).toFixed(1) + ' ' + (y0 - 10 - hu - hT).toFixed(1) + ' ' + vw.toFixed(1) + ' ' + vh.toFixed(1));
       return true;
     }
     function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
@@ -191,7 +232,7 @@
       var linesOf = {}; P.keys.forEach(function (k, i) { linesOf[k] = P.lines[i]; });
       var per = Math.ceil(order.length / P.cols), colW = (m.w + P.colL + P.colR) / P.cols;
       var bx0 = P.where === 'beside' ? x0 + m.w + P.colR + f * 0.5 : x0 - P.colL + f * 0.5;
-      var by0 = P.where === 'beside' ? y0 + Math.max(0, (m.h - P.hU) / 2) : y0 + m.h + 10 + f * 0.6;
+      var by0 = P.where === 'beside' ? y0 + Math.max(0, (m.h - P.hU) / 2) : y0 + m.h + 10 + (P.hB || 0) + f * 0.6;
       var yAt = [by0];
       order.forEach(function (it, i) {
         var c = Math.floor(i / per), k = i % per, ls = linesOf[it.id] || [it.text];
@@ -209,20 +250,34 @@
     function sideOf(M, p) { var m = M.cur, pt = m.pts[p]; return pt[2] || (pt[0] < (m.x0 || 0) + m.w / 2 ? 'L' : 'R'); }
     function draw(M) {
       fit(M);
-      var m = M.cur, f = M.font || 40;
-      var items = Object.keys(m.pts).map(function (p) {
+      var m = M.cur, f = M.font || 40, bd = M.band || {};   /* no bands until the stage has a size */
+      /* the names that stand now: a film's at this moment, else every part's (fit() and focus() keep to m.pts) */
+      var P = m.film ? m.film.pts() : m.pts;
+      function sideNow(p) { return P[p][2] || (m.pts[p] ? sideOf(M, p) : (P[p][0] < (m.x0 || 0) + m.w / 2 ? 'L' : 'R')); }
+      var items = Object.keys(P).map(function (p) {
         /* `alts`: other points ON the part, where its name may stand when names crowd (a drawing's are found from the
            drawing itself by the station's master; `off`: a first point not on its part, never used) */
-        return { id: p, text: labelOf(m, p), x: m.pts[p][0], y: m.pts[p][1], side: sideOf(M, p), alts: (m.alts || {})[p],
+        return { id: p, text: labelOf(m, p), x: P[p][0], y: P[p][1], side: sideNow(p), alts: (m.alts || {})[p], mid: (m.mids || {})[p],
           off: (m.off || []).indexOf(p) >= 0, opt: !!BEYOND[p], cls: lit === p ? 'is-lit' : (lit ? 'is-dim' : '') };
       });
+      var opt = { left: (m.x0 || 0) - 8, right: (m.x0 || 0) + m.w + 8, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.3, width: f * 0.56 * (M.wrap || 15),
+        bandT: bd.T, bandB: bd.B, bandL: bd.L, bandR: bd.R };
+      if (!M.pins) {
+        M.labG.innerHTML = global.CircLearn.labels(Object.assign({}, opt, { items: items }));
+        /* a name that found no free row and is not beyond 0610: numbered pins instead, which keep every name (5 Nov 2026:
+           on a phone the protein's picture lost its mRNA) */
+        var shown = {};
+        Array.prototype.forEach.call(M.labG.querySelectorAll('.lb'), function (g) { shown[g.getAttribute('data-lab')] = 1; });
+        if (items.some(function (i) { return !shown[i.id] && !i.opt; }) && fitPins(M, M.svg.getBoundingClientRect(), Object.keys(m.pts), 0, 0)) {
+          f = M.font; bd = M.band;
+          items.forEach(function (i) { i.side = sideNow(i.id); });
+        }
+      }
       if (M.pins) {
-        var pl = global.CircLearn.pinLabels({ items: items, left: (m.x0 || 0) - 4, right: (m.x0 || 0) + m.w + 4, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.25 });
+        var pl = global.CircLearn.pinLabels({ items: items, left: (m.x0 || 0) - 4, right: (m.x0 || 0) + m.w + 4, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.25,
+          bandT: bd.T, bandB: bd.B, bandL: bd.L, bandR: bd.R });
         var idOf = {}; items.forEach(function (i) { idOf[i.text] = i.id; });
         M.labG.innerHTML = pl.svg + pinKey(M, pl.order.map(function (o) { return { n: o.n, text: o.text, cls: o.cls, id: idOf[o.text] }; }));
-      } else {
-        var opt = { left: (m.x0 || 0) - 8, right: (m.x0 || 0) + m.w + 8, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.3, width: f * 0.56 * (M.wrap || 15) };
-        M.labG.innerHTML = global.CircLearn.labels(Object.assign({}, opt, { items: items }));
       }
       if (m.heads) M.labG.innerHTML += m.heads.map(function (hd) {
         var hy = hd.y != null ? hd.y : (m.y0 || 0) - f * 0.55;
@@ -278,6 +333,14 @@
       },
       stop: function () {}
     };
+    /* a film runs its own frames; it asks whether its picture is the one shown, for a redraw of the names, and which part
+       a card has lit (it holds the frame where that part is at rest) */
+    modes.forEach(function (M) {
+      if (M.spec.film) M.spec.film.attach({ img: M.img,
+        shown: function () { return modes[cur] === M && M.svg.isConnected && M.svg.getBoundingClientRect().width > 0; },
+        redraw: function () { if (modes[cur] === M) draw(M); },
+        lit: function () { return lit; } });
+    });
     show(0, null);
     return api;
   }

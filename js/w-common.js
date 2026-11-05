@@ -275,9 +275,108 @@
           x.lines.map(function (ln, k) { return '<tspan x="' + f2(tx) + '" dy="' + (k ? f2(lh) : 0) + '">' + esc(ln) + '</tspan>'; }).join('') + '</text></g>';
       });
     });
-    return out;
+    return out + bandSvg(o, 'T') + bandSvg(o, 'B');
   }
   function f2(v) { return Math.round(v * 100) / 100; }
+
+  /* ---------- names above or below the drawing: an item's side 'T' or 'B' (opt-in, 5 Nov 2026) ----------
+     Where a level line from either side would run across other parts (a row of chromosome pairs, the columns of a table),
+     the name stands in a band above ('T') or below ('B') the drawing, over its own part, joined to it by ONE upright line
+     that ends ON the part (Daniel, 5 Nov 2026: "put it at the top if you need it … They can be on the top"). Upright
+     lines at different x cannot cross; each name stands over its own line, and names in a band keep a clear gap, so two
+     never read as one phrase. An item may give `mid`, where its name would like its middle (a pair named from one
+     chromosome's tip, its name centred over the pair). A band never moves a line: `alts` are not used here. Nothing
+     changes for a call that passes only 'L' and 'R' items; 'T' and 'B' items are drawn only when the call gives the
+     band's place: o.bandT (the y where the top band's lines end, its names above it), o.bandB (the same below), and
+     o.bandL … o.bandR (the band's width; the margins' inner edges when not given). */
+  var CH = .58;   /* a letter's width, as a share of the font: the measure the bands keep names apart by */
+  function wrapCh(t, n) {
+    var lines = [], cur = '';
+    String(t).split(' ').forEach(function (wd) { var tr = cur ? cur + ' ' + wd : wd; if (tr.length > n && cur) { lines.push(cur); cur = wd; } else cur = tr; });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  /* boxes of widths w, as near their preferred middles p (in order) as a clear gap allows, inside lo … hi: the
+     least-squares choice (pool-adjacent-violators), then pushed inside the band. Returns the middles, or null. */
+  function spread(p, w, gap, lo, hi) {
+    var n = p.length, S = [0], i, blocks = [], c = [], k = 0;
+    for (i = 1; i < n; i++) S[i] = S[i - 1] + (w[i - 1] + w[i]) / 2 + gap;
+    for (i = 0; i < n; i++) {
+      blocks.push({ v: p[i] - S[i], n: 1 });
+      while (blocks.length > 1 && blocks[blocks.length - 2].v > blocks[blocks.length - 1].v) {
+        var b = blocks.pop(), a = blocks[blocks.length - 1];
+        a.v = (a.v * a.n + b.v * b.n) / (a.n + b.n); a.n += b.n;
+      }
+    }
+    blocks.forEach(function (bl) { for (var j = 0; j < bl.n; j++, k++) c[k] = bl.v + S[k]; });
+    for (i = 0; i < n; i++) c[i] = Math.max(c[i], lo + w[i] / 2, i ? c[i - 1] + (w[i - 1] + w[i]) / 2 + gap : -Infinity);
+    for (i = n - 1; i >= 0; i--) c[i] = Math.min(c[i], hi - w[i] / 2, i < n - 1 ? c[i + 1] - (w[i] + w[i + 1]) / 2 - gap : Infinity);
+    for (i = 0; i < n; i++) if (c[i] - w[i] / 2 < lo - 1e-6 || (i && c[i] - c[i - 1] < (w[i - 1] + w[i]) / 2 + gap - 1e-6)) return null;
+    return c;
+  }
+  /* one band's names: each wrapped as wide as the band allows (fewest lines), its middle as near its part as the others
+     allow, and its own line under it. Returns { at: [{ it, lines, c, w }], lines (the most of any name), fits }; when no
+     wrapping fits, a name beyond 0610 (`opt`) is left out first, and failing that the narrowest wrapping is returned with
+     fits false (the figure then uses numbered pins). */
+  function band(items, o) {
+    var font = o.font || 16, gap = o.gap == null ? font * 1.2 : o.gap;
+    var lo = o.bandL == null ? o.left : o.bandL, hi = o.bandR == null ? o.right : o.bandR;
+    var it = items.slice().sort(function (a, b) { return (a.mid != null ? a.mid : a.x) - (b.mid != null ? b.mid : b.x); });
+    if (!it.length) return { at: [], lines: 0, fits: true };
+    var longest = it.reduce(function (n, x) { return Math.max(n, String(x.text).split(' ').reduce(function (k, wd) { return Math.max(k, wd.length); }, 0)); }, 1);
+    function tryWrap(n) {
+      var L = it.map(function (x) { return wrapCh(x.text, n); });
+      var w = L.map(function (ls) { return ls.reduce(function (k, s) { return Math.max(k, s.length); }, 0) * font * CH; });
+      var c = spread(it.map(function (x) { return x.mid != null ? x.mid : x.x; }), w, gap, lo, hi);
+      var ok = !!c && it.every(function (x, i) { var e = Math.min(w[i] / 2, font * .45); return x.x >= c[i] - w[i] / 2 + e - 1e-6 && x.x <= c[i] + w[i] / 2 - e + 1e-6; });
+      return { at: it.map(function (x, i) { return { it: x, lines: L[i], c: c ? c[i] : (x.mid != null ? x.mid : x.x), w: w[i] }; }),
+               lines: L.reduce(function (k, ls) { return Math.max(k, ls.length); }, 0), fits: ok };
+    }
+    for (var n = Math.max(longest, o.letters || 22); n >= longest; n--) { var t = tryWrap(n); if (t.fits) return t; }
+    var opt = it.filter(function (x) { return x.opt; });
+    if (opt.length) { var r = band(it.filter(function (x) { return x !== opt[opt.length - 1]; }), o); if (r.fits) return r; }
+    return tryWrap(longest);
+  }
+  function bandSvg(o, side) {
+    var y = side === 'T' ? o.bandT : o.bandB;
+    if (y == null) return '';
+    var items = o.items.filter(function (x) { return x.side === side && !x.hidden; });
+    if (!items.length) return '';
+    var font = o.font || 16, lh = font * 1.18, out = '';
+    /* the band's own gap between names (o.gap is the margins' gap between rows) */
+    var B = band(items, { font: font, bandL: o.bandL, bandR: o.bandR, left: o.left, right: o.right });
+    B.at.forEach(function (a) {
+      var x = a.it, nl = a.lines.length;
+      var top = side === 'T' ? y - font * .25 - nl * lh : y + font * .25, b0 = top + font * .84;
+      var d = 'M' + f2(x.x) + ' ' + f2(x.y) + 'L' + f2(x.x) + ' ' + f2(y);
+      out += '<g class="lb lb--band ' + (x.cls || '') + '" data-lab="' + esc(x.id || '') + '" opacity="' + (x.op == null ? 1 : x.op) + '">' +
+        '<path class="lb__halo" d="' + d + '"/><path class="lb__lead" d="' + d + '"/>' +
+        '<text class="lb__txt" x="' + f2(a.c) + '" y="' + f2(b0) + '" text-anchor="middle" style="font-size:' + font + 'px">' +
+        a.lines.map(function (ln, k) { return '<tspan x="' + f2(a.c) + '" dy="' + (k ? f2(lh) : 0) + '">' + esc(ln) + '</tspan>'; }).join('') + '</text></g>';
+    });
+    return out;
+  }
+  /* the pins of a band: each disc over its own line (it may stand a little to one side, never off it) */
+  function pinBandSvg(o, side, r, order) {
+    var y = side === 'T' ? o.bandT : o.bandB;
+    if (y == null) return '';
+    var it = o.items.filter(function (x) { return x.side === side && !x.hidden; }).sort(function (a, b) { return a.x - b.x; });
+    if (!it.length) return '';
+    var lo = o.bandL == null ? o.left : o.bandL, hi = o.bandR == null ? o.right : o.bandR, font = o.font || 18;
+    var c = spread(it.map(function (x) { return x.x; }), it.map(function () { return 2 * r; }), 3, lo, hi) || it.map(function (x) { return x.x; });
+    var out = '';
+    it.forEach(function (x, i) {
+      var n = order.length + 1, dx = Math.max(-r * .6, Math.min(r * .6, x.x - c[i])), cx = x.x - dx;
+      var cy = side === 'T' ? y - r : y + r, ey = side === 'T' ? cy + Math.sqrt(r * r - dx * dx) : cy - Math.sqrt(r * r - dx * dx);
+      var d = 'M' + f2(x.x) + ' ' + f2(x.y) + 'L' + f2(x.x) + ' ' + f2(ey);
+      out += '<g class="lb lb--pin ' + (x.cls || '') + '" data-lab="' + esc(x.id || '') + '" opacity="' + (x.op == null ? 1 : x.op) + '">' +
+        '<path class="lb__halo" d="' + d + '"/><path class="lb__lead" d="' + d + '"/>' +
+        '<circle class="lb__pin" cx="' + f2(cx) + '" cy="' + f2(cy) + '" r="' + f2(r) + '"/>' +
+        '<text class="lb__pinn" x="' + f2(cx) + '" y="' + f2(cy + font * .3) + '" text-anchor="middle" style="font-size:' + f2(font * .82) + 'px">' + n + '</text></g>';
+      order.push({ n: n, text: x.text, cls: x.cls });
+    });
+    return out;
+  }
 
   /* ---------- the same labels on a phone: numbered pins, words in a band ----------
      Below about 520 px a column of words beside the drawing shrinks to a few pixels. So each
@@ -288,6 +387,8 @@
        returns { svg, order: [{ n, text, cls }] } — number 1 is the top of the left column. */
   function pinLabels(o) {
     var font = o.font || 18, r = font * .72, gap = o.gap == null ? 4 : o.gap, out = '', order = [];
+    /* a band's pins (sides 'T', 'B', opt-in): the top band is numbered first, left to right; the bottom band last */
+    out += pinBandSvg(o, 'T', r, order);
     ['L', 'R'].forEach(function (side) {
       var it = o.items.filter(function (x) { return x.side === side && !x.hidden; }).map(function (x) {
         return { x: x.x, y: x.y, ly: x.y, h: 2 * r, id: x.id, text: x.text, cls: x.cls || '', op: x.op == null ? 1 : x.op, alts: x.alts, off: x.off, opt: x.opt };
@@ -313,6 +414,7 @@
         order.push({ n: n, text: x.text, cls: x.cls });
       });
     });
+    out += pinBandSvg(o, 'B', r, order);
     return { svg: out, order: order };
   }
   /* the numbered words, in columns, from (x, y) down, inside width w. Returns { svg, h }. */
@@ -329,6 +431,7 @@
 
   L.stepper = stepper;
   L.labels = labels;
+  L.labelBand = band;
   L.pinLabels = pinLabels;
   L.pinBand = pinBand;
   L.clamp01 = clamp01;
