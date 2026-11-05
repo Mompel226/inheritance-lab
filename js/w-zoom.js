@@ -152,7 +152,8 @@
   /* five beads along the thread's line, a little up and down, the DNA between them short (about 20 base pairs) */
   var BEADS = [[22, 176, .30], [96, 206, -.26], [170, 176, .26], [244, 206, -.28], [318, 176, .24]];
   function chain(t) {
-    return D.beads(BEADS.map(function (b, i) { return { c: [b[0] + 1.6 * Math.sin(t * .7 + i), b[1] + 1.6 * Math.cos(t * .6 + i * 2)], a: b[2] }; }), { inAt: [-14, 160], outAt: [W + 14, 204], w: W, bases: true });
+    /* still: a bead that swayed changed the length of the DNA beside it, and its base-pair marks seemed to slide */
+    return D.beads(BEADS.map(function (b) { return { c: [b[0], b[1]], a: b[2] }; }), { inAt: [-14, 160], outAt: [W + 14, 204], w: W, bases: true });
   }
   function frame3(t) { return NUCL + chain(t).svg; }
   function linkerMid(t, i) { var P = chain(t).linker(i == null ? 1 : i), j = Math.floor(P.length / 2), a = P[j - 1], b = P[j + 1]; return { p: P[j], ang: Math.atan2(b[1] - a[1], b[0] - a[0]) }; }
@@ -172,8 +173,8 @@
   function row(t, dy, j0) {
     var L = [], S3 = [.30, -.26, .26, -.28, .24];
     for (var i = 0; i < 13; i++) {
-      var j = i - 4 + j0, a = !j0 && i >= 4 && i <= 8 ? S3[i - 4] : (i % 2 ? -.27 : .27);
-      L.push({ c: [CX + (i - 6) * 74 + 1.6 * Math.sin(t * .7 + j), CY + dy + (i % 2 ? 16 : -14) + 1.6 * Math.cos(t * .6 + j * 2)], a: a });
+      var a = !j0 && i >= 4 && i <= 8 ? S3[i - 4] : (i % 2 ? -.27 : .27);
+      L.push({ c: [CX + (i - 6) * 74, CY + dy + (i % 2 ? 16 : -14)], a: a });
     }
     return D.beads(L, { inAt: [CX - 6.5 * 74 - 40, CY + dy - 20], outAt: [CX + 6.5 * 74 + 40, CY + dy + 10], w: W, bases: true });
   }
@@ -198,7 +199,8 @@
 
   /* ---------- steps 5–7: the DNA of the gene; replication ---------- */
   var HX = { y: CY, A: 40, P: 150 };
-  function hph(t) { return .3 + t * .22; }   /* the helix turns slowly, the same in steps 4 to 7 */
+  /* the helix stands still in steps 5 to 7: turning, its crossings drifted along and the DNA seemed to slide */
+  function hph() { return .3; }
   /* the enzymes where they work: helicase at the fork's tip, DNA polymerase on each old strand, `gap` behind the fork,
      at the growing end of its new strand (the final audit, G1-6) */
   var FORK = { D: 80, S: 95, gap: 40 };

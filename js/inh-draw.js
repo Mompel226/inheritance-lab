@@ -532,18 +532,22 @@
       var k = Math.min(70, dist(p0, p3) * .45);
       return bez(p0, [p0[0] + d0[0] * k, p0[1] + d0[1] * k], [p3[0] - d3[0] * k, p3[1] - d3[1] * k], p3, 24);
     }
-    var svg = '', bs = o.bases ? { n: 0 } : null;
-    for (var i = -1; i < list.length; i++) svg += ribbon(linker(i), NUC.DW, NUC.TICK, '', bs);
+    /* each piece of DNA numbers its own base pairs from its own start, so a mark never changes colour when another piece
+       is longer or shorter (Daniel, 5 Nov 2026: the bases "changing color constantly … it makes it look like the DNA
+       … sliding") */
+    function bs(seed) { return o.bases ? { n: seed } : null; }
+    var svg = '';
+    for (var i = -1; i < list.length; i++) svg += ribbon(linker(i), NUC.DW, NUC.TICK, '', bs(101 + i * 37));
     list.forEach(function (nc, i) {
       var rs = [], cur = null;
       for (var k = 0; k <= 80; k++) {
         var w = wrapAt(i, k / 80);
         if (!cur || cur.front !== w.front) { cur = { front: w.front, P: cur ? [cur.P[cur.P.length - 1], w.p] : [w.p] }; rs.push(cur); } else cur.P.push(w.p);
       }
-      rs.forEach(function (r) { if (!r.front && r.P.length > 1) svg += ribbon(r.P, NUC.DW, NUC.TICK, ' zm__dna--back', bs); });
+      rs.forEach(function (r, j) { if (!r.front && r.P.length > 1) svg += ribbon(r.P, NUC.DW, NUC.TICK, ' zm__dna--back', bs(509 + i * 53 + j * 17)); });
       svg += '<g transform="translate(' + n1(nc.c[0]) + ' ' + n1(nc.c[1]) + ') rotate(' + n1(nc.a * 180 / Math.PI) + ')"><ellipse class="zm__hist" cx="0" cy="0" rx="24" ry="22"/>' +
         '<circle class="zm__histl" cx="-8.5" cy="-7.5" r="8.2"/><circle class="zm__histl" cx="8.5" cy="-7.5" r="8.2"/><circle class="zm__histl" cx="-8.5" cy="7.5" r="8.2"/><circle class="zm__histl" cx="8.5" cy="7.5" r="8.2"/></g>';
-      rs.forEach(function (r) { if (r.front && r.P.length > 1) svg += ribbon(r.P, NUC.DW, NUC.TICK, '', bs); });
+      rs.forEach(function (r, j) { if (r.front && r.P.length > 1) svg += ribbon(r.P, NUC.DW, NUC.TICK, '', bs(509 + i * 53 + j * 17)); });
     });
     return { svg: svg, wrapAt: wrapAt, linker: linker };
   }
