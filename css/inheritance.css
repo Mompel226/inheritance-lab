@@ -376,6 +376,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .zm__far{fill:var(--card-2)} .zm__cyto{fill:var(--cell-fill)} .zm__nucl{fill:var(--nuc-fill)}
 .al.al--band{fill:var(--gene-ink);font-size:15px}
 .dna__b.zm__tk{stroke-width:2.2;stroke-linecap:butt}
+.zm__loop.zm__loop--gene{fill:var(--gene);fill-opacity:.8;stroke:var(--gene);stroke-width:4.4}
 .dna__s{fill:none;stroke:var(--shade);stroke-width:3;stroke-linecap:round}
 .dna__b{stroke-width:3.2;stroke-linecap:round}
 .dna__b--A,.dna__fill--A{stroke:var(--dna-a);fill:var(--dna-a)} .dna__b--T,.dna__fill--T{stroke:var(--dna-b);fill:var(--dna-b)}
@@ -418,6 +419,20 @@ p,li,dd,figcaption{text-wrap:pretty}
 .figkey li{display:inline-flex;align-items:center;gap:7px}
 .figkey__sw{flex:none;width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.25)}
 .sw--mum{background:var(--mum)} .sw--dad{background:var(--dad)} .sw--gene{background:var(--gene)}
+/* an animation's key, drawn (WKit note { key }): a sample of each part in its picture's own classes, beside its name */
+.anikey{margin:12px 0 0;font-size:13px;gap:6px 18px}
+.anikey li{gap:6px}
+.anikey__sw{flex:none;width:28px;height:14px;overflow:visible}
+.ak__rod{fill:none;stroke-width:6;stroke-linecap:round} .ak__rod.ak__butt{stroke-linecap:butt} .ak__rod.ak__thin{stroke-width:3.4}
+.ak--mum{stroke:var(--mum)} .ak--dad{stroke:var(--dad)} .ak--other{stroke:var(--other)} .ak--new{stroke:var(--dna-new)} .ak--mrna{stroke:var(--mrna)}
+.ak__band{fill:none;stroke:var(--gene);stroke-width:6.6} .ak__band.ak__glow{stroke-width:9;stroke-opacity:.6}
+.ak__line{fill:none;stroke-width:3;stroke-linecap:round}
+.ak__dna{fill:none;stroke:var(--shade);stroke-width:1.8;stroke-linecap:round}
+.ak__fib{fill:none;stroke:var(--grey);stroke-width:1.1;opacity:.75}
+.ak__bases{display:inline-flex;gap:2px}
+.ak__b{display:inline-block;min-width:15px;height:16px;border-radius:3px;font-style:normal;font-size:11px;font-weight:700;line-height:16px;text-align:center;color:var(--pt-lt-light)}
+.ak__b--A{background:var(--dna-a)} .ak__b--T{background:var(--dna-b)} .ak__b--G{background:var(--aa3)}
+.ak__b--C{background:var(--gene);color:var(--pt-lt-dark)} .ak__b--U{background:var(--pt-u);color:var(--pt-lt-dark)}
 /* the colours of a fluorescence photograph (the mitosis station's real cell): the photograph's own, in both themes */
 .sw--flb{background:#7DA3F2} .sw--flg{background:#46C866} .sw--flr{background:#D8342A}
 .sw--bases{background:linear-gradient(90deg,var(--dna-a) 25%,var(--dna-b) 25% 50%,var(--aa3) 50% 75%,var(--gene) 75%)}
@@ -543,11 +558,6 @@ p,li,dd,figcaption{text-wrap:pretty}
 .eqline{fill:none;stroke:var(--grey);stroke-width:1.2;stroke-dasharray:5 4}
 .hist{fill:var(--aa4);opacity:.9} .histdna{fill:none;stroke:var(--dna-a);stroke-width:1.8}
 .inset{fill:var(--card);stroke:var(--edge);stroke-width:1.2}
-/* the IB divisions' key and guide notes, folded under one closed line (the Immunity Lab's .ixnote) */
-.dvnote{margin:10px 0 0;font-size:13px;color:var(--grey);line-height:1.45}
-.dvnote summary{cursor:pointer;font-weight:600;color:var(--grey);list-style-position:inside}
-.dvnote summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-.dvnote p{margin:8px 0 0}
 
 /* ============================================================ the divisions (side session "divisions", 5 Nov 2026) ============================================================
    js/w-divide.js, js/w-divide-ib.js, js/inh-uses.js and the films of the station pictures. A chromosome is drawn by

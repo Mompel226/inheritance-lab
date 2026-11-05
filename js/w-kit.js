@@ -107,6 +107,41 @@
     return { box: box, read: read, fig: fig, svg: svg, spec: spec, title: spec.title || title,
              pill: function (k, text, tone) { var p = read.querySelector('[data-k="' + k + '"]'), i = p.querySelector('i'); if (i.textContent !== text) i.textContent = text; p.className = cls + '__pill is-' + tone; } };
   }
+  /* the key under an animation is DRAWN: a small sample of each part, in its picture's own classes, beside its name (Daniel,
+     5 Nov 2026: "Why don't you show them instead of writing about them?"). A note { key: [[kind, name], …] } is one;
+     kind 'bases' takes its letters as a third item */
+  var SW = {
+    mum: '<path class="ak__rod ak--mum" d="M5 7H23"/>',
+    dad: '<path class="ak__rod ak--dad" d="M5 7H23"/>',
+    other: '<path class="ak__rod ak--other" d="M5 7H23"/>',
+    mix: '<path class="ak__rod ak--mum" d="M5 7H23"/><path class="ak__rod ak__butt ak--dad" d="M14 7H23"/>',
+    gene: '<path class="ak__rod ak--other" d="M5 7H23"/><path class="ak__band" d="M12 7H17"/>',
+    dnagene: '<path class="ak__dna" d="M1 4C8 4 8 10 14 10S20 4 27 4M1 10C8 10 8 4 14 4S20 10 27 10"/><path class="ak__band ak__glow" d="M8 7H20"/>',
+    dna: '<path class="ak__dna" d="M1 4C8 4 8 10 14 10S20 4 27 4M1 10C8 10 8 4 14 4S20 10 27 10"/>',
+    hist: '<path class="ak__dna" d="M0 7H28"/><circle class="zm__hist" cx="8" cy="7" r="4.6"/><circle class="zm__hist" cx="20" cy="7" r="4.6"/>',
+    strand: '<path class="ak__line ak--new" d="M3 7H25"/>',
+    mrna: '<path class="ak__line ak--mrna" d="M2 9C7 3 11 3 14 7S21 11 26 5"/>',
+    enz: '<ellipse class="zm__enz" cx="14" cy="7" rx="10" ry="5.6"/>',
+    fibre: '<path class="ak__fib" d="M3 7L25 2M3 7L25 7M3 7L25 12"/>',
+    vesicle: '<circle class="vesicle" cx="7" cy="7" r="2.6"/><circle class="vesicle" cx="14" cy="5" r="2.6"/><circle class="vesicle" cx="21" cy="8" r="2.6"/>',
+    cent: '<g transform="translate(14 7) scale(.72)"><circle class="cent__pcm" r="9"/><rect class="cent" x="-5.6" y="-4.6" width="9" height="3.6" rx="1"/><rect class="cent" x="2.4" y="-1.6" width="3.6" height="8.4" rx="1"/></g>',
+    mito: '<ellipse class="mito" cx="14" cy="7" rx="10" ry="5"/>',
+    chiasma: '<path class="ak__rod ak__thin ak--mum" d="M6 2L22 12"/><path class="ak__rod ak__thin ak--dad" d="M6 12L22 2"/><circle class="chiasma" cx="14" cy="7" r="5.6"/>',
+    cring: '<g class="cring"><circle cx="8" cy="7" r="3.2"/><circle cx="14" cy="7" r="3.2"/><circle cx="20" cy="7" r="3.2"/></g>',
+    rib: '<ellipse class="pt__ls" cx="14" cy="5.4" rx="10" ry="4.4"/><ellipse class="pt__ss" cx="14" cy="10.6" rx="7" ry="3"/>',
+    trna: '<path class="pt__trna" d="M8 1.5H20V6H16.5V12.5H11.5V6H8Z"/>',
+    aa: '<circle class="aa aa1" cx="6" cy="7" r="4"/><circle class="aa aa2" cx="14" cy="7" r="4"/><circle class="aa aa3" cx="22" cy="7" r="4"/>'
+  };
+  function keyOf(items) {
+    var ul = h('ul', 'figkey anikey');
+    ul.innerHTML = items.map(function (q) {
+      var sw = q[0] === 'bases' ? '<span class="ak__bases" aria-hidden="true">' + q[2].split('').map(function (b) { return '<i class="ak__b ak__b--' + b + '">' + b + '</i>'; }).join('') + '</span>'
+        : '<svg class="anikey__sw" viewBox="0 0 28 14" aria-hidden="true">' + SW[q[0]] + '</svg>';
+      return '<li>' + sw + L.esc(q[1]) + '</li>';
+    }).join('');
+    return ul;
+  }
+  function note(n) { return n.key ? keyOf(n.key) : h('p', 'widget__note' + (n[1] ? ' ' + n[1] : ''), n[0]); }
   function mount(S, sp, cls, notes, setLayout) {
     S.box.appendChild(sp.bar);
     var wrap = h('div', cls + '__wrap');
@@ -119,7 +154,7 @@
     S.fig.appendChild(sp.now);
     wrap.appendChild(left); wrap.appendChild(sp.list);
     S.box.appendChild(wrap);
-    notes.forEach(function (n) { S.box.appendChild(h('p', 'widget__note' + (n[1] ? ' ' + n[1] : ''), n[0])); });
+    notes.forEach(function (n) { S.box.appendChild(note(n)); });
     var lastD = 0, lastN = false;
     function fit() {
       var ww = wrap.getBoundingClientRect().width; if (!ww) return;
@@ -165,5 +200,5 @@
 
   global.WKit = { pinKey: pinKey, names: names, margins: margins, n1: n1, seg: seg, ease: ease, clamp01: clamp01, lerp: lerp, len: len, rng: rng, fitType: fitType,
                   readerClock: readerClock, readerFlow: readerFlow, readerSteps: readerSteps, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
-                  mount: mount, NS: NS };
+                  mount: mount, note: note, NS: NS };
 })(window);

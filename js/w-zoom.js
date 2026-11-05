@@ -52,8 +52,8 @@
     { h: 'Two identical molecules', p: 'The whole chromosome is copied in this way. The result is two identical molecules of DNA, each with one old strand and one new strand: the chromosome is now two identical copies.' },
     { h: 'Back in the nucleus', p: 'Back in the nucleus: each chromosome is now two identical threads, side by side, held together most firmly at one point. The cell is ready to divide.' },
     { h: 'Coiling into a cross', p: 'Each copy coils, again and again, until it is short and thick. The copies stay joined at one point, so the chromosome is now a cross. You see a cross only while a cell divides.' },
-    { h: 'Inside one copy', p: 'Enlarged: part of one copy. The same thread of DNA and proteins is folded into thousands of loops, packed tightly side by side.' },
-    { h: 'A pair, and two alleles', p: 'Chromosomes are in pairs: here, chromosome 9 from the mother and from the father. The **ABO gene** is at the same place on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one and Iᵒ on the other; both copies of a chromosome carry the same allele.' }
+    { h: 'Inside one copy', p: 'Enlarged: the end of the long arm of one copy. Its DNA and proteins are folded into thousands of loops. The ABO gene is in one of them, lit yellow: the yellow band on a drawing of a chromosome marks this place.' },
+    { h: 'A pair, and two alleles', p: 'Back to the whole pair: chromosome 9 from the mother and from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one and Iᵒ on the other; both copies carry the same allele.' }
   ];
   var M = [0, 7, 18, 30, 39, 49, 59, 69, 81, 92, 103, 114];
   var SEE = ['a body cell', 'its nucleus', 'DNA round proteins', 'a gene', 'part of the gene: its DNA', 'the DNA being copied', 'two identical molecules', 'the copied chromosomes', 'the chromosomes coiling', 'part of one copy', 'one pair'];
@@ -76,8 +76,8 @@
      followed, chromosome 9 from the mother and from the father (100 units: about 3 µm in this 10 µm picture, the size it
      has again in step 11); the next two another pair; the rest grey. */
   var TER = [
-    { who: 'mum', c: [110, 120], R: 50, n: 9, a: 0, x: 0, len: 100, w: 15 },
-    { who: 'dad', c: [236, 258], R: 50, n: 9, a: 35, x: 28, len: 100, w: 15 },
+    { who: 'mum', c: [110, 120], R: 50, n: 9, a: 0, x: 0, len: 100, w: 15, band: .9 },
+    { who: 'dad', c: [236, 258], R: 50, n: 9, a: 35, x: 28, len: 100, w: 15, band: .9 },
     { who: 'mum', c: [98, 262], R: 38, n: 7, a: -50, x: -40, len: 56, w: 11 },
     { who: 'dad', c: [240, 126], R: 38, n: 7, a: 70, x: 64, len: 56, w: 11 },
     { who: 'faint', c: [175, 64], R: 28, n: 4, a: 15, x: 80, len: 44, w: 9 },
@@ -98,7 +98,7 @@
   })();
   function nucleusFrame(t, kk, wd) {
     var out = D.envelope(CX, CY, 150, 168, 18);
-    TER.slice().reverse().forEach(function (T) { out += D.coiled(T, t * .5, kk, wd); });
+    TER.slice().reverse().forEach(function (T) { out += D.coiled(T, t * .5, kk, wd, T.band ? { band: T.band } : null); });
     return out;
   }
   function threadAt(T, t) { return D.territory(T, t * .5); }
@@ -128,7 +128,7 @@
     });
     out += D.envelope(NU1[0], NU1[1], NU1[2], NU1[3], 10);
     out += '<g transform="translate(' + NU1[0] + ' ' + NU1[1] + ') scale(' + n1(1000 / Z1) / 1000 + ') translate(' + (-CX) + ' ' + (-CY) + ')">';
-    TER.slice().reverse().forEach(function (T) { out += D.coiled(T, t * .5, -1, 2.4); });
+    TER.slice().reverse().forEach(function (T) { out += D.coiled(T, t * .5, -1, 2.4, T.band ? { band: T.band } : null); });
     return out + '</g>';
   }
   function labels1() {
@@ -263,32 +263,42 @@
   }
   function labels9(t) {
     if (coilK(t) < .99) return [];
-    var rd = D.crossRod(TER[0], 0), f = D.crossRod(TER[1], 1), cen = rd.cen;
+    var rd = D.crossRod(TER[0], 0), f = D.crossRod(TER[1], 1), cen = rd.cen, abo = D.rodAt(rd, .9);
     return [{ id: 'x', text: 'chromosome 9 from the mother: a cross of two identical copies', x: rd.top[0], y: rd.top[1], side: 'L' },
             { id: 'cen', text: 'the copies, joined at one point', x: cen[0], y: cen[1] - TER[0].w * .42, side: 'T' },
+            { id: 'abo', text: 'the ABO gene, at the same place on both copies', x: abo[0] - TER[0].w * .45, y: abo[1], side: 'L' },
             { id: 'f9', text: 'chromosome 9 from the father, a cross too', x: f.bot[0], y: f.bot[1], side: 'R' }];
   }
 
-  /* ---------- step 10: part of one copy, its DNA and proteins in loops ---------- */
-  var ARM = D.CROSS.arm, AX8 = [-Math.sin(ARM), -Math.cos(ARM)], NX8 = [Math.cos(ARM), -Math.sin(ARM)];
+  /* ---------- step 10: the end of the long arm of one copy, its DNA and proteins in loops, one loop the ABO gene ----------
+     (Daniel, 5 Nov 2026: "when you zoom in inside one copy, you could actually highlight the gene, the blood group gene,
+     and then when you go back … that's why you identify in simple diagrams the location of a gene in that section with
+     that band"). The view is the copy's long arm at .93 of its length, its rounded end in the picture; the arm runs
+     along AX10 (towards its end), as in step 9; the ABO gene (.9) is one loop, 40 units back from the middle. */
+  var ARM = D.CROSS.arm, AX10 = [-Math.sin(ARM), Math.cos(ARM)], NX10 = [Math.cos(ARM), Math.sin(ARM)], F10 = .93, TIP = 196, GENE10 = -4;
   var LOOPS = (function () {
     var R = K.rng(29), out = [];
-    for (var i = -26; i <= 26; i++) for (var sd = -1; sd <= 1; sd += 2)
-      out.push({ i: i, sd: sd, s: i * 9 + sd * 2.2 + (R() - .5) * 3, len: 82 + R() * 30, wid: 7 + R() * 5, tilt: (R() - .5) * .45, back: R() < .4, ph: R() * 6 });
+    for (var i = -30; i * 9 <= TIP - 22; i++) for (var sd = -1; sd <= 1; sd += 2) {
+      /* near the end the loops fan round it, so the arm ends rounded */
+      var sv = i * 9 + sd * 2.2 + (R() - .5) * 3, f = Math.max(0, Math.min(1, (sv - (TIP - 90)) / 90)), fan = f * f * (3 - 2 * f);
+      out.push({ i: i, sd: sd, s: sv, len: (82 + R() * 30) * (1 - .4 * fan), wid: 7 + R() * 5, tilt: (R() - .5) * .45 + sd * fan * 1.25, back: R() < .4, gene: i === GENE10 && sd === 1 });
+    }
     return out;
   })();
-  function loopGeo(q, t) {
-    var ang = q.tilt + .05 * Math.sin(t * .8 + q.ph), d = rot([NX8[0] * q.sd, NX8[1] * q.sd], ang), b = [CX + AX8[0] * q.s, CY + AX8[1] * q.s];
+  function loopGeo(q) {
+    var d = rot([NX10[0] * q.sd, NX10[1] * q.sd], q.tilt), b = [CX + AX10[0] * q.s, CY + AX10[1] * q.s];
     return { b: b, d: d, tip: [b[0] + d[0] * q.len, b[1] + d[1] * q.len] };
   }
-  function frame10(t) {
-    var back = '', front = '', beads = '';
+  function frame10() {
+    var back = '', front = '', beads = '', gene = '';
     LOOPS.forEach(function (q) {
-      var g = loopGeo(q, t), b = g.b, d = g.d, Lq = q.len, w = q.wid, a = AX8;
+      var g = loopGeo(q), b = g.b, d = g.d, Lq = q.len, w = q.wid, a = AX10;
       function P(u, v) { return [b[0] + d[0] * u + a[0] * v, b[1] + d[1] * u + a[1] * v]; }
       function s(p) { return n1(p[0]) + ' ' + n1(p[1]); }
       var c1 = [P(0, -2.5), P(Lq * .3, -w), P(Lq * .96, -w * .9), P(Lq, 0)], c2 = [P(Lq, 0), P(Lq * .96, w * .9), P(Lq * .3, w), P(0, 2.5)];
-      var path = '<path class="zm__loop' + (q.back ? ' zm__loop--b' : '') + '" d="M' + s(c1[0]) + ' C' + s(c1[1]) + ' ' + s(c1[2]) + ' ' + s(c1[3]) + ' C' + s(c2[1]) + ' ' + s(c2[2]) + ' ' + s(c2[3]) + '"/>';
+      var d0 = 'M' + s(c1[0]) + ' C' + s(c1[1]) + ' ' + s(c1[2]) + ' ' + s(c1[3]) + ' C' + s(c2[1]) + ' ' + s(c2[2]) + ' ' + s(c2[3]);
+      if (q.gene) { gene = '<path class="zm__loop zm__loop--gene" d="' + d0 + '"/>'; return; }
+      var path = '<path class="zm__loop' + (q.back ? ' zm__loop--b' : '') + '" d="' + d0 + '"/>';
       if (q.back) { back += path; return; }
       front += path;
       /* the beads of step 3 along each loop: the same DNA, wound round the same proteins */
@@ -299,20 +309,23 @@
         }
       });
     });
-    return NUCL + back + '<path class="zm__axis" d="M' + n1(CX - AX8[0] * 260) + ' ' + n1(CY - AX8[1] * 260) + ' L' + n1(CX + AX8[0] * 260) + ' ' + n1(CY + AX8[1] * 260) + '"/>' + front + beads;
+    return NUCL + back + '<path class="zm__axis" d="M' + n1(CX - AX10[0] * 260) + ' ' + n1(CY - AX10[1] * 260) + ' L' + n1(CX + AX10[0] * (TIP - 40)) + ' ' + n1(CY + AX10[1] * (TIP - 40)) + '"/>' + front + beads + gene;
   }
   function loopAt(i, sd) { return LOOPS.filter(function (q) { return q.i === i && q.sd === sd; })[0]; }
-  function labels10(t) {
-    var a = loopGeo(loopAt(-9, 1), t).tip, b = loopGeo(loopAt(6, -1), t).tip;
-    return [{ id: 'cop', text: 'one copy (IB: a chromatid)', x: a[0], y: a[1], side: 'R' }, { id: 'loop', text: 'its DNA and proteins, folded into loops', x: b[0], y: b[1], side: 'L' }];
+  function labels10() {
+    var l = loopGeo(loopAt(4, -1)).tip, g = loopGeo(loopAt(GENE10, 1)).tip, c = loopGeo(loopAt(-17, 1)).tip;
+    return [{ id: 'cop', text: 'one copy (IB: a chromatid)', x: c[0], y: c[1], side: 'T' },
+            { id: 'loop', text: 'its DNA and proteins, folded into loops', x: l[0], y: l[1], side: 'L' },
+            { id: 'abo', text: 'the ABO gene: in one loop', x: g[0], y: g[1], side: 'R' },
+            { id: 'end', text: 'the end of the long arm', x: CX + AX10[0] * (TIP - 6), y: CY + AX10[1] * (TIP - 6), side: 'B' }];
   }
 
   /* ---------- step 11: the pair, and two alleles ---------- */
   /* chromosome 9, about 3 µm long (as in steps 8 and 9): the ABO gene near the end of its long arm (9q34), its allele
      printed on the band of both copies (17.4.15) */
   var C9 = { len: 230, w: 26, spread: .7, y: 190, band: .9 }, TH9 = 24 * C9.spread * PI / 180;
-  function band(x, c) {
-    var r = C9.w / 2, off = r * .55 + C9.spread * r * .15, l = (C9.band - D.CROSS.cen) * C9.len, sg = c ? 1 : -1;
+  function band(x, c, f) {
+    var r = C9.w / 2, off = r * .55 + C9.spread * r * .15, l = ((f == null ? C9.band : f) - D.CROSS.cen) * C9.len, sg = c ? 1 : -1;
     return [x + sg * (off + l * Math.sin(TH9)), C9.y + (D.CROSS.cen - .5) * C9.len + l * Math.cos(TH9)];
   }
   function upArm(x, c, f) {
@@ -353,8 +366,8 @@
     null, null,
     { z: 47, out: true, tz: TZ8, F: function () { var m = D.territoryMid(TER[0], M[7] * .5); return { p: m.p, ang: m.ang }; } },
     null,
-    { z: 15.5, F: function () { var rd = D.crossRod(TER[0], 0); return { p: mix(rd.p0, rd.top, .5), ang: 0 }; } },
-    { z: 8.8, out: true, F: function () { return { p: upArm(96, 0, .5), ang: (ARM - TH9) }; } }];
+    { z: 15.5, F: function () { return { p: D.rodAt(D.crossRod(TER[0], 0), F10), ang: 0 }; } },
+    { z: 9.9, out: true, F: function () { return { p: band(96, 0, F10), ang: -(ARM - TH9) }; } }];
   function grp(svg, P, a, s, Q, o) {
     return '<g' + op(o) + ' transform="translate(' + n1(P[0]) + ' ' + n1(P[1]) + ') rotate(' + n1(a * 180 / PI) + ') scale(' + Math.round(s * 10000) / 10000 + ') translate(' + n1(-Q[0]) + ' ' + n1(-Q[1]) + ')">' + svg + '</g>';
   }
@@ -363,7 +376,8 @@
     var Z = ZM[k], e = Z ? ease(seg(t, M[k], M[k] + (Z.tz || TZ))) : 1, cur = FR[k](t);
     if (e >= 1) return { k: k, e: 1, svg: cur };
     var f = Z.F(), F = f.p, a = f.ang || 0, prev = FR[k - 1](M[k] - .001), P, svg;
-    if (Z.out) { P = mix([CX, CY], F, e); svg = grp(cur, P, -a * (1 - e), Math.pow(Z.z, 1 - e), F, seg(e, .4, .8)) + grp(prev, P, a * e, Math.pow(Z.z, -e), [CX, CY], 1 - seg(e, .5, .88)); }
+    /* going out, the wider picture comes in early round the shrinking old one, so the part is seen to be in it */
+    if (Z.out) { P = mix([CX, CY], F, e); svg = grp(cur, P, -a * (1 - e), Math.pow(Z.z, 1 - e), F, seg(e, .25, .65)) + grp(prev, P, a * e, Math.pow(Z.z, -e), [CX, CY], 1 - seg(e, .5, .88)); }
     /* going in, the old picture stays until its part has filled the view (so the beads slide out past the edges before
        the helix shows), and the new one comes in late */
     else { P = mix(F, [CX, CY], e); svg = grp(prev, P, -a * e, Math.pow(Z.z, e), F, 1 - seg(e, .62, .95)) + grp(cur, P, a * (1 - e), Math.pow(Z.z, e - 1), [CX, CY], seg(e, .55, .9)); }
@@ -419,10 +433,11 @@
       S.pill('see', SEE[sc.k], 'ok'); S.pill('size', SIZE[sc.k], 'ok');
     }
     var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });
-    /* the notes stay short: two lines (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text") */
+    /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
+       "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'zm', [
-      ['Key: orange, from the mother · blue, from the father · grey, other chromosomes · pink, proteins · yellow, a gene · violet, a new strand · green, enzymes. Bases: A blue, T red, C yellow, G green.'],
-      ['Sizes are real; colours are not.']
+      { key: [['mum', 'from the mother'], ['dad', 'from the father'], ['other', 'other chromosomes'], ['gene', 'a gene'],
+              ['hist', 'proteins (IB: histones)'], ['strand', 'a new strand'], ['enz', 'enzymes'], ['bases', 'the four bases', 'ATCG']] }
     ], function (Dw, nar) {
       narrow = nar;
       lay = frameOf(svg, bg, model, cr, Dw, nar);

@@ -920,11 +920,11 @@
     }
     var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, 1) });
     S.box.__end = R[R.length - 1];
-    /* the notes stay short: a key and one line (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so
-       much text") */
+    /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
+       "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'pt', [
-      ['Key: grey, DNA · bases A blue, T red, C yellow, G green, U orange (RNA only) · yellow, the gene · pink, proteins DNA is wound round · rose, mRNA · green, the enzyme · pale green, mitochondria · brown, a ribosome · lavender, small RNAs (IB: tRNA) · circles, amino acids.'],
-      ['Sizes are real; colours are not; the motion is slowed.']
+      { key: [['dna', 'DNA'], ['bases', 'the bases (U: in RNA only)', 'ATCGU'], ['dnagene', 'the gene'], ['hist', 'proteins DNA is wound round'],
+              ['mrna', 'mRNA'], ['enz', 'the enzyme'], ['mito', 'mitochondria'], ['rib', 'a ribosome'], ['trna', 'small RNAs (IB: tRNA)'], ['aa', 'amino acids']] }
     ], function (Dw, nar) {
       narrow = nar; lay = frameOf(svg, bg, model, cr, Dw, nar);
     });

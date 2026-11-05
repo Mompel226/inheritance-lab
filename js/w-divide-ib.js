@@ -117,12 +117,9 @@
       narrow = nar; var m = K.margins(nar, 15, 15, 90, 90);
       lay = K.frameOf(svg, bg, model, cr, { x0: 0, x1: W, y0: 0, y1: H }, false, Dw, m[0], m[1], m[2], m[3], 14.5);
     });
-    /* the long key and the guide's statements fold away under one closed line, as in the Immunity Lab (Daniel, 4 Nov
-       2026: "this text is extremely long. It distracts from … the step-by-step") */
-    var d = document.createElement('details'); d.className = 'dvnote';
-    d.innerHTML = '<summary>The key, and what the IB Biology guide asks</summary>' +
-      notes.map(function (n) { return '<p class="widget__note' + (n[1] ? ' ' + n[1] : '') + '">' + n[0] + '</p>'; }).join('');
-    box.appendChild(d);
+    /* under it the key, drawn, and the guide's statements in one line (Daniel, 4 Nov 2026: "this text is extremely long.
+       It distracts from … the step-by-step"; 5 Nov: "Why don't you show them instead of writing about them?") */
+    notes.forEach(function (n) { box.appendChild(K.note(n)); });
     return box;
   }
   function stepOf(M, t) { var k = 0; for (var i = 0; i < M.length - 1; i++) if (t >= M[i] - 1e-6) k = i; return k; }
@@ -254,7 +251,8 @@
   function mitosisIB(spec) {
     return widget(spec, 'Mitosis in detail (IB)', 'An animal cell with four chromosomes goes through G1, S, G2, prophase, metaphase, anaphase, telophase and cytokinesis.',
       MS, MM, W1, H1, mitIB, mitIBLabels, mitIBPills, [
-        ['Key: orange, from the mother · blue, from the father · yellow, a gene · grey lines, spindle microtubules · small L, centrioles · green, mitochondria · pink, histones · violet dots, nuclear membrane vesicles · red dots, the actin–myosin ring.'],
+        { key: [['mum', 'from the mother'], ['dad', 'from the father'], ['gene', 'a gene'], ['fibre', 'spindle microtubules'], ['cent', 'centrioles'],
+                ['mito', 'mitochondria'], ['hist', 'histones'], ['vesicle', 'nuclear membrane vesicles'], ['cring', 'the actin–myosin ring']] },
         ['IB guide: D2.1.2, D2.1.5–D2.1.7, D2.1.13–D2.1.14 (HL), A2.2.8, B2.2.6 (HL).', 'widget__note--ib']
       ]);
   }
@@ -437,7 +435,8 @@
   function meiosisIB(spec) {
     return widget(spec, 'Meiosis in detail (IB)', 'An animal cell with two homologous pairs goes through both divisions of meiosis, with crossing over and random orientation, to four haploid cells.',
       ES, EM, W2, H2, meiIB, meiIBLabels, meiIBPills, [
-        ['Key: orange, from the mother · blue, from the father (two colours: crossed over) · yellow, a gene · grey lines, spindle microtubules · small L, centrioles · dashed ring, a chiasma · violet dots, nuclear membrane vesicles · red dots, the actin–myosin ring.'],
+        { key: [['mum', 'from the mother'], ['dad', 'from the father'], ['mix', 'crossed over'], ['gene', 'a gene'], ['fibre', 'spindle microtubules'],
+                ['cent', 'centrioles'], ['chiasma', 'a chiasma'], ['vesicle', 'nuclear membrane vesicles'], ['cring', 'the actin–myosin ring']] },
         ['IB guide: D2.1.2, D2.1.5, D2.1.6, D2.1.9, D2.1.11.', 'widget__note--ib']
       ]);
   }
