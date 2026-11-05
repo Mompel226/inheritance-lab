@@ -13,7 +13,7 @@
 
    THE BIOLOGY, checked for every cross the trainer can make: the gametes are the parent's two alleles, one each; each box
    is one gamete from each parent; for a sex-linked gene the Y carries no allele, and a male's X comes from his mother; Iᴬ
-   and Iᴮ are codominant and both dominant to Iᵒ; a ratio is a likelihood, so the trainer asks for a chance or a ratio,
+   and Iᴮ are codominant and both dominant to Iᵒ; a ratio is an expected ratio (a probability), so the trainer asks for a chance or a ratio,
    never a count. KEPT PRIVATE (the master's header): no mice, tigers, fur or cystic fibrosis; no ABO cross IᴬIᴮ × IᵒIᵒ or
    IᴬIᵒ × IᴮIᵒ; no colour-blindness cross of a carrier woman and a man with normal colour vision.
    ============================================================ */
@@ -54,15 +54,15 @@
   var CB = { D: 'B', r: 'b', normal: 'normal colour vision', has: 'colour-blind' };
   var WORKED = {
     sex:      { title: 'The sex of a child', gene: XY, pp: ['a woman', 'a man'], pg: ['XX', 'XY'],
-                end: 'Half the boxes are girls and half are boys: for each child, a <b>50 %</b> chance of a boy. A likelihood, not a count: a family may have three girls.' },
+                end: 'Half the boxes are girls and half are boys: for each child, a <b>50 %</b> chance of a boy. An expected ratio (a probability), not an exact count: a family may have three girls.' },
     peas31:   { title: 'Two heterozygous pea plants', gene: domGene(PEA), pp: ['round seeds', 'round seeds'], pg: ['Rr', 'Rr'],
                 end: '<b>3 round : 1 wrinkled</b>. Each seed has a 3 in 4 chance, 75 %, of being round: count 40 seeds from the pods and about 30 are round, rarely exactly 30.' },
     peas11:   { title: 'Heterozygous × homozygous recessive', gene: domGene(PEA), pp: ['round seeds', 'wrinkled seeds'], pg: ['Rr', 'rr'],
                 end: '<b>1 round : 1 wrinkled</b>. Each seed has a 50 % chance of being wrinkled.' },
-    testRR:   { title: 'A test cross: if the round plant is RR', gene: domGene(PEA), pp: ['round seeds (genotype not known)', 'wrinkled seeds'], pg: ['RR', 'rr'],
-                end: 'Every offspring is Rr: <b>all round</b>. Every gamete of the RR parent carries R.' },
-    testRr:   { title: 'A test cross: if the round plant is Rr', gene: domGene(PEA), pp: ['round seeds (genotype not known)', 'wrinkled seeds'], pg: ['Rr', 'rr'],
-                end: '<b>1 round : 1 wrinkled</b>. A single wrinkled offspring shows that the round parent is heterozygous.' },
+    testRR:   { title: 'A test cross: if the round plant is RR', gene: domGene(PEA), pp: ['round seeds (genotype not known)', 'wrinkled seeds (homozygous recessive)'], pg: ['RR', 'rr'],
+                end: 'Every offspring is Rr: <b>all round</b>. Every gamete of the RR parent carries R. So if all the offspring are round, the round parent is <b>RR, homozygous dominant</b>.' },
+    testRr:   { title: 'A test cross: if the round plant is Rr', gene: domGene(PEA), pp: ['round seeds (genotype not known)', 'wrinkled seeds (homozygous recessive)'], pg: ['Rr', 'rr'],
+                end: '<b>1 round : 1 wrinkled</b>. So if any offspring is wrinkled, the round parent is <b>Rr, heterozygous</b>: a single wrinkled offspring shows it.' },
     aAB:      { title: 'Blood group A × blood group AB', gene: ABO, pp: ['blood group A', 'blood group AB'], pg: ['IᴬIᴬ', 'IᴬIᴮ'],
                 end: '<b>1 blood group A : 1 blood group AB</b>. The AB children show codominance: both alleles contribute to the phenotype.' },
     cbCarrier: { title: 'A carrier woman × a colour-blind man', gene: sexGene(CB), pp: ['normal colour vision (a carrier)', 'colour-blind'], pg: ['XᴮXᵇ', 'XᵇY'],
@@ -81,7 +81,7 @@
     var c = WORKED[spec.cross]; if (!c) return h('div');
     var X = solve(c);
     var STEPS = [
-      { t: 0,  h: 'The parents’ phenotypes', p: 'The first line: what each parent is like, its **phenotype**.' },
+      { t: 0,  h: 'The parents’ phenotypes', p: 'The first line: each parent’s **phenotype**, its observable features.' },
       c.gene.kind === 'xy' ? { t: 6, h: 'The parents’ sex chromosomes', p: 'Under each phenotype, its **sex chromosomes**: XX for a woman, XY for a man.' }
         : c.gene.kind === 'sex' ? { t: 6, h: 'The parents’ genotypes', p: 'Under each phenotype, its **genotype**: the allele on each X chromosome. The Y carries none.' }
         : { t: 6, h: 'The parents’ genotypes', p: 'Under each phenotype, its **genotype**: two alleles, one on each chromosome of the pair.' },
@@ -91,7 +91,7 @@
       { t: 19, h: 'The Punnett square', p: 'One parent’s gametes along the top, the other’s down the side.' },
       { t: 25, h: 'The offspring’s genotypes', p: 'Each box: the gamete above it and the gamete beside it. Every box is equally likely.' },
       { t: 32, h: 'The offspring’s phenotypes', p: 'Under each genotype, its **phenotype**.' },
-      { t: 38, h: 'The ratio', p: 'The ratio, with the phenotypes named: a **likelihood**, not a count.' }
+      { t: 38, h: 'The ratio', p: 'The ratio, with the phenotypes named: an **expected ratio** (a probability), not an exact count.' }
     ];
     var M = [0, 6, 12, 19, 25, 32, 38, 46];
     var box = h('div', 'widget wx');

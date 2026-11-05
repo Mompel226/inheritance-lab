@@ -35,6 +35,12 @@
     return e;
   }
   function h(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  /* how many lines a label takes once it wraps at W letters, the way CircLearn.labels wraps it */
+  function linesAt(text, W) {
+    var cap = W * 0.56 / 0.52, n = 1, cur = '';
+    String(text).split(' ').forEach(function (wd) { var tr = cur ? cur + ' ' + wd : wd; if (tr.length > cap && cur) { n++; cur = wd; } else cur = tr; });
+    return n;
+  }
   /* the longest line of a label once it wraps at W letters, the way CircLearn.labels wraps it */
   function lineMax(text, W) {
     var cap = W * 0.56 / 0.52, n = 0, cur = '';
@@ -155,6 +161,23 @@
       }
       var s = sizes(W0);
       for (var W = W1; W > W0; W--) { var t = sizes(W); if (t.roomy) { s = t; break; } }
+      /* names too tall to stand level beside their own parts (two neighbours taller than the room between their parts, or a
+         name past the picture's edge: their lines would bend) wrap wider, up to 26 letters, until they fit (5 Nov 2026,
+         gene expression's five genes); a name that may move along its part (`alts`) is left to the rows */
+      function tooTall(t) {
+        return ['L', 'R'].some(function (sd) {
+          var ns = side.filter(function (p) { return sideOf(M, p) === sd; }).sort(function (a, b) { return m.pts[a][1] - m.pts[b][1]; });
+          if (ns.some(function (p) { return (m.alts || {})[p] && m.alts[p].length; })) return false;
+          var hh = ns.map(function (p) { return linesAt(nameOf(p), t.W) * t.f * 1.18; }), top = m.y0 || 0;
+          for (var i = 0; i < ns.length; i++) {
+            var y = m.pts[ns[i]][1];
+            if (y - hh[i] / 2 < top - 1 || y + hh[i] / 2 > top + m.h + 1) return true;
+            if (i && (hh[i - 1] + hh[i]) / 2 + t.f * .3 > y - m.pts[ns[i - 1]][1]) return true;
+          }
+          return false;
+        });
+      }
+      while (tooTall(s) && s.W < 26) s = sizes(s.W + 1);
       M.wrap = s.W;
       /* words in the margins would leave the picture under 60 % of the width (a wide micrograph, or a photograph on a
          phone): numbered pins in narrow margins and a key under the picture instead (8 Oct 2026 review: the electron
@@ -196,7 +219,8 @@
       var bandPx = (nbT + nbB) * (1.44 * PX + 8);
       var KW = keys.reduce(function (n, p) { return Math.max(n, labelOf(m, p).split(' ').reduce(function (k, w) { return Math.max(k, w.length); }, 0)); }, 12);
       var lines = keys.map(function (p) { return wrapWords(labelOf(m, p), KW); });
-      var itemW = PX * (1.64 + 0.56 * lines.reduce(function (n, ls) { return Math.max(n, ls.reduce(function (k, l) { return Math.max(k, l.length); }, 0)); }, 0));
+      /* 0.6 of a letter's size a letter, as the margins count it: "chromosomes," is wider than the average */
+      var itemW = PX * (1.64 + 0.6 * lines.reduce(function (n, ls) { return Math.max(n, ls.reduce(function (k, l) { return Math.max(k, l.length); }, 0)); }, 0));
       function colH(ls) { return ls.reduce(function (h, x, i) { return h + x.length * lh + (i ? gap : 0); }, 0); }
       var sidesPx = (nl ? 18.7 : 0) + (nr ? 18.7 : 0), sidesU = (nl ? 16 : 10) + (nr ? 16 : 10);
       var best = null, hB = colH(lines);
@@ -210,6 +234,10 @@
         var per = Math.ceil(lines.length / cols);
         var hh = colH(lines.slice().sort(function (x, y) { return y.length - x.length; }).slice(0, per));
         var pp = Math.min((r.width - sidesPx) / (m.w + sidesU), (r.height - hh - PX - (m.heads ? PX * 1.7 : 0) - bandPx) / (m.h + 20));
+        /* the key's columns share the picture's width, not the stage's: when the picture is limited by the height, its frame is
+           narrower than the stage, and two columns of long names would overlap (5 Nov 2026, the meiosis picture at 320 px) */
+        var fp = PX / pp, vwPx = (m.w + (nl ? 16 + 1.44 * fp : 10) + (nr ? 16 + 1.44 * fp : 10)) * pp;
+        if (cols * itemW > vwPx) return;
         if (pp > 0 && (!best || pp > best.p)) best = { p: pp, where: 'below', cols: cols, h: hh };
       });
       if (!best || best.p < pLab * gain) return false;   /* words beside the parts teach the names best: pins only when they make the picture far larger */
@@ -276,8 +304,8 @@
       if (M.pins) {
         var pl = global.CircLearn.pinLabels({ items: items, left: (m.x0 || 0) - 4, right: (m.x0 || 0) + m.w + 4, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.25,
           bandT: bd.T, bandB: bd.B, bandL: bd.L, bandR: bd.R });
-        var idOf = {}; items.forEach(function (i) { idOf[i.text] = i.id; });
-        M.labG.innerHTML = pl.svg + pinKey(M, pl.order.map(function (o) { return { n: o.n, text: o.text, cls: o.cls, id: idOf[o.text] }; }));
+        /* each key entry opens its own part's card: by its id, never by its words (two rods share "divided: two single lines") */
+        M.labG.innerHTML = pl.svg + pinKey(M, pl.order.map(function (o) { return { n: o.n, text: o.text, cls: o.cls, id: o.id }; }));
       }
       if (m.heads) M.labG.innerHTML += m.heads.map(function (hd) {
         var hy = hd.y != null ? hd.y : (m.y0 || 0) - f * 0.55;

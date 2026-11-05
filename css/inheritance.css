@@ -372,6 +372,9 @@ p,li,dd,figcaption{text-wrap:pretty}
 .zm__tick{stroke:var(--card-2);stroke-width:1.6;stroke-linecap:round}
 .zm__hist{fill:var(--histone);stroke:var(--histone-edge);stroke-width:1.2}
 .zm__histl{fill:var(--histone-2);fill-opacity:.85}
+.zm__bead{fill:var(--histone);stroke:var(--histone-edge);stroke-width:.6}
+.zm__far{fill:var(--card-2)} .zm__cyto{fill:var(--cell-fill)} .zm__nucl{fill:var(--nuc-fill)}
+.al.al--band{fill:var(--gene-ink);font-size:15px}
 .dna__s{fill:none;stroke:var(--shade);stroke-width:3;stroke-linecap:round}
 .dna__b{stroke-width:3.2;stroke-linecap:round}
 .dna__b--A,.dna__fill--A{stroke:var(--dna-a);fill:var(--dna-a)} .dna__b--T,.dna__fill--T{stroke:var(--dna-b);fill:var(--dna-b)}
@@ -545,10 +548,123 @@ p,li,dd,figcaption{text-wrap:pretty}
 .dvnote summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .dvnote p{margin:8px 0 0}
 
+/* ============================================================ the divisions (side session "divisions", 5 Nov 2026) ============================================================
+   js/w-divide.js, js/w-divide-ib.js, js/inh-uses.js and the films of the station pictures. A chromosome is drawn by
+   InhDraw.coiled everywhere (the zoom's own look); these add its gene (a yellow length of the thread, a yellow band across
+   the cross) and the envelope breaking into pieces. Fades use the opacity attribute: stroke- and fill-opacity only here */
+.thr--gene{stroke:var(--gene)}
+.zm__arm--gene{stroke:var(--gene);stroke-linecap:butt}
+/* a copy bent sharply (a V, pulled by its joining point) keeps a round bend, never a spike */
+.zm__arm{stroke-linejoin:round}
+.nucpc{fill:none;stroke:var(--nuc-edge);stroke-width:1.8;stroke-linecap:round}
+.nucpc--in{stroke-width:1;stroke-opacity:.6}
+/* "What mitosis is for" (js/inh-uses.js): an embryo's clear coat, an old cell, a stem cell, red and white blood cells, a plant.
+   Every colour keyed under the picture (station `uses`), in the bright and the dark version */
+:root{ --stem-fill:#FCEFC7; --stem-edge:#A16207; --rbc:#D64545; --rbc-edge:#9B2C2C; --rbc-2:#F2A5A0; --wbc:#EEF2F7; --wbc-edge:#64748B;
+  --old-fill:#D9D4CB; --old-edge:#8A8578; --leaf:#4C9A45; --leaf-edge:#2E6B2A; --root:#8A6A3D; --coat:#8FA3B8 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --stem-fill:#3A3020; --stem-edge:#E0B45A; --rbc:#E2635E; --rbc-edge:#F3A19C; --rbc-2:#8E3532;
+  --wbc:#2B3440; --wbc-edge:#A9B6C6; --old-fill:#3A3732; --old-edge:#8E877A; --leaf:#5FB357; --leaf-edge:#A3D99B; --root:#C9A574; --coat:#7F93A8 } }
+:root[data-theme="dark"]{ --stem-fill:#3A3020; --stem-edge:#E0B45A; --rbc:#E2635E; --rbc-edge:#F3A19C; --rbc-2:#8E3532;
+  --wbc:#2B3440; --wbc-edge:#A9B6C6; --old-fill:#3A3732; --old-edge:#8E877A; --leaf:#5FB357; --leaf-edge:#A3D99B; --root:#C9A574; --coat:#7F93A8 }
+.coat{fill:none;stroke:var(--coat);stroke-width:5;stroke-opacity:.55}
+.cellb.cellb--stem{fill:var(--stem-fill);stroke:var(--stem-edge)}
+.cellb.cellb--old{fill:var(--old-fill);stroke:var(--old-edge)}
+.cellb.cellb--rbc{fill:var(--rbc);stroke:var(--rbc-edge)} .rbc__in{fill:var(--rbc-2)}
+.cellb.cellb--wbc{fill:var(--wbc);stroke:var(--wbc-edge)}
+.leafs{fill:var(--leaf);stroke:var(--leaf-edge);stroke-width:1}
+.stalk,.runner{fill:none;stroke:var(--leaf-edge);stroke-width:2;stroke-linecap:round}
+.root{fill:none;stroke:var(--root);stroke-width:1.6;stroke-linecap:round}
+.soil{fill:none;stroke:var(--root);stroke-width:2.4;stroke-linecap:round}
+.tissue{fill:none;stroke:var(--grey);stroke-width:2;stroke-linecap:round}
+.sw--coat{background:var(--coat)} .sw--stem{background:var(--stem-fill);border:1.5px solid var(--stem-edge)} .sw--old{background:var(--old-fill);border:1.5px solid var(--old-edge)}
+.sw--rbc{background:var(--rbc)} .sw--wbc{background:var(--wbc);border:1.5px solid var(--wbc-edge)} .sw--leaf{background:var(--leaf)} .sw--cell{background:var(--cell-fill);border:1.5px solid var(--cell-edge)}
+/* another person's chromosomes (the egg cell's, at fertilisation): solid grey, never the faint grey of "other chromosomes of
+   this cell"; a sperm cell's tail; the spindle's swatch */
+:root{ --other:#6B7280 } @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --other:#AEB6C2 } } :root[data-theme="dark"]{ --other:#AEB6C2 }
+.thr--other{stroke:var(--other)} .zm__arm--other{stroke:var(--other)} .ch--other{fill:var(--other)}
+.tail{fill:none;stroke:var(--cell-edge);stroke-width:2;stroke-linecap:round}
+.sw--other{background:var(--other)} .sw--fibre{background:linear-gradient(transparent 44%,var(--grey) 44% 56%,transparent 56%);border:none}
+/* "What mitosis is for" (js/inh-uses.js): its cells are a few pixels across, so their outlines and membranes are drawn
+   thinner than in the large animations, in proportion (the audit, 5 Nov 2026) */
+[data-film="uses"] .cellb{stroke-width:1.2}
+[data-film="uses"] .nucb{stroke-width:.8}
+[data-film="uses"] .zm__env{stroke-width:.5}
+[data-film="uses"] .nucpc{stroke-width:.8}
+[data-film="uses"] .nucpc--in{stroke-width:.5}
+/* ---------- end of the divisions' block ---------- */
+/* ---------- "How a protein is made" (js/w-protein.js): its own colours and drawings ----------
+   U, the base only RNA has; tRNA; the ribosome's two parts (their RNA darker, their proteins lighter); the nuclear pore's
+   proteins; the two membranes round the nucleus and the space between them; the letters on the bases. The cell, nucleus,
+   chromosomes, DNA and enzymes keep w-zoom's colours (one drawing for one thing in every animation). Parts fade by their
+   opacity attribute, so nothing here sets a CSS opacity. */
+:root{
+  --pt-u:#E07B00; --pt-trna:#6D28D9; --pt-trna-tint:#EDE4FB; --pt-npc:#4B6584; --pt-lum:#E4DAF2;
+  --pt-rib:#D9C2A0; --pt-rib-rna:#6B4F2A; --pt-rib-pro:#BFA27A; --pt-tun:#F3E9DA; --pt-cod-0:#FFF1B8; --pt-cod-1:#DCEBFF;
+  --pt-lt-light:#FFFFFF; --pt-lt-dark:#1A1A1A; --pt-bond:#C2410C;
+}
+@media (prefers-color-scheme: dark){
+:root:not([data-theme="light"]){
+  --pt-u:#FDBA74; --pt-trna:#C4B5FD; --pt-trna-tint:#2C2142; --pt-npc:#9FB3CC; --pt-lum:#2F2740;
+  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-pro:#8A7150; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
+  --pt-lt-light:#0A141C; --pt-lt-dark:#0A141C; --pt-bond:#FB923C;
+}
+}
+:root[data-theme="dark"]{
+  --pt-u:#FDBA74; --pt-trna:#C4B5FD; --pt-trna-tint:#2C2142; --pt-npc:#9FB3CC; --pt-lum:#2F2740;
+  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-pro:#8A7150; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
+  --pt-lt-light:#0A141C; --pt-lt-dark:#0A141C; --pt-bond:#FB923C;
+}
+.dna__b--U,.dna__fill--U{stroke:var(--pt-u);fill:var(--pt-u)}
+.pt__lt{font-family:var(--font);font-weight:700;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.pt__lt--A,.pt__lt--T,.pt__lt--G{fill:var(--pt-lt-light)} .pt__lt--C,.pt__lt--U{fill:var(--pt-lt-dark)}
+.pt__gband{fill:none;stroke:var(--gene);stroke-linecap:round}
+.pt__gene{fill:none;stroke:var(--gene);stroke-width:7;stroke-opacity:.6;stroke-linecap:round;stroke-linejoin:round}
+.dna__s.pt__cdna{stroke-width:1.1}
+.dna__s.pt__mr{stroke:var(--mrna);stroke-width:2.2;stroke-linejoin:round}
+.dna__s.pt__mrv{vector-effect:non-scaling-stroke}
+.dna__s.pt__mrE{stroke-width:3.2}
+.dna__s.zm__s7.pt__rna{stroke:var(--mrna)}
+.pt__mrF{fill:none;stroke:var(--mrna);stroke-width:4.5;stroke-linecap:round}
+.pt__tick{fill:none;stroke:var(--mrna);stroke-width:1.2;stroke-opacity:.8}
+.pt__nt{fill:var(--mrna)}
+.pt__pol{fill:var(--accent-tint);fill-opacity:.62;stroke:var(--accent);stroke-width:3}
+.pt__pol.pt__polC{stroke-width:1.2;fill-opacity:.9}
+.pt__gzone{fill:var(--gene);fill-opacity:.3}
+.pt__start{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-dasharray:7 6}
+.pt__lum{fill:var(--pt-lum)}
+.pt__mem{fill:none;stroke:var(--nuc-edge);stroke-width:8.5}
+.pt__mem2{fill:none;stroke:var(--pt-lum);stroke-width:2.4}
+.pt__npc{fill:var(--pt-npc);fill-opacity:.9}
+.pt__npcf{fill:none;stroke:var(--pt-npc);stroke-width:3;stroke-linecap:round}
+.pt__ss,.pt__ls{fill:var(--pt-rib);stroke:var(--pt-rib-rna);stroke-width:1.6}
+.pt__rrna{fill:none;stroke:var(--pt-rib-rna);stroke-width:1.5;stroke-opacity:.75;stroke-linejoin:round}
+.pt__rpro{fill:var(--pt-rib-pro);stroke:var(--pt-rib-rna);stroke-width:.8}
+.pt__tun{fill:none;stroke:var(--pt-tun);stroke-width:18;stroke-linecap:round;stroke-linejoin:round}
+.pt__trna{fill:var(--pt-trna-tint);stroke:var(--pt-trna);stroke-width:1.8;stroke-linejoin:round}
+.pt__nb{stroke:none}
+.pt__cod--0{fill:var(--pt-cod-0)} .pt__cod--1{fill:var(--pt-cod-1)}
+.pt__pep{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-opacity:.7}
+.pt__bond{fill:none;stroke:var(--pt-bond);stroke-width:3}
+.pt__prot{fill:none;stroke:var(--grey);stroke-width:1.4;stroke-dasharray:4 3}
+.pt__box{fill:none;stroke:var(--ink);stroke-width:1.8}
+.pt__cellB{fill:var(--cell-fill);stroke:var(--cell-edge);stroke-width:5}
+.zm__pane.pt__edge{fill:none;stroke:var(--edge);stroke-width:1.2}
+.pt__start.pt__startC{stroke-width:1.3;stroke-dasharray:3 3}
+/* ---------- end of the protein animation's block ---------- */
+
 /* ---------- the names on every picture (5 Nov 2026, the "labels" side session) ---------- */
 @media (max-width:1000px) and (min-height:561px){
   /* a drawing that scrolls with the page: its view as tall as its picture, key and notes together, so the caption never
      covers the key's last line (on a phone the gene-expression and pairs pictures lost "a gene expressed", "the ABO gene") */
   .platecol[data-kind="figure"] .viewhost,.platecol[data-kind="figure"] .cellv{flex:none}
 }
+/* the final audit's pictures: a bracket over a pair (its name ends on it), the ratio line, and gene expression's cell */
+.brk{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round}
+.gd__ratio{font-weight:700}
+.mrna.exg__mrna{stroke-width:3}
+.exg__ves{fill:var(--card);stroke:var(--shade);stroke-width:1.2}
+.exg__memp{fill:var(--aa2);stroke:rgba(0,0,0,.35);stroke-width:1}
+.exg__chan{stroke:var(--card);stroke-width:2.4;stroke-linecap:round}
+.exg__rec{fill:none;stroke:var(--aa2);stroke-width:4.5;stroke-linecap:round}
+.exg__cris{fill:none;stroke:var(--mito-edge);stroke-width:1.2}
 /* ---------- end of the labels block ---------- */
