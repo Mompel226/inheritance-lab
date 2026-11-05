@@ -201,14 +201,15 @@
     return byTime([0, 9.4, 33.2, 38.9, 48.2], ['4', '4, each two copies', '4 at each end', '4 in each new nucleus', '4 in each daughter cell'],
                   ['46', '46, each two copies', '46 at each end', '46 in each new nucleus', '46 in each daughter cell'], t);
   }
-  /* under an animation only its key, drawn; the read-outs above already say 4 of 46 (Daniel, 5 Nov 2026: "I hate when
-     you actually, below steps, provide so much text that it makes it even heavier to read for students"; "Why don't
-     you show them instead of writing about them?") */
-  var KEY = [['mum', 'from the mother'], ['dad', 'from the father'], ['gene', 'a gene'], ['fibre', 'fibres'], ['vesicle', 'pieces of the nuclear membrane']];
+  /* under an animation only its key, drawn, each name only in the steps (from 0) whose picture shows its part; the
+     read-outs above already say 4 of 46 (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much
+     text"; "Why don't you show them instead of writing about them?"; "make sure that the keys appear when the things are
+     in the images") */
+  var KEY = [['mum', 'from the mother'], ['dad', 'from the father'], ['gene', 'a gene']];
   function mitosis(spec) {
     return widget(spec, 'dv', 'Mitosis, step by step', 'A body cell with four chromosomes copies them, they coil into crosses, fibres pull the copies apart, and two daughter cells each receive the same four.',
       MI_STEPS, MI_M, MI.W, MI.H, mitRender, mitLabels, mitPills, [
-        { key: KEY }
+        { key: KEY.concat([['fibre', 'fibres', [3, 4]], ['vesicle', 'pieces of the nuclear membrane', [2, 3, 4]]]) }
       ]);
   }
   /* the IGCSE · IB switch (Daniel, 4 Nov 2026), as the Immunity Lab's first meeting: one level shown at a time; the IB one
@@ -409,7 +410,7 @@
   function meiosis(spec) {
     return widget(spec, 'dv', 'Meiosis, step by step', 'A cell with two pairs of chromosomes divides twice to give four haploid cells with one chromosome of each pair; then a sperm cell and an egg cell fuse.',
       ME_STEPS, ME_M, ME.W, ME.H, meiRender, meiLabels, meiPills, [
-        { key: KEY.concat([['other', 'the egg cell’s chromosomes']]) }
+        { key: KEY.concat([['fibre', 'fibres', [3]], ['other', 'the egg cell’s chromosomes', [7]]]) }
       ]);
   }
   L.add('meiosis', function (spec) { return levels(spec, meiosis, global.InhDivideIB.meiosis, 'Meiosis'); });
@@ -494,7 +495,8 @@
   function linecross(spec) {
     return widget(spec, 'dv', 'A line or a cross?', 'One pair of chromosomes, the mother’s and the father’s: long thin lines in a working cell; each copied, then coiled into a cross; the copies separate as single rods; two new cells, each with the pair as lines.',
       LC_STEPS, LC_M, LC.W, LC.H, lcRender, lcLabels, lcPills, [
-        { key: [['mum', 'from the mother'], ['dad', 'the same chromosome from the father']].concat(KEY.slice(2)) }, ['One pair of the 46 is drawn.']
+        { key: [['mum', 'from the mother'], ['dad', 'the same chromosome from the father'], ['gene', 'a gene'], ['fibre', 'fibres', [3, 4]],
+                ['vesicle', 'pieces of the nuclear membrane', [2, 3, 4]]] }, ['One pair of the 46 is drawn.']
       ], [['n', 'Each chromosome:'], ['hu', 'The cell:']]);
   }
   L.add('linecross', linecross);

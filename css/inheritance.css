@@ -376,7 +376,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .zm__far{fill:var(--card-2)} .zm__cyto{fill:var(--cell-fill)} .zm__nucl{fill:var(--nuc-fill)}
 .al.al--band{fill:var(--gene-ink);font-size:15px}
 .dna__b.zm__tk{stroke-width:2.2;stroke-linecap:butt}
-.zm__loop.zm__loop--gene{fill:var(--gene);fill-opacity:.8;stroke:var(--gene);stroke-width:4.4}
+.zm__gene10{fill:none;stroke:var(--gene);stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
 .dna__s{fill:none;stroke:var(--shade);stroke-width:3;stroke-linecap:round}
 .dna__b{stroke-width:3.2;stroke-linecap:round}
 .dna__b--A,.dna__fill--A{stroke:var(--dna-a);fill:var(--dna-a)} .dna__b--T,.dna__fill--T{stroke:var(--dna-b);fill:var(--dna-b)}
@@ -420,8 +420,8 @@ p,li,dd,figcaption{text-wrap:pretty}
 .figkey__sw{flex:none;width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.25)}
 .sw--mum{background:var(--mum)} .sw--dad{background:var(--dad)} .sw--gene{background:var(--gene)}
 /* an animation's key, drawn (WKit note { key }): a sample of each part in its picture's own classes, beside its name */
-.anikey{margin:12px 0 0;font-size:13px;gap:6px 18px}
-.anikey li{gap:6px}
+.anikey{margin:8px 4px 0;font-size:13px;gap:6px 18px;align-content:flex-start}
+.anikey li{gap:6px} .anikey li[hidden]{display:none}
 .anikey__sw{flex:none;width:28px;height:14px;overflow:visible}
 .ak__rod{fill:none;stroke-width:6;stroke-linecap:round} .ak__rod.ak__butt{stroke-linecap:butt} .ak__rod.ak__thin{stroke-width:3.4}
 .ak--mum{stroke:var(--mum)} .ak--dad{stroke:var(--dad)} .ak--other{stroke:var(--other)} .ak--new{stroke:var(--dna-new)} .ak--mrna{stroke:var(--mrna)}

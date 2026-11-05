@@ -923,8 +923,12 @@
     /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
        "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'pt', [
-      { key: [['dna', 'DNA'], ['bases', 'the bases (U: in RNA only)', 'ATCGU'], ['dnagene', 'the gene'], ['hist', 'proteins DNA is wound round'],
-              ['mrna', 'mRNA'], ['enz', 'the enzyme'], ['mito', 'mitochondria'], ['rib', 'a ribosome'], ['trna', 'small RNAs (IB: tRNA)'], ['aa', 'amino acids']] }
+      /* each name only in the steps whose picture shows its part (the steps from 0) */
+      { key: [['mum', 'from the mother', [0, 1, 6]], ['dad', 'from the father', [0, 1, 6]], ['other', 'other chromosomes', [0, 1, 6]], ['mito', 'mitochondria', [0]],
+              ['dna', 'DNA', [2, 3, 4, 5]], ['gene', 'the gene', [1, 6]], ['dnagene', 'the gene', [2, 3, 4, 5]], ['hist', 'proteins DNA is wound round', [2, 5]],
+              ['bases', 'the four bases of DNA', [3], 'ATCG'], ['bases', 'the bases (U: in RNA only)', [4], 'ATCGU'], ['bases', 'the bases of RNA', [8, 9, 10, 11, 12], 'ACGU'],
+              ['enz', 'the enzyme', [3, 4, 5]], ['mrna', 'mRNA', [4, 5, 6, 7, 8, 9, 10, 11, 12]], ['rib', 'a ribosome', [7, 8, 9, 10, 11, 12]],
+              ['trna', 'small RNAs (IB: tRNA)', [8, 9, 10, 11, 12]], ['aa', 'amino acids', [8, 9, 10, 11, 12]]] }
     ], function (Dw, nar) {
       narrow = nar; lay = frameOf(svg, bg, model, cr, Dw, nar);
     });

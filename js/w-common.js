@@ -75,6 +75,8 @@
     function paint(t) {
       render(t);
       var k = stepAt(t), done = t >= END - 1e-6;
+      /* whoever shows what belongs to a step (an animation's key) hears the step: api.onStep(k) */
+      if (api && api.onStep) api.onStep(k);
       Array.prototype.forEach.call(list.children, function (li, i) {
         li.classList.toggle('is-on', started && i === k);
         li.classList.toggle('is-done', started && (i < k || (done && i === k)));
@@ -146,12 +148,14 @@
         nowHome = null; nowNext = null;
       }
     }
-    return {
+    var api = {
       bar: bar, list: list, now: now, paint: paint, stop: stop, isStill: still, compact: compact,
       playAll: function () { run(0, END); }, playing: function () { return playing; },
       time: function () { return T; },
-      seek: function (t) { stop(); started = t > 0; stopAt = null; T = Math.max(0, Math.min(END, t)); paint(T); return STEPS.map(function (s) { return s.t; }); }
+      seek: function (t) { stop(); started = t > 0; stopAt = null; T = Math.max(0, Math.min(END, t)); paint(T); return STEPS.map(function (s) { return s.t; }); },
+      onStep: null, steps: STEPS.length
     };
+    return api;
   }
 
   /* ---------- each name a full row from the next, every line level ----------

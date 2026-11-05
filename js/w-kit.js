@@ -107,9 +107,9 @@
     return { box: box, read: read, fig: fig, svg: svg, spec: spec, title: spec.title || title,
              pill: function (k, text, tone) { var p = read.querySelector('[data-k="' + k + '"]'), i = p.querySelector('i'); if (i.textContent !== text) i.textContent = text; p.className = cls + '__pill is-' + tone; } };
   }
-  /* the key under an animation is DRAWN: a small sample of each part, in its picture's own classes, beside its name (Daniel,
-     5 Nov 2026: "Why don't you show them instead of writing about them?"). A note { key: [[kind, name], …] } is one;
-     kind 'bases' takes its letters as a third item */
+  /* the key of an animation is DRAWN: a small sample of each part, in its picture's own classes, beside its name (Daniel,
+     5 Nov 2026: "Why don't you show them instead of writing about them?"). A note { key: [[kind, name, steps, letters], …] }
+     is one: `steps` the steps (from 0) whose picture shows that part, none for every step; kind 'bases' takes its letters */
   var SW = {
     mum: '<path class="ak__rod ak--mum" d="M5 7H23"/>',
     dad: '<path class="ak__rod ak--dad" d="M5 7H23"/>',
@@ -135,9 +135,9 @@
   function keyOf(items) {
     var ul = h('ul', 'figkey anikey');
     ul.innerHTML = items.map(function (q) {
-      var sw = q[0] === 'bases' ? '<span class="ak__bases" aria-hidden="true">' + q[2].split('').map(function (b) { return '<i class="ak__b ak__b--' + b + '">' + b + '</i>'; }).join('') + '</span>'
+      var sw = q[0] === 'bases' ? '<span class="ak__bases" aria-hidden="true">' + q[3].split('').map(function (b) { return '<i class="ak__b ak__b--' + b + '">' + b + '</i>'; }).join('') + '</span>'
         : '<svg class="anikey__sw" viewBox="0 0 28 14" aria-hidden="true">' + SW[q[0]] + '</svg>';
-      return '<li>' + sw + L.esc(q[1]) + '</li>';
+      return '<li data-k="' + q[0] + '"' + (q[2] ? ' data-at=",' + q[2].join(',') + ',"' : '') + '>' + sw + L.esc(q[1]) + '</li>';
     }).join('');
     return ul;
   }
@@ -151,17 +151,38 @@
     var packT = h('p', 'stg__title', L.esc(S.title)); packT.hidden = true;
     pack.appendChild(packT); pack.appendChild(S.fig);
     var left = h('div', cls + '__left'); left.appendChild(S.read); left.appendChild(pack);
+    /* under the drawing, inside its figure (so it goes with it into the picture's column): the key, showing only what
+       this step's picture shows, and any short line; nothing under the steps (Daniel, 5 Nov 2026: "put the keys on the
+       left and show them when they need to be shown … Otherwise, the students are going to be like, well, what do you
+       mean from the mother?") */
+    var keys = [], keyK = -2;
+    notes.forEach(function (n) { var el = note(n); S.fig.appendChild(el); if (n.key) keys.push(el); });
+    function showKey(k) {
+      if (k === keyK) return; keyK = k;
+      keys.forEach(function (ul) {
+        Array.prototype.forEach.call(ul.children, function (li) { var at = li.getAttribute('data-at'); li.hidden = !!at && at.indexOf(',' + k + ',') < 0; });
+      });
+    }
+    /* the key keeps the height of its fullest step, so the words under it never jump when a step changes it */
+    function sizeKey() {
+      if (!keys.length) return;
+      var k0 = keyK, mx = keys.map(function () { return 0; });
+      keys.forEach(function (ul) { ul.style.minHeight = ''; });
+      for (var k = 0; k < (sp.steps || 1); k++) { showKey(k); keys.forEach(function (ul, j) { mx[j] = Math.max(mx[j], ul.offsetHeight); }); }
+      keys.forEach(function (ul, j) { ul.style.minHeight = mx[j] + 'px'; });
+      showKey(k0 < 0 ? 0 : k0);
+    }
+    sp.onStep = showKey;
     S.fig.appendChild(sp.now);
     wrap.appendChild(left); wrap.appendChild(sp.list);
     S.box.appendChild(wrap);
-    notes.forEach(function (n) { S.box.appendChild(note(n)); });
     var lastD = 0, lastN = false;
     function fit() {
       var ww = wrap.getBoundingClientRect().width; if (!ww) return;
       wrap.classList.toggle(cls + '--side', ww >= 980);
       var D = S.fig.getBoundingClientRect().width, narrow = ww < 440;
       if (!D || (Math.abs(D - lastD) < 2 && narrow === lastN)) return;
-      lastD = D; lastN = narrow; setLayout(D, narrow); sp.paint(sp.time());
+      lastD = D; lastN = narrow; setLayout(D, narrow); sp.paint(sp.time()); sizeKey();
     }
     setLayout(700, false);
     var ro = global.ResizeObserver ? new ResizeObserver(function () { if (!S.box.isConnected) { ro.disconnect(); return; } fit(); }) : null;
@@ -200,5 +221,5 @@
 
   global.WKit = { pinKey: pinKey, names: names, margins: margins, n1: n1, seg: seg, ease: ease, clamp01: clamp01, lerp: lerp, len: len, rng: rng, fitType: fitType,
                   readerClock: readerClock, readerFlow: readerFlow, readerSteps: readerSteps, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
-                  mount: mount, note: note, NS: NS };
+                  mount: mount, NS: NS };
 })(window);

@@ -258,7 +258,8 @@
   /* o.band: f or [f…] (a gene: a yellow length of the thread, a yellow band across the cross's arms); o.join: the two copies
      meet at the centromere, a dot, as soon as the copy has passed it ("joined at one point"); o.tail: f, or [f0, f1] one per
      copy: from f to the end the copy is the OTHER parent's colour (crossing over, IB), never a blend of the two; o.cen:
-     false, no centromere dot (a copy on its own at IGCSE). Without them, the drawing is as before */
+     false, no centromere dot (a copy on its own at IGCSE); o.bandOp: the bands' opacity (a band that appears). Without them,
+     the drawing is as before */
   var GENE = .04;
   function part(P, s0, s1) { var n = P.length - 1, i0 = Math.max(0, Math.round(s0 * n)), i1 = Math.min(n, Math.round(s1 * n)); return i1 > i0 ? P.slice(i0, i1 + 1) : null; }
   function armPts(rd, s0, s1) { var out = [rodAt(rd, s0)], c = rd.up / (rd.up + rd.dn); if (s0 < c && s1 > c) out.push(rd.p0); out.push(rodAt(rd, s1)); return out; }
@@ -266,12 +267,12 @@
   function coiled(T, ph, k, wd, o) {
     o = o || {};
     var faint = T.who === 'faint', cls = faint ? 'thr thr--faint' : 'thr thr--' + T.who;
-    var bands = o.band == null ? [] : [].concat(o.band), tails = o.tail == null ? [] : [].concat(o.tail), other = T.who === 'dad' ? 'mum' : 'dad';
+    var bop = o.bandOp == null ? 1 : o.bandOp, bands = o.band == null || bop <= .01 ? [] : [].concat(o.band), tails = o.tail == null ? [] : [].concat(o.tail), other = T.who === 'dad' ? 'mum' : 'dad';
     function genes(P, w, op) { var g = ''; bands.forEach(function (f) { var Q = part(P, f - GENE, f + GENE); if (Q) g += '<path class="thr thr--gene" d="' + poly(Q) + '" stroke-width="' + n1(w) + '"' + opa(op) + '/>'; }); return g; }
     if (k < 0 && o.copy == null) {
       if (!bands.length && !tails.length) return '<path class="' + cls + '" d="' + poly(territory(T, ph)) + '" stroke-width="' + wd + '"/>';
       var P1 = resample(o.base || territory(T, ph), 300), q1 = tails[0] != null ? part(P1, tails[0], 1) : null;
-      return '<path class="' + cls + '" d="' + poly(P1) + '" stroke-width="' + wd + '"/>' + (q1 ? '<path class="thr thr--' + other + '" d="' + poly(q1) + '" stroke-width="' + wd + '"/>' : '') + genes(P1, wd * 2.2, 1);
+      return '<path class="' + cls + '" d="' + poly(P1) + '" stroke-width="' + wd + '"/>' + (q1 ? '<path class="thr thr--' + other + '" d="' + poly(q1) + '" stroke-width="' + wd + '"/>' : '') + genes(P1, wd * 2.2, bop);
     }
     var N = 300, base = resample(o.base || territory(T, ph), N), out = '', kk = Math.max(0, k), turns = Math.round(T.len * .42), r = T.w * .46 * Math.pow(kk, .8);
     var body = Math.min(1, Math.max(0, (kk - .72) / .28)), arm = faint ? 'zm__arm zm__arm--faint' : 'zm__arm zm__arm--' + T.who;
@@ -308,8 +309,8 @@
       if (own.length > 1) out += '<path class="' + cls + '" d="' + poly(own) + '" stroke-width="' + sw + '"' + so + '/>';
       if (iT < Q.length - 1) out += '<path class="thr thr--' + other + '" d="' + poly(Q.slice(iT)) + '" stroke-width="' + sw + '"' + so + '/>';
       /* the gene: the same solid yellow on every copy, drawn over the copy, never under its coil (the audit, 5 Nov 2026) */
-      if (body > 0) bands.forEach(function (f) { out += '<path class="zm__arm zm__arm--gene" d="' + poly(armPts(rd, f - GENE, f + GENE)) + '" stroke-width="' + aw + '" stroke-linecap="butt"' + opa(body) + '/>'; });
-      bands.forEach(function (f) { var i0 = Math.round((f - GENE) * (N - 1)), i1 = Math.round((f + GENE) * (N - 1)); if (i1 < Q.length) out += '<path class="thr thr--gene" d="' + poly(Q.slice(i0, i1 + 1)) + '" stroke-width="' + n1(lerp(wd * 2.2, wd * 1.3, kk)) + '"/>'; });
+      if (body > 0) bands.forEach(function (f) { out += '<path class="zm__arm zm__arm--gene" d="' + poly(armPts(rd, f - GENE, f + GENE)) + '" stroke-width="' + aw + '" stroke-linecap="butt"' + opa(body * bop) + '/>'; });
+      bands.forEach(function (f) { var i0 = Math.round((f - GENE) * (N - 1)), i1 = Math.round((f + GENE) * (N - 1)); if (i1 < Q.length) out += '<path class="thr thr--gene" d="' + poly(Q.slice(i0, i1 + 1)) + '" stroke-width="' + n1(lerp(wd * 2.2, wd * 1.3, kk)) + '"' + opa(bop) + '/>'; });
       if (o.split && body > 0 && o.cen !== false) out += '<circle class="ch__cen ch--' + (faint ? 'mum zm__cen--faint' : T.who) + '" cx="' + n1(rd.p0[0]) + '" cy="' + n1(rd.p0[1]) + '" r="' + n1(T.w * .42) + '"' + opa(body) + '/>';
     });
     /* while the two coiled copies stand apart, a short link between them at their joining point: still one chromosome */
