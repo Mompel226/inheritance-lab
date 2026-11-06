@@ -84,7 +84,8 @@
     /* the motion runs 1.25 times faster than written (the kit's 1.6 made the membrane and fibres too quick to follow) */
     var P = 1.25, clock = K.readerClock(R, M, P);
     function draw(tt) {
-      var t = clock(tt), ph = t * .5;
+      /* the threads lie still: they wriggled under their names (the audit, 6 Nov 2026; standard 13) */
+      var t = clock(tt), ph = 3;
       model.innerHTML = '<g clip-path="url(#' + uid + ')">' + render(t, ph) + '</g>';
       var items = labelsAt(t, ph).map(function (q) { var p = lay.to(q.x, q.y); return { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side }; });
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
@@ -140,7 +141,7 @@
         body += chrom(T, ph, co, { cross: Tm });
         top.push(D.crossRod(Tm, 0).p0); bot.push(D.crossRod(Tm, 1).p0); g.x.push(Tm);
       } else {
-        var V = veePair(T, at(T, MI.EQ[i], 90), [MI.AX[i], MI.AY[0]], [MI.AX[i], MI.AY[1]], part, false, 8);
+        var V = veePair(T, at(T, MI.EQ[i], 90), [MI.AX[i], MI.AY[0]], [MI.AX[i], MI.AY[1]], part, false, 8, .07 * i);
         if (t < 39.6) body += chrom(T, ph, 1, { rods: function (c) { return V[c]; }, split: true, cen: t < 30.4 });
         else body += unc(T1[i], ph, un, V[0]) + unc(T2[i], ph, un, V[1]);
         top.push(V[0].p0); bot.push(V[1].p0); g.v.push(V);
@@ -256,9 +257,9 @@
     { h: 'First division: the pairs separate', p: 'The fibres pull the two chromosomes of each pair to **opposite ends**, and the cell divides. Each new cell has **one chromosome of each pair**: 2. The number is **halved**, from diploid to haploid: meiosis is a **reduction division**.' },
     { h: 'Second division: the copies separate', p: 'Each cell divides again. This time the **two copies** of each chromosome separate, as in mitosis. There are **4 cells**, each with 2 chromosomes.' },
     { h: 'Four haploid cells', p: 'A nucleus forms in each cell, and the chromosomes become long, thin lines again. Four **haploid** cells: each nucleus has a single set of chromosomes, **one chromosome of each pair**. In a testis all four become **sperm cells**; in an ovary only one becomes an **egg cell**. Here they are of two kinds; with 23 pairs a person makes millions of kinds: the gametes are **genetically different**.' },
-    { h: 'Fertilisation', p: 'One of these cells, now a **sperm cell**, fuses with an **egg cell** from another person. The egg cell’s chromosomes are drawn grey. The two nuclei fuse: this is **fertilisation**. In the **zygote**, the chromosomes from the sperm cell came from its father (blue) and those from the egg cell from its mother (orange): each pair has one from each parent. The zygote has 4 chromosomes again, 2 pairs: **diploid**.' }
+    { h: 'Fertilisation', p: 'One of these cells, now a **sperm cell**, fuses with an **egg cell** from another person. The egg cell’s chromosomes are drawn grey. Inside the egg cell, the nucleus of the sperm cell becomes larger. The two nuclei fuse: this is **fertilisation**. In the **zygote**, the chromosomes from the sperm cell came from its father (blue) and those from the egg cell from its mother (orange): each pair has one from each parent. The zygote has 4 chromosomes again, 2 pairs: **diploid**.' }
   ];
-  var ME_M = [0, 6, 13, 23, 31, 40, 49, 57, 71];
+  var ME_M = [0, 6, 13, 23, 31, 40, 49, 57, 74];
   /* the gametes' nuclei: copy 0 to the left cell, copy 1 to the right */
   function gnuc(j, yC) { return nuc(ME.XC[j], yC, 50, 72); }
   /* fertilisation: the egg cell (much larger than a sperm cell's head; not to scale), its nucleus, the sperm's swollen
@@ -269,7 +270,7 @@
     var out = '', body = '', NU = ME.NU;
     var a1 = ease(seg(t, 31.4, 36.4)), c1 = ease(seg(t, 36.4, 39.6)), c2 = ease(seg(t, 46.8, 48.8)), fe = t >= 57;
     var T0 = terr(FOUR, NU), cp = ease(seg(t, 6.4, 12.4)), co = ease(seg(t, 13.4, 18.2)), pr = ease(seg(t, 18.6, 22.6)), mv = ease(seg(t, 25, 28));
-    var r2 = ease(seg(t, 40.4, 43.2)), a2 = ease(seg(t, 45, 47.6));
+    var r2 = ease(seg(t, 40.4, 43.2)), a2 = ease(seg(t, 45, 48.6));   /* the second division's copies: 3.6 s apart, not 2.6 (the audit, 6 Nov 2026) */
     var nf = seg(t, 49.4, 52), nA = seg(t, 49.4, 50.2), un = seg(t, 51.2, 56.4);
     g.T0 = T0; g.x = []; g.G = [];
     /* the cells: one → two (top, bottom) → four */
@@ -301,7 +302,7 @@
     } else if (!fe) {
       T0.forEach(function (T, i) {
         var up = ME.UP[i], yC = up ? ME.YC[0] : ME.YC[1], j = up ? 0 : 1, y = yC + (T.A ? -26 : 30);
-        var V = veePair(T, at(T, [160, y], 0), [96, y], [224, y], a2, true, 8);
+        var V = veePair(T, at(T, [160, y], 0), [96, y], [224, y], a2, true, 8, .07 * i);
         var Tg = [terr(TWO(T.who, T.who), gnuc(0, yC))[T.A ? 0 : 1], terr(TWO(T.who, T.who), gnuc(1, yC))[T.A ? 0 : 1]];
         if (t < 51.2) body += chrom(T, ph, 1, { rods: function (q) { return V[q]; }, split: true, cen: t < 45 });
         else body += unc(Tg[0], ph, un, V[0]) + unc(Tg[1], ph, un, V[1]);
@@ -327,8 +328,12 @@
   /* fertilisation: three gametes fade; the top-left one becomes a sperm cell and the egg cell comes in (both rest, named);
      the sperm swims to the egg, its nucleus enters, swells and fuses with the egg's. In the zygote the chromosomes take its
      own parents' colours: from the sperm, its father (blue); from the egg, its mother (orange) (the audit, 5 Nov 2026).
-     The two cells rest 3.6 s while they are named, long enough to read them in Play all (tools/flow-names.mjs) */
-  var FT = { fd: [57.4, 58.6], sp: [57.8, 60.6], eg: [58.2, 60.6], rest: [60.6, 64.2], sw: [64.2, 65.8], inn: [65.8, 67], swell: [66.8, 68.4], fu: [68.4, 70.4], rc: [69, 70.6] };
+     The two cells rest 3.6 s while they are named, long enough to read them in Play all (tools/flow-names.mjs).
+     One thing at a time (the audit, 6 Nov 2026: the sperm nucleus swelled 2.5 times in half a second and its chromosomes
+     turned grey, then blue, while they moved): the sperm's chromosomes stay drawn in its head (small, never gone); its
+     nucleus enlarges over 2.4 s; the two nuclei fuse, every chromosome keeping its colour; then, with nothing moving, the
+     colours change together, slowly (rc), to the zygote's own parents' */
+  var FT = { fd: [57.4, 58.6], sp: [57.8, 60.6], eg: [58.2, 60.6], rest: [60.6, 64.2], sw: [64.2, 65.8], inn: [65.8, 67], swell: [66.8, 69.2], fu: [69.2, 71.4], rc: [71.8, 73.6] };
   function fert(t, ph, g) {
     function k(n) { return ease(seg(t, FT[n][0], FT[n][1])); }
     var out = '', fd = 1 - seg(t, FT.fd[0], FT.fd[1]), sp = k('sp'), eg = k('eg'), sw = k('sw'), inn = k('inn'), swell = k('swell'), fu = k('fu'), rc = k('rc');
@@ -360,10 +365,10 @@
     var sn = nuc(lerp(hx, ZN.cx, fu), lerp(hy, ZN.cy, fu), lerp(lerp(lerp(50, 6, sp), PN.rx, swell), ZN.rx, fu), lerp(lerp(lerp(72, 9, sp), PN.ry, swell), ZN.ry, fu));
     var en = nuc(lerp(ex + EN.cx - EGG[0], ZN.cx, fu), lerp(EN.cy, ZN.cy, fu), lerp(EN.rx, ZN.rx, fu), lerp(EN.ry, ZN.ry, fu));
     out += D.envelope(en.cx, en.cy, en.rx, en.ry, 12) + (fu < .98 ? D.envelope(sn.cx, sn.cy, sn.rx, sn.ry, 12) : '');
-    /* the chromosomes: the sperm's (orange A, blue B: which of the man's parents each came from) fade while the head is
-       small and come back as its nucleus swells; the egg's grey; in the zygote, the sperm's blue and the egg's orange */
+    /* the chromosomes: the sperm's (orange A, blue B: which of the man's parents each came from), small in its head and
+       larger as its nucleus enlarges; the egg's grey; in the zygote, once still, the sperm's blue and the egg's orange */
     var Z = terr(FOUR, ZN), gs = terr(TWO('mum', 'dad'), sn), ge = terr(TWO('other', 'other'), en);
-    var so = Math.max(1 - seg(sp, 0, .5), seg(t, 67, 68.2));
+    var so = 1;
     var to = [[gs[0], Z[0], so, 'dad'], [gs[1], Z[3], so, 'dad'], [ge[0], Z[1], 1, 'mum'], [ge[1], Z[2], 1, 'mum']];
     g.Z = [];
     to.forEach(function (q) {
@@ -450,7 +455,7 @@
         body += chrom(T, ph, co, { cross: Tm }, LZ);
         top.push(D.crossRod(Tm, 0).p0); bot.push(D.crossRod(Tm, 1).p0); g.x.push(Tm);
       } else {
-        var V = veePair(T, at(T, LC.EQ[i], 90), [LC.AX[i], LC.AY[0]], [LC.AX[i], LC.AY[1]], part, false, 8);
+        var V = veePair(T, at(T, LC.EQ[i], 90), [LC.AX[i], LC.AY[0]], [LC.AX[i], LC.AY[1]], part, false, 8, .1 * i);
         if (t < 40.4) body += chrom(T, ph, 1, { rods: function (c) { return V[c]; }, split: true, cen: t < 31.4 }, LZ);
         else body += unc(T1[i], ph, un, V[0], LZ) + unc(T2[i], ph, un, V[1], LZ);
         top.push(V[0].p0); bot.push(V[1].p0); g.v.push(V);

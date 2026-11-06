@@ -374,7 +374,10 @@ p,li,dd,figcaption{text-wrap:pretty}
 .zm__histl{fill:var(--histone-2);fill-opacity:.85}
 .zm__bead{fill:var(--histone);stroke:var(--histone-edge);stroke-width:.6}
 .zm__far{fill:var(--card-2)} .zm__cyto{fill:var(--cell-fill)} .zm__nucl{fill:var(--nuc-fill)}
-.al.al--band{fill:var(--gene-ink);font-size:15px}
+/* an allele printed on a gene's band: all of it on the yellow, the raised letter lifted less than a superscript, a thin
+   yellow edge so it reads where the band is small (Daniel, 6 Nov 2026: "make sure that these letters are nicely visible") */
+.al.al--band{fill:var(--gene-ink);font-size:14px;paint-order:stroke;stroke:var(--gene);stroke-width:3px;stroke-linejoin:round}
+.al.al--band .al__up{baseline-shift:42%;font-size:66%}
 .dna__b.zm__tk{stroke-width:2.2;stroke-linecap:butt}
 .zm__gene10{fill:none;stroke:var(--gene);stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
 /* step 12: the groups of three under the bases (red where Iᵒ is read differently), the gap of the missing base; step 13's
@@ -617,19 +620,19 @@ p,li,dd,figcaption{text-wrap:pretty}
    opacity attribute, so nothing here sets a CSS opacity. */
 :root{
   --pt-u:#E07B00; --pt-trna:#6D28D9; --pt-trna-tint:#EDE4FB; --pt-npc:#4B6584; --pt-lum:#E4DAF2;
-  --pt-rib:#D9C2A0; --pt-rib-rna:#6B4F2A; --pt-rib-hi:#E9DCC6; --pt-tun:#F3E9DA; --pt-cod-0:#FFF1B8; --pt-cod-1:#DCEBFF;
+  --pt-rib:#D9C2A0; --pt-rib-rna:#6B4F2A; --pt-rib-hi:#E9DCC6; --pt-rprot:#A9BCCB; --pt-tun:#F3E9DA; --pt-cod-0:#FFF1B8; --pt-cod-1:#DCEBFF;
   --pt-lt-light:#FFFFFF; --pt-lt-dark:#1A1A1A; --pt-bond:#C2410C;
 }
 @media (prefers-color-scheme: dark){
 :root:not([data-theme="light"]){
   --pt-u:#FDBA74; --pt-trna:#C4B5FD; --pt-trna-tint:#2C2142; --pt-npc:#9FB3CC; --pt-lum:#2F2740;
-  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-hi:#6E5A42; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
+  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-hi:#6E5A42; --pt-rprot:#55697C; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
   --pt-lt-light:#0A141C; --pt-lt-dark:#0A141C; --pt-bond:#FB923C;
 }
 }
 :root[data-theme="dark"]{
   --pt-u:#FDBA74; --pt-trna:#C4B5FD; --pt-trna-tint:#2C2142; --pt-npc:#9FB3CC; --pt-lum:#2F2740;
-  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-hi:#6E5A42; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
+  --pt-rib:#5A4630; --pt-rib-rna:#E6CFA6; --pt-rib-hi:#6E5A42; --pt-rprot:#55697C; --pt-tun:#3F3224; --pt-cod-0:#3A3418; --pt-cod-1:#1C2A3D;
   --pt-lt-light:#0A141C; --pt-lt-dark:#0A141C; --pt-bond:#FB923C;
 }
 .dna__b--U,.dna__fill--U{stroke:var(--pt-u);fill:var(--pt-u)}
@@ -656,6 +659,9 @@ p,li,dd,figcaption{text-wrap:pretty}
 .pt__npcf{fill:none;stroke:var(--pt-npc);stroke-width:3;stroke-linecap:round}
 .pt__ss,.pt__ls{fill:var(--pt-rib);stroke:var(--pt-rib-rna);stroke-width:1.6}
 .pt__sheen{fill:var(--pt-rib-hi);opacity:.7;stroke:none}
+/* the ribosome seen through (the step "Inside a ribosome"): its RNA in folded layers, its proteins on the surface */
+.pt__rrna2{fill:none;stroke:var(--pt-rib-rna);stroke-width:2.6;stroke-linejoin:round}
+.pt__rprot{fill:var(--pt-rprot);stroke:var(--pt-rib-rna);stroke-width:1}
 .pt__tun{fill:none;stroke:var(--pt-tun);stroke-width:18;stroke-linecap:round;stroke-linejoin:round}
 .pt__trna{fill:var(--pt-trna-tint);stroke:var(--pt-trna);stroke-width:1.8;stroke-linejoin:round}
 .pt__nb{stroke:none}
@@ -688,10 +694,10 @@ p,li,dd,figcaption{text-wrap:pretty}
 /* how to say a hard word (js/terms.js Say): its spelling guide and two small buttons beside the word, on a key-word card
    and in the glossary; the recording's credit shows under it while it is the last one played */
 .say{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:5px 0 0;font-weight:400;font-size:12.5px;line-height:1.3}
-.say__bs{display:inline-flex;gap:5px;flex:none}
 .say__g{color:var(--grey);letter-spacing:.01em}
 .say__b{font:inherit;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:3px;padding:2px 8px 2px 6px;border-radius:var(--r-pill);border:1px solid var(--edge);background:var(--card);color:var(--ink);cursor:pointer}
 .say__b svg{width:13px;height:13px;flex:none}
+.say__a{font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--grey);margin-left:2px}
 .say__b:hover,.say__b:focus-visible{border-color:var(--accent);color:var(--accent)}
 .say__b:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .say__b.is-playing{background:var(--accent-tint);border-color:var(--accent);color:var(--accent)}

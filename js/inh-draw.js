@@ -267,7 +267,8 @@
   /* o.band: f or [f…] (a gene: a yellow length of the thread, a yellow band across the cross's arms); o.join: the two copies
      meet at the centromere, a dot, as soon as the copy has passed it ("joined at one point"); o.tail: f, or [f0, f1] one per
      copy: from f to the end the copy is the OTHER parent's colour (crossing over, IB), never a blend of the two; o.cen:
-     false, no centromere dot (a copy on its own at IGCSE); o.bandOp: the bands' opacity (a band that appears). Without them,
+     false, no centromere dot (a copy on its own at IGCSE); o.cutTail: the tail is not drawn (it is moving across to the
+     other chromatid, drawn by the caller: IB crossing over); o.bandOp: the bands' opacity (a band that appears). Without them,
      the drawing is as before */
   var GENE = .04;
   function part(P, s0, s1) { var n = P.length - 1, i0 = Math.max(0, Math.round(s0 * n)), i1 = Math.min(n, Math.round(s1 * n)); return i1 > i0 ? P.slice(i0, i1 + 1) : null; }
@@ -308,7 +309,7 @@
       if (body > 0) {
         if (tl == null) out += '<path class="' + arm + '" d="M' + n1(rd.top[0]) + ' ' + n1(rd.top[1]) + ' L' + n1(rd.p0[0]) + ' ' + n1(rd.p0[1]) + ' L' + n1(rd.bot[0]) + ' ' + n1(rd.bot[1]) +
           '" stroke-width="' + aw + '"' + ao + '/>';
-        else out += '<path class="' + arm + '" d="' + poly(armPts(rd, 0, tl)) + '" stroke-width="' + aw + '"' + ao + '/><path class="zm__arm zm__arm--' + other + '" d="' + poly(armPts(rd, tl, 1)) + '" stroke-width="' + aw + '"' + ao + '/>';
+        else out += '<path class="' + arm + '" d="' + poly(armPts(rd, 0, tl)) + '" stroke-width="' + aw + '"' + ao + '/>' + (o.cutTail ? '' : '<path class="zm__arm zm__arm--' + other + '" d="' + poly(armPts(rd, tl, 1)) + '" stroke-width="' + aw + '"' + ao + '/>');
       }
       /* where the copy has been made, the two threads lie side by side; ahead of it, one thread */
       /* the copying fork, where the two copies narrow into the line not yet copied: it runs on past the end of the thread
@@ -423,7 +424,7 @@
      TWO(a, b)   a gamete's two (one of each pair: A from parent a, B from parent b), the same lengths
      terr(lay, nu, s)   a layout's territories in a nucleus nu { cx, cy, rx, ry }, with each one's cross (s.LA, s.LB, s.w) and gene
      tmix(T, U, k), at(T, c, x)   a territory between two; the same chromosome with its cross centred at c, at angle x
-     veePair(T, Te, p, q, k, horiz)   the two copies of the cross Te pulled apart, joining point first, to p and q: each a V
+     veePair(T, Te, p, q, k, horiz, thEnd, lag)   the two copies of the cross Te pulled apart, joining point first, to p and q: each a V
              whose arms close only as the copies separate (k), so an arm never swings through the other copy */
   /* long threads with their fine wiggle (m), in every animation's working nucleus, as in "From a cell to a gene" (Daniel,
      5 Nov 2026: "you have made changes in the first that you have not made in other animations … the chromosomes being
@@ -440,8 +441,13 @@
   }
   function tmix(T, U, k) { return Object.assign({}, T, { c: mix(T.c, U.c, k), R: lerp(T.R, U.R, k) }); }
   function at(T, c, x) { return Object.assign({}, T, { c: c, x: x }); }
-  function veePair(T, Te, p, q, k, horiz, thEnd) {
-    var a = crossRod(Te, 0).p0, b = crossRod(Te, 1).p0, e = Math.min(1, Math.max(0, (k - .03) / .42)), t1 = thEnd == null ? 18 : thEnd;
+  /* the arms swing over most of the journey (k .03 → .83), not its first .45: they swung from the cross through flat into a
+     V while the copies had barely moved apart, so each copy bent one way, lay flat beside its sister, then bent the other
+     way in about a second (the audit, 6 Nov 2026). Now the joining points lead, and a copy is flat only when it is well
+     apart from its sister. lag (0 …): this chromosome's arms swing a little later than its neighbour's, so two
+     neighbours never lie flat end to end in one line (the copies all leave at once; only the arms' swing is staggered) */
+  function veePair(T, Te, p, q, k, horiz, thEnd, lag) {
+    var a = crossRod(Te, 0).p0, b = crossRod(Te, 1).p0, e = Math.min(1, Math.max(0, (k - .03 - (lag || 0)) / .8)), t1 = thEnd == null ? 18 : thEnd;
     var th = (114 - (114 - t1) * (e < .5 ? 2 * e * e : 1 - Math.pow(-2 * e + 2, 2) / 2)) * Math.PI / 180;
     var t0 = horiz ? [1, 0] : [0, 1], t1 = horiz ? [-1, 0] : [0, -1];
     return [veeRod(T, mix(a, p, k), t0, th, 1), veeRod(T, mix(b, q, k), t1, th, -1)];

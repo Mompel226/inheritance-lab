@@ -44,17 +44,17 @@
   var W = 340, H = 380, CX = 170, CY = 190, PI = Math.PI, TZ = 5;
   var STEPS = [
     { h: 'A body cell', p: 'A cell from your body, about 25 micrometres across. Its **nucleus** holds the **chromosomes**: 46 in a human body cell.' },
-    { h: 'Inside the nucleus', p: 'In a working cell each chromosome is a long, very thin thread of **DNA**, folded many times in its own part of the nucleus. Chromosomes are in pairs: 23 pairs in a human body cell. One of each pair came from the mother, and one from the father. Two pairs are coloured here.' },
-    { h: 'Wound round proteins', p: 'Enlarged: the thread is DNA wound round small balls of protein, almost twice round each, like thread round beads. This is the first step in packing about 2 metres of DNA into one nucleus.' },
-    { h: 'A gene', p: 'Seen from a little further away: a **gene** is a length of DNA that codes for a protein. This gene, lit in yellow, is about 1,400 base pairs long, wound round 7 balls of protein; most genes are longer, thousands of base pairs. One chromosome carries many genes.' },
+    { h: 'Inside the nucleus', p: 'In a working cell each chromosome is a long, very thin thread of **DNA**, folded many times in its own part of the nucleus. Chromosomes are in pairs: 23 pairs in a human body cell. One of each pair came from the mother, and one from the father. Two pairs are coloured here; not all 46 are drawn.' },
+    { h: 'Wound round proteins', p: 'Enlarged: the thread is DNA wound round small balls of protein, almost twice round each, like thread round beads. This is the first step in packing about 2 metres of DNA into one nucleus. Close up, DNA is drawn grey.' },
+    { h: 'A gene', p: 'Seen from a little further away: a **gene** is a length of DNA that codes for a protein. This gene, lit in yellow, is a short one: about 1,400 base pairs, wound round 7 balls of protein. It is not the ABO gene shown later. Genes differ in length: most are longer, thousands of base pairs. One chromosome carries many genes.' },
     { h: 'The DNA of the gene', p: 'Enlarged: part of the gene, between two balls of protein. The DNA is two strands twisted into a **double helix**, with **bases** between them. Bonds between the pairs of bases hold the two strands together, and the bases always pair in the same way: A with T, and C with G.' },
     { h: 'Replication begins', p: 'Before a cell divides, its DNA is copied exactly: this exact copying is called **replication**. An enzyme separates the two strands, and an enzyme makes a new strand along each old one: each new base pairs with the base opposite it, A with T and C with G.' },
-    { h: 'Two identical molecules', p: 'The whole chromosome is copied in this way. The result is two identical molecules of DNA, each with one old strand and one new strand: the chromosome is now two identical copies.' },
-    { h: 'Back in the nucleus', p: 'Back in the nucleus: each chromosome is now two identical threads, side by side, held together most firmly at one point. The yellow length on chromosome 9 is one gene, the **ABO gene**, at the same place on both threads. The cell is ready to divide.' },
+    { h: 'Two identical molecules', p: 'The whole chromosome is copied in this way. The result is two identical molecules of DNA, each with one old strand and one new strand: the chromosome is now two identical copies, and so is the gene (yellow).' },
+    { h: 'Back in the nucleus', p: 'Back in the nucleus: each chromosome is now two identical threads, side by side, held together most firmly at one point. The short gene is now too small to see. The yellow length on chromosome 9 is a different, longer gene, the **ABO gene** (about 20,000 base pairs), at the same place on both threads. The cell is ready to divide.' },
     { h: 'Coiling into a cross', p: 'Each copy coils, again and again, until it is short and thick. The copies stay joined at one point, so the chromosome is now a cross. You see a cross only while a cell divides.' },
     { h: 'Inside one copy', p: 'Enlarged: the end of the long arm of one copy. Its DNA and proteins are folded into thousands of loops. The ABO gene, lit yellow, is a short length of one loop: about 20,000 base pairs. The yellow band on a drawing of a chromosome marks its place, but is drawn much larger than the gene.' },
-    { h: 'A pair, and two alleles', p: 'Back to the whole pair: chromosome 9 from the mother and from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one and Iᵒ on the other; both copies carry the same allele.' },
-    { h: 'Two alleles: different bases', p: 'Enlarged: the same part of the ABO gene on the two chromosomes. **Iᴬ** and **Iᵒ** have the same bases, except one: a G is missing in Iᵒ. The bases are read in threes, so after the gap every three is different, and the protein of Iᵒ does not work. **Iᴮ** differs from Iᴬ in 7 bases: its protein works a little differently, which gives blood group B.' },
+    { h: 'A pair, and two alleles', p: 'Back to the whole pair: chromosome 9 from the mother and, brought beside it, chromosome 9 from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one chromosome and Iᵒ on the other. The two copies of each chromosome carry the same allele.' },
+    { h: 'Two alleles: different bases', p: 'Enlarged: the same part of the ABO gene on the two chromosomes (the bases along one strand). **Iᴬ** and **Iᵒ** have the same bases, except one: a G is missing in Iᵒ. The bases are read in threes, so after the gap every three is different, and the protein of Iᵒ does not work. **Iᴮ** differs from Iᴬ in 7 bases: its protein works a little differently, which gives blood group B.' },
     { h: 'Genotype and phenotype', p: 'Back to the pair. The alleles a person has are their **genotype**: this person’s genotype is IᴬIᵒ. The feature that can be observed is their **phenotype**: this person’s phenotype is blood group A, because Iᴬ is dominant to Iᵒ.' }
   ];
   var M = [0, 7, 18, 30, 39, 49, 59, 69, 81, 92, 103, 114, 125, 133];
@@ -104,7 +104,7 @@
   })();
   function nucleusFrame(t, kk, wd, bop) {
     var out = D.envelope(CX, CY, 150, 168, 18);
-    TER.slice().reverse().forEach(function (T) { out += D.coiled(T, t * .5, kk, wd, T.band && bop > .01 ? { band: T.band, bandOp: bop } : null); });
+    TER.slice().reverse().forEach(function (T) { out += D.coiled(T, PHZ, kk, wd, T.band && bop > .01 ? { band: T.band, bandOp: bop } : null); });
     return out;
   }
   function along(P, f) {
@@ -112,7 +112,10 @@
     var s = f * L[L.length - 1], j = 1; while (j < P.length - 1 && L[j] < s) j++;
     var u = (s - L[j - 1]) / Math.max(1e-6, L[j] - L[j - 1]); return [lerp(P[j - 1][0], P[j][0], u), lerp(P[j - 1][1], P[j][1], u)];
   }
-  function threadAt(T, t) { return D.territory(T, t * .5); }
+  /* the threads lie still (one phase, PHZ, the protein animation's PHB): they used to wriggle for seconds under their names,
+     then freeze (the audit, 6 Nov 2026; standard 13: a name never on a part that still moves) */
+  var PHZ = 2;
+  function threadAt(T, t) { return D.territory(T, PHZ); }
 
   /* ---------- step 1: a body cell ---------- */
   var CELL = (function () {
@@ -139,7 +142,7 @@
     });
     out += D.envelope(NU1[0], NU1[1], NU1[2], NU1[3], 10);
     out += '<g transform="translate(' + NU1[0] + ' ' + NU1[1] + ') scale(' + n1(1000 / Z1) / 1000 + ') translate(' + (-CX) + ' ' + (-CY) + ')">';
-    TER.slice().reverse().forEach(function (T) { out += D.coiled(T, t * .5, -1, 2.4); });
+    TER.slice().reverse().forEach(function (T) { out += D.coiled(T, PHZ, -1, 2.4); });
     return out + '</g>';
   }
   function labels1() {
@@ -221,11 +224,24 @@
     return lerp(175, W + 120, ease(seg(loc(6, t), .4, 8.4)));
   }
   function dOf(x, Xf) { if (x >= Xf) return 0; var k = Math.min(1, (Xf - x) / FORK.S); return FORK.D * k * k * (3 - 2 * k); }
-  /* the gene's yellow: all over the picture while it shows part of the gene, fading as replication begins */
-  function geneK(t) { return t < M[4] ? 0 : t < M[5] ? 1 : t < M[6] ? 1 - seg(loc(5, t), 0, 1) : 0; }
+  /* the gene's yellow: all over the picture while it shows part of the gene, and through replication it stays on both new
+     molecules (it used to fade as replication began and a yellow band came back later: the audit, 6 Nov 2026, "the gene
+     is copied too"): one band round the helix ahead of the fork, two bands round the two molecules behind it */
+  function geneK(t) { return t < M[4] ? 0 : 1; }
+  function geneBands(Xf) {
+    var h = HX.A + 14, xs = [-3000], top = [], bot = [], hiT = [], hiB = [];
+    for (var x = -60; x <= W + 60; x += 5) xs.push(x);
+    xs.push(W + 3000);
+    xs.forEach(function (x) {
+      var d = Xf > -900 ? dOf(x, Xf) : 0, g = Math.max(0, d - h);
+      top.push([x, HX.y - d - h]); bot.push([x, HX.y + d + h]); hiT.push([x, HX.y - g]); hiB.push([x, HX.y + g]);
+    });
+    /* the outer edge round both, less the gap between the two molecules (even-odd) */
+    return '<path class="dna__gene" fill-rule="evenodd" d="' + D.poly(top.concat(bot.reverse())) + ' Z ' + D.poly(hiT.concat(hiB.reverse())) + ' Z"/>';
+  }
   function helixFrame(t) {
-    var Xf = forkX(t), gk = geneK(t), out = NUCL, yb = HX.y - HX.A - 14;
-    if (gk > 0) out += '<g' + op(gk) + '><rect class="dna__gene" x="-3000" y="' + yb + '" width="' + (W + 6000) + '" height="' + (2 * HX.A + 28) + '"/></g>';
+    var Xf = forkX(t), gk = geneK(t), out = NUCL;
+    if (gk > 0) out += '<g' + op(gk) + '>' + geneBands(Xf) + '</g>';
     /* the bases are drawn from the first moment of the zoom: they were already there, as the marks on the DNA of the beads */
     out += D.duplex({ x0: -14, x1: W + 14, y: HX.y, A: HX.A, P: HX.P, ph: hph(t), lit: 1, fork: Xf > -900 ? { x: Xf, D: FORK.D, S: FORK.S, gap: FORK.gap } : null });
     if (Xf > -40 && Xf < W + 60) {
@@ -322,7 +338,20 @@
       /* the beads of step 3 along each loop: the same DNA, wound round the same proteins */
       [c1, c2].forEach(function (c) { for (var k = 1; k < 9; k++) { var p = bez(c, k / 9); beads += '<circle class="zm__bead" cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="2.3"/>'; } });
     });
-    return NUCL + back + '<path class="zm__axis" d="M' + n1(CX - AX10[0] * 260) + ' ' + n1(CY - AX10[1] * 260) + ' L' + n1(CX + AX10[0] * (TIP - 40)) + ' ' + n1(CY + AX10[1] * (TIP - 40)) + '"/>' + front + gene + beads;
+    return NUCL + band10() + back + '<path class="zm__axis" d="M' + n1(CX - AX10[0] * 260) + ' ' + n1(CY - AX10[1] * 260) + ' L' + n1(CX + AX10[0] * (TIP - 40)) + ' ' + n1(CY + AX10[1] * (TIP - 40)) + '"/>' + front + gene + beads;
+  }
+  /* where the yellow band of the drawn chromosome lies, enlarged with the loops: its outline stays, dashed, so the band (far
+     larger than the gene) and the gene (a short length of one loop) are seen together (the audit, 6 Nov 2026) */
+  var Z10 = 15.5;
+  function band10Geo() {
+    var rd = D.crossRod(TER[0], 0), L = rd.up + rd.dn, hl = .04 * L * Z10, hw = TER[0].w * .45 * Z10, o = (TER[0].band - F10) * L * Z10;
+    var c = [CX + AX10[0] * o, CY + AX10[1] * o];
+    function P(u, v) { return [c[0] + AX10[0] * u + NX10[0] * v, c[1] + AX10[1] * u + NX10[1] * v]; }
+    return { pts: [P(-hl, -hw), P(hl, -hw), P(hl, hw), P(-hl, hw)], left: P(0, -hw), c: c };
+  }
+  function band10() {
+    var g = band10Geo();
+    return '<path class="dna__gene" d="' + D.poly(g.pts) + ' Z" style="opacity:.14"/><path d="' + D.poly(g.pts) + ' Z" style="fill:none;stroke:var(--gene-ink);stroke-width:1.6;stroke-dasharray:7 5;opacity:.7"/>';
   }
   function bez(c, u) { var A = (1 - u) * (1 - u) * (1 - u), B = 3 * u * (1 - u) * (1 - u), C = 3 * u * u * (1 - u), E = u * u * u; return [A * c[0][0] + B * c[1][0] + C * c[2][0] + E * c[3][0], A * c[0][1] + B * c[1][1] + C * c[2][1] + E * c[3][1]]; }
   function loopAt(i, sd) { return LOOPS.filter(function (q) { return q.i === i && q.sd === sd; })[0]; }
@@ -331,7 +360,8 @@
     return [{ id: 'cop', text: 'one copy (IB: a chromatid)', x: c[0], y: c[1], side: 'T' },
             { id: 'loop', text: 'its DNA and proteins, folded into loops', x: l[0], y: l[1], side: 'L' },
             { id: 'abo', text: 'the ABO gene: a short length of one loop', x: g[0], y: g[1], side: 'R' },
-            { id: 'end', text: 'the end of the long arm', x: CX + AX10[0] * (TIP - 6), y: CY + AX10[1] * (TIP - 6), side: 'B' }];
+            { id: 'end', text: 'the end of the long arm', x: CX + AX10[0] * (TIP - 6), y: CY + AX10[1] * (TIP - 6), side: 'B' },
+            { id: 'bnd', text: 'where the band is drawn (much larger than the gene)', x: band10Geo().left[0], y: band10Geo().left[1], side: 'L' }];
   }
 
   /* ---------- step 11: the pair, and two alleles ---------- */
@@ -346,7 +376,7 @@
     var r = C9.w / 2, off = r * .55 + C9.spread * r * .15, l = D.CROSS.cen * C9.len * f, sg = c ? 1 : -1;
     return [x + sg * (off + l * Math.sin(TH9)), C9.y + (D.CROSS.cen - .5) * C9.len - l * Math.cos(TH9)];
   }
-  function dadX(t) { return lerp(352, 244, ease(seg(loc(10, t), TZ + .4, TZ + 2.6))); }
+  function dadX(t) { return lerp(430, 244, ease(seg(loc(10, t), TZ + .4, TZ + 2.6))); }
   function frame11(t) {
     var k = seg(loc(10, t), TZ + .4, TZ + 2.6), out = NUCL;
     function one(x, who, al, o) {
@@ -355,16 +385,16 @@
       return s;
     }
     out += one(96, 'mum', 'Iᴬ');
-    if (k > 0) out += one(dadX(t), 'dad', 'Iᵒ', k);
+    if (k > 0) out += one(dadX(t), 'dad', 'Iᵒ');   /* whole, brought beside it (it used to fade in: the audit, 6 Nov 2026) */
     return out;
   }
   function labels11(t) {
     if (seg(loc(10, t), TZ + .4, TZ + 2.6) < .99) return [];
     var a = upArm(96, 0, .92), bm = band(96, 0), f = upArm(dadX(t), 1, .92), bf = band(dadX(t), 1);
     return [{ id: 'm', text: 'chromosome 9 from the mother: two identical copies', x: a[0], y: a[1], side: 'L' },
-            { id: 'a', text: 'the allele Iᴬ (blood group A), on both copies', x: bm[0] - 11, y: bm[1], side: 'L' },
+            { id: 'a', text: 'Iᴬ: the allele for blood group A, on both copies', x: bm[0] - 11, y: bm[1], side: 'L' },
             { id: 'f', text: 'chromosome 9 from the father', x: f[0], y: f[1], side: 'R' },
-            { id: 'o', text: 'the allele Iᵒ (blood group O), on both copies', x: bf[0] + 11, y: bf[1], side: 'R' }];
+            { id: 'o', text: 'Iᵒ: the allele for blood group O, on both copies', x: bf[0] + 11, y: bf[1], side: 'R' }];
   }
 
   /* ---------- step 12: two alleles, their bases (Daniel, 5 Nov 2026: "show a close-up look of the gene, and then show where
@@ -432,9 +462,9 @@
   function frame13(t) {
     /* the bases fade first, then the rows shrink back into the bands as the pair comes back */
     var u = loc(12, t), k = 1 - ease(seg(u, .8, 2.8)), out = NUCL;
-    out += '<g' + op(seg(u, .9, 2.4)) + '>' + frame11(M[11] - .001) + '</g>';
+    out += '<g' + op(seg(u, .5, 1.6)) + '>' + frame11(M[11] - .001) + '</g>';
     if (k > .02) out += rowOf(Y1, BANDM(), k) + rowOf(Y2, BANDF(), k);
-    var ot = 1 - seg(u, 0, .9);
+    var ot = 1 - seg(u, .3, 1.2);
     if (ot > .02) out += rows(9, ot);
     var kc = seg(u, 3, 3.8);
     if (kc > .02) out += cap(330, 'genotype:', 'IᴬIᵒ', kc) + cap(362, 'phenotype:', 'blood group A', seg(u, 3.5, 4.3));
@@ -449,11 +479,11 @@
      one, where it lies at angle ang; tz its length (model seconds). null: the same picture goes on */
   var ZM = [null,
     { z: Z1, F: function () { return { p: [NU1[0], NU1[1]], ang: 0 }; } },
-    { z: 40, F: function () { var m = D.territoryMid(TER[0], M[2] * .5); return { p: m.p, ang: m.ang }; } },
+    { z: 40, F: function () { var m = D.territoryMid(TER[0], PHZ); return { p: m.p, ang: m.ang }; } },
     { z: 3, out: true, F: function () { return { p: G4, ang: 0 }; } },
     { z: 28, F: function () { return geneLinker(M[4]); } },
     null, null,
-    { z: 47, out: true, tz: TZ8, F: function () { var m = D.territoryMid(TER[0], M[7] * .5); return { p: m.p, ang: m.ang }; } },
+    { z: 47, out: true, tz: TZ8, F: function () { var m = D.territoryMid(TER[0], PHZ); return { p: m.p, ang: m.ang }; } },
     null,
     { z: 15.5, F: function () { return { p: D.rodAt(D.crossRod(TER[0], 0), F10), ang: 0 }; } },
     { z: 9.9, out: true, F: function () { return { p: band(96, 0, F10), ang: -(ARM - TH9) }; } },
@@ -519,7 +549,7 @@
     function draw(tt) {
       var t = clock(tt), sc = scene(t);
       model.innerHTML = '<g clip-path="url(#' + uid + ')">' + sc.svg + '</g>';
-      var items = sc.e > .95 ? LB[sc.k](t).map(function (q) { var p = lay.to(q.x, q.y); return { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side, alts: [] }; }) : [];
+      var items = sc.e >= .999 ? LB[sc.k](t).map(function (q) { var p = lay.to(q.x, q.y); return { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side, alts: [] }; }) : [];
       gLab.innerHTML = names(lay, items, narrow, key);
       S.pill('see', SEE[sc.k], 'ok'); S.pill('size', SIZE[sc.k], 'ok');
     }
@@ -528,8 +558,8 @@
        "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'zm', [
       /* each name only in the steps whose picture shows its part (the steps from 0) */
-      { key: [['mum', 'from the mother', [0, 1, 7, 8, 9, 10, 12]], ['dad', 'from the father', [0, 1, 7, 8, 10, 12]], ['other', 'other chromosomes', [0, 1, 7, 8]], ['mito', 'mitochondria', [0]],
-              ['dna', 'DNA', [2, 3, 4, 5, 6]], ['hist', 'proteins (IB: histones)', [2, 3, 9]], ['dnagene', 'a gene', [3, 4, 9, 11]], ['gene', 'a gene', [7, 8, 10, 12]],
+      { key: [['mum', 'from the mother', [0, 1, 7, 8, 9, 10, 12]], ['dad', 'from the father', [0, 1, 7, 8, 10, 12]], ['other', 'other chromosomes: also from the mother or the father', [0, 1, 7, 8]], ['mito', 'mitochondria', [0]],
+              ['dna', 'DNA', [2, 3, 4, 5, 6]], ['hist', 'proteins (IB: histones)', [2, 3, 9]], ['dnagene', 'a gene', [3, 4, 5, 6, 9, 11]], ['gene', 'a gene', [7, 8, 10, 12]],
               ['bases', 'the four bases', [2, 4, 5, 6, 11], 'ATCG'], ['strand', 'a new strand', [5, 6]], ['enz', 'enzymes', [5]]] }
     ], function (Dw, nar) {
       narrow = nar;

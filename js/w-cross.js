@@ -24,6 +24,9 @@
   var h = L.h, esc = L.esc;
   function P(s) { return G.parse(s); }
   function hs(s) { return G.html(P(s)); }
+  /* a gamete's letters, inside its circle: one inline span, so the allele stays the small RAISED letter, as in the
+     genotypes (the circle is a grid; a bare <sup> became a row of its own under the X or I: the audit, 6 Nov 2026) */
+  function gm(t) { return '<span class="wx__al">' + G.html(t) + '</span>'; }
   function pick(a, r) { return a[Math.floor((r || Math.random)() * a.length)]; }
 
   /* ---------- the genes: how each genotype reads as a phenotype ---------- */
@@ -56,11 +59,11 @@
     sex:      { title: 'The sex of a child', gene: XY, pp: ['a woman', 'a man'], pg: ['XX', 'XY'],
                 end: 'Half the boxes are girls and half are boys: for each child, a <b>50 %</b> chance of a boy. An expected ratio (a probability), not an exact count: a family may have three girls.' },
     peas31:   { title: 'Two heterozygous pea plants', gene: domGene(PEA), pp: ['round seeds', 'round seeds'], pg: ['Rr', 'Rr'],
-                end: '<b>3 round : 1 wrinkled</b>. Each seed has a 3 in 4 chance, 75 %, of being round: count 40 seeds from the pods and about 30 are round, rarely exactly 30.' },
+                end: '<b>3 round : 1 wrinkled</b>. Each seed has a 3 in 4 chance, 75 %, of being round: count 40 seeds from the pods and about 30 are round, often not exactly 30.' },
     peas11:   { title: 'Heterozygous × homozygous recessive', gene: domGene(PEA), pp: ['round seeds', 'wrinkled seeds'], pg: ['Rr', 'rr'],
                 end: '<b>1 round : 1 wrinkled</b>. Each seed has a 50 % chance of being wrinkled.' },
     testRR:   { title: 'A test cross: if the round plant is RR', gene: domGene(PEA), pp: ['round seeds (genotype not known)', 'wrinkled seeds (homozygous recessive)'], pg: ['RR', 'rr'],
-                end: 'Every offspring is Rr: <b>all round</b>. Every gamete of the RR parent carries R. So if all the offspring are round, the round parent is <b>RR, homozygous dominant</b>.' },
+                end: 'Every offspring is Rr: <b>all round</b>. Every gamete of the RR parent carries R. So if many offspring are all round, the round parent is <b>RR, homozygous dominant</b>.' },
     testRr:   { title: 'A test cross: if the round plant is Rr', gene: domGene(PEA), pp: ['round seeds (genotype not known)', 'wrinkled seeds (homozygous recessive)'], pg: ['Rr', 'rr'],
                 end: '<b>1 round : 1 wrinkled</b>. So if any offspring is wrinkled, the round parent is <b>Rr, heterozygous</b>: a single wrinkled offspring shows it.' },
     aAB:      { title: 'Blood group A × blood group AB', gene: ABO, pp: ['blood group A', 'blood group AB'], pg: ['IᴬIᴬ', 'IᴬIᴮ'],
@@ -88,7 +91,7 @@
       c.gene.kind === 'xy' ? { t: 12, h: 'The gametes', p: 'Each **gamete** carries **one** sex chromosome: every egg cell an X; a sperm cell an X or a Y. Each gamete in its own circle.' }
         : c.gene.kind === 'sex' ? { t: 12, h: 'The gametes', p: 'Each **gamete** carries **one** sex chromosome: an X with its allele, or the Y with none. Each gamete in its own circle.' }
         : { t: 12, h: 'The gametes', p: 'Each **gamete** carries **one** allele: the two alleles of a parent go into different gametes. Each gamete in its own circle.' },
-      { t: 19, h: 'The Punnett square', p: 'One parent’s gametes along the top, the other’s down the side.' },
+      { t: 19, h: 'The Punnett square', p: 'Along the top: the gametes of the parent on the right. Down the side: the gametes of the parent on the left.' },
       { t: 25, h: 'The offspring’s genotypes', p: 'Each box: the gamete above it and the gamete beside it. Every box is equally likely.' },
       { t: 32, h: 'The offspring’s phenotypes', p: 'Under each genotype, its **phenotype**.' },
       { t: 38, h: 'The ratio', p: 'The ratio, with the phenotypes named: an **expected ratio** (a probability), not an exact count.' }
@@ -103,10 +106,10 @@
     d.innerHTML =
       row('parental phenotypes', '<span class="wx__c" data-s="0">' + c.pp[0] + '</span><span class="wx__x" data-s="0">×</span><span class="wx__c" data-s="0">' + c.pp[1] + '</span>') +
       row('parental genotypes', '<span class="wx__c wx__g" data-s="1">' + hs(c.pg[0]) + '</span><span class="wx__x" data-s="1">×</span><span class="wx__c wx__g" data-s="1">' + hs(c.pg[1]) + '</span>') +
-      row('gametes', '<span class="wx__c"><i class="wx__gam" data-s="2">' + G.html(X.side[0]) + '</i><i class="wx__gam" data-s="2">' + G.html(X.side[1]) + '</i></span><span class="wx__x"></span><span class="wx__c"><i class="wx__gam" data-s="2">' + G.html(X.top[0]) + '</i><i class="wx__gam" data-s="2">' + G.html(X.top[1]) + '</i></span>') +
-      '<div class="wx__ps" data-s="3"><table class="wx__sq"><tr><th></th><th data-s="3"><i class="wx__gam">' + G.html(X.top[0]) + '</i></th><th data-s="3"><i class="wx__gam">' + G.html(X.top[1]) + '</i></th></tr>' +
+      row('gametes', '<span class="wx__c"><i class="wx__gam" data-s="2" data-in="L">' + gm(X.side[0]) + '</i><i class="wx__gam" data-s="2" data-in="R">' + gm(X.side[1]) + '</i></span><span class="wx__x"></span><span class="wx__c"><i class="wx__gam" data-s="2" data-in="L">' + gm(X.top[0]) + '</i><i class="wx__gam" data-s="2" data-in="R">' + gm(X.top[1]) + '</i></span>') +
+      '<div class="wx__ps" data-s="3"><table class="wx__sq"><tr><th></th><th data-s="3" data-in="T" data-col="0"><i class="wx__gam">' + gm(X.top[0]) + '</i></th><th data-s="3" data-in="T" data-col="1"><i class="wx__gam">' + gm(X.top[1]) + '</i></th></tr>' +
         [0, 1].map(function (r) {
-          return '<tr><th data-s="3"><i class="wx__gam">' + G.html(X.side[r]) + '</i></th>' + [0, 1].map(function (k) {
+          return '<tr><th data-s="3" data-in="S" data-row="' + r + '"><i class="wx__gam">' + gm(X.side[r]) + '</i></th>' + [0, 1].map(function (k) {
             return '<td><span class="wx__bg" data-s="4" data-k="' + (r * 2 + k) + '">' + G.html(X.boxes[r][k]) + '</span><span class="wx__bp" data-s="5" data-k="' + (r * 2 + k) + '">' + esc(X.ph[r][k]) + '</span></td>';
           }).join('') + '</tr>';
         }).join('') + '</table></div>' +
@@ -116,15 +119,31 @@
     STEPS.forEach(function (s, i) { var w = (s.h + ' ' + s.p).replace(/\*\*/g, '').split(/\s+/).length; R.push(R[i] + Math.max(M[i + 1] - M[i], w / 2)); });
     var clock = K.readerClock(R, M);
     var parts = Array.prototype.slice.call(d.querySelectorAll('[data-s]'));
+    var heads = Array.prototype.slice.call(d.querySelectorAll('th[data-col], th[data-row]'));
+    /* where a part comes from (the audit, 6 Nov 2026: "nothing shows the alleles going into the gametes, or each box
+       taking the gamete above it and the gamete beside it"): a gamete drops out of its parent's genotype, above the middle
+       of its pair; the square's gametes come in from the top and from the side; each box (and then each phenotype) fills
+       on its own, one after another, while the two gametes that make it are lit */
+    var FROM = { L: [22, -30], R: [-22, -30], T: [0, -18], S: [-18, 0] };
+    function ease(q) { return q < .5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2; }
     function draw(tt) {
       var t = clock(tt);
       var k = 0; for (var i = 0; i < M.length - 1; i++) if (t >= M[i] - 1e-6) k = i;
+      var lit = -1;
       parts.forEach(function (el) {
-        var s = +el.getAttribute('data-s'), on = s < k || (s === k && t >= M[s]);
-        var op = s < k ? 1 : s === k ? Math.min(1, (t - M[s]) / 1.4 + (el.hasAttribute('data-k') ? -(+el.getAttribute('data-k')) * .5 : 0)) : 0;
-        if (op < 0) op = 0;
+        var s = +el.getAttribute('data-s'), on = s < k || (s === k && t >= M[s]), bx = el.hasAttribute('data-k') ? +el.getAttribute('data-k') : -1;
+        var op = s < k ? 1 : s === k ? (bx >= 0 ? (t - M[s] - bx * 1.5) / 1.2 : (t - M[s]) / 1.4) : 0;
+        op = op < 0 ? 0 : op > 1 ? 1 : op;
         el.style.opacity = on ? String(Math.round(op * 100) / 100) : '0';
+        var f = FROM[el.getAttribute('data-in')], m = 1 - ease(op);
+        el.style.transform = f && m > .001 ? 'translate(' + Math.round(f[0] * m) + 'px,' + Math.round(f[1] * m) + 'px)' : '';
         el.classList.toggle('is-now', s === k && t < M[s + 1]);
+        if (s === 4 && k === 4 && op > 0 && op < 1) lit = bx;
+      });
+      heads.forEach(function (th) {
+        var on = lit >= 0 && (th.getAttribute('data-col') === String(lit % 2) || th.getAttribute('data-row') === String(Math.floor(lit / 2)));
+        var g = th.querySelector('.wx__gam');
+        g.style.color = on ? 'var(--accent)' : ''; g.style.borderColor = on ? 'var(--accent)' : '';
       });
     }
     var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });

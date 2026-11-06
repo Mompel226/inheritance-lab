@@ -113,7 +113,9 @@
   function row(n, r, o) { var s = ''; for (var i = 0; i < n; i++) s += cell(gx(i), GR.y, r, r); return grp(s, o == null ? 1 : o); }
   var ROUNDS = [[.8, 3.8, 4.6], [5, 8, 8.8], [9.2, 12.2, 13]];
   function growth(u) {
-    if (u < RESET) return row(8, GR.r, 1 - u / RESET) + row(1, GR.r, u / RESET);
+    /* when the story starts again, the row of eight moves off to the right as it fades, and one cell comes in: never a
+       row that just vanishes (the audit, 6 Nov 2026) */
+    if (u < RESET) { var l0 = ease(u / RESET); return '<g transform="translate(' + n1(60 * l0) + ' 0)">' + row(8, GR.r, 1 - u / RESET) + '</g>' + row(1, GR.r, u / RESET); }
     for (var q = 0; q < 3; q++) {
       var d = ROUNDS[q], n = Math.pow(2, q);
       if (u < d[0]) return row(n, GR.r);
@@ -129,7 +131,8 @@
     var out = '<path class="tissue" d="M66 ' + (RP.y + 21) + ' L304 ' + (RP.y + 21) + '"/>', fixed = [-3, -2, 1, 2, 3];
     var k = seg(u, 1.6, 4.9);
     if (u < RESET) {
-      [-1, 0].forEach(function (p) { out += cell(RP.x(p), RP.y, RP.rx, RP.ry, null, 1 - u / RESET); });
+      /* the cut: the two cells drop out of the layer as they go */
+      [-1, 0].forEach(function (p) { out += cell(RP.x(p), RP.y + 16 * ease(u / RESET), RP.rx, RP.ry, null, 1 - u / RESET); });
       fixed.forEach(function (p) { out += cell(RP.x(p), RP.y, RP.rx, RP.ry); });
       return out;
     }
@@ -175,7 +178,8 @@
   var ZC = [NX + 50, SOIL - 58], ZR = 25;
   function asexual(u) {
     var out = '<path class="soil" d="M76 ' + SOIL + ' L304 ' + SOIL + '"/>' + plant(PX, PS);
-    if (u < RESET) return out + grp(runner(1) + plant(NX, PS), 1 - u / RESET);
+    /* when the story starts again, the new plant and its runner move on to the right as they fade */
+    if (u < RESET) return out + '<g transform="translate(' + n1(50 * ease(u / RESET)) + ' 0)">' + grp(runner(1) + plant(NX, PS), 1 - u / RESET) + '</g>';
     var g = ease(seg(u, .9, 3.6)), s = ease(seg(u, 3.4, 6.4)), wither = seg(u, 6.6, 7.6), mk = seg(u, 3.2, 6.2), zo = seg(u, 2.8, 3.2) * (1 - seg(u, 6.6, 7.2));
     /* enlarged: one cell at the runner's tip dividing by mitosis, as the new plant grows */
     if (zo > .02) {
@@ -212,7 +216,7 @@
   function stem(u) {
     var out = '';
     /* when the story starts again, the blood cells leave into the blood */
-    if (u < RESET) { var l = ease(u / RESET); return cell(SX, SY, SR, SR, 'cellb--stem') + rbc(RB[0] + 50 * l, RB[1], 14, 1 - l) + wbc(WB[0] + 50 * l, WB[1], 17, 1, 1 - l); }
+    if (u < RESET) { var l = ease(u / RESET); return cell(SX, SY, SR, SR, 'cellb--stem') + rbc(RB[0] + 90 * l, RB[1], 14, 1 - l) + wbc(WB[0] + 90 * l, WB[1], 17, 1, 1 - l); }
     var d1 = seg(u, .8, 3.8), s1 = seg(u, 3.8, 6.6), d2 = seg(u, 7, 10), s2 = seg(u, 10, 12.8);
     /* the stem cell: divides, grows back, divides again */
     if (d1 > 0 && d1 < 1) out += divide({ c: [SX, SY], a: SX, b: SX + 36, r0: SR, r1: 16, horiz: true, k: d1, cls: 'cellb--stem' });

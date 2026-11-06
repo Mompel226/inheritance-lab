@@ -107,7 +107,8 @@
     o.dur = E; o.still = B + r1 / 2;
     o.hold = o.holdOf(r0 / 2, B + r1 / 2);
     o.marks = [r0 / 2, A + play * .25, A + play * .5, A + play * .75, B + r1 / 2, C + back / 2];
-    o.wiggle = function (s) { return 3 * Math.sin(2 * Math.PI * s / E); };
+    /* the threads lie still (the audit, 6 Nov 2026: names stood on threads that wriggled), as in the step animations */
+    o.wiggle = function () { return 3; };
     o.frame = function (s, ph) {
       var svg, pts = {};
       if (s < A) { svg = o.render(o.m0 * s / A, ph); pts = o.first(ph); }
@@ -115,16 +116,18 @@
       else if (s < C) { svg = o.render(o.m1, ph); pts = o.last(ph); }
       else {
         var k = ease((s - C) / back);
-        /* without a way back, the last frame fades away first and the first cell then appears (a cross-fade read as the
-           division running backwards: the review, 5 Nov 2026) */
-        var ko = Math.max(0, 1 - k / .45), ki = Math.max(0, (k - .55) / .45);
-        svg = o.grow ? o.grow(k, ph) : (ko > .02 ? '<g opacity="' + n1(ko * 100) / 100 + '">' + o.render(o.m1, ph) + '</g>' : '') + (ki > .02 ? '<g opacity="' + n1(ki * 100) / 100 + '">' + o.render(0, ph) + '</g>' : '');
+        /* without a way back, the last frame moves off to the left and the first cell comes in from the right: the next
+           cell, never the division running backwards (a cross-fade: the review, 5 Nov 2026) and never an empty picture
+           between them (the audit, 6 Nov 2026) */
+        svg = o.grow ? o.grow(k, ph) : slide(o.W, o.render(o.m1 - .01, ph), o.render(0, ph), k);   /* m1 − .01: nothing waiting outside the picture (the egg cell) slides into view */
       }
       return { svg: svg, pts: pts };
     };
     return o;
   }
   function pt(p, side) { return [n1(p[0]), n1(p[1]), side]; }
+  /* the way back of a film without its own: the old picture out to the left, the new one in from the right, both whole */
+  function slide(W, a, b, k) { var d = 1.1 * W; return '<g transform="translate(' + n1(-d * k) + ' 0)">' + a + '</g><g transform="translate(' + n1(d * (1 - k)) + ' 0)">' + b + '</g>'; }
   /* the mitosis picture: one cell divides into two; the top one then grows into the next cell, as cells do between
      divisions, and the other leaves the picture */
   Films.add('mitosis', filmOf({
@@ -179,14 +182,11 @@
         for (var i = 0; i < S.length; i++) {
           var q = S[i], k = q[1] ? Math.min(1, (s - q[0]) / q[1]) : 1;
           if (s >= q[0] + q[1] && i + 1 < S.length) continue;
-          if (q[2] === 'back') {
-            var ko = Math.max(0, 1 - k / .45), ki = Math.max(0, (k - .55) / .45);
-            return { svg: (ko > .02 ? '<g opacity="' + n1(ko * 100) / 100 + '">' + lc(50, ph) + '</g>' : '') + (ki > .02 ? '<g opacity="' + n1(ki * 100) / 100 + '">' + lc(0, ph) + '</g>' : ''), pts: {} };
-          }
+          if (q[2] === 'back') return { svg: slide(LC.W, lc(50, ph), lc(0, ph), ease(k)), pts: {} };
           return { svg: lc(lerp(q[3], q[4], k), ph), pts: q[2] === 'rest' ? pts(i, ph) : {} };
         }
       },
-      wiggle: function (s) { return 3 * Math.sin(2 * Math.PI * s / t0); }
+      wiggle: function () { return 3; }
     });
     var A = S[0][0] + S[0][1] / 2, B = S[2][0] + S[2][1] / 2, C = S[4][0] + S[4][1] / 2;
     o.still = C; o.hold = { line: A, cross: B, lines: C, lines2: C };

@@ -106,7 +106,7 @@
     /* the motion runs 1.25 times faster than written, as at the IGCSE level */
     var P = 1.25, clock = K.readerClock(R, M, P);
     function draw(tt) {
-      var t = clock(tt), ph = t * .5, g = {};
+      var t = clock(tt), ph = 3, g = {};   /* the threads lie still, as at the IGCSE level (the audit, 6 Nov 2026) */
       model.innerHTML = '<g clip-path="url(#' + uid + ')">' + render(t, ph, g) + '</g>';
       var items = labelsAt(t, ph, g).map(function (q) { var p = lay.to(q.x, q.y); return { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side }; });
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
@@ -178,7 +178,7 @@
         body += chrom(T, ph, co, { cross: Tm });
         top.push(D.crossRod(Tm, 0).p0); bot.push(D.crossRod(Tm, 1).p0); g.x.push(Tm);
       } else {
-        var V = D.veePair(T, D.at(T, EQ[i], 90), [AX[i], AY[0]], [AX[i], AY[1]], part, false);
+        var V = D.veePair(T, D.at(T, EQ[i], 90), [AX[i], AY[0]], [AX[i], AY[1]], part, false, null, .07 * i);
         if (t < 55.2) body += chrom(T, ph, 1, { rods: function (c) { return V[c]; }, split: true });
         else body += D.uncoil(T1[i], ph, un, SZ.wd, V[0], { band: T.band }) + D.uncoil(T2[i], ph, un, SZ.wd, V[1], { band: T.band });
         top.push(V[0].p0); bot.push(V[1].p0); g.v.push(V);
@@ -263,7 +263,7 @@
     { t: 14, h: 'Prophase I: the pairs', p: 'Inside the nucleus the chromosomes **condense**. The two chromosomes of each **homologous pair** lie side by side, gene beside gene: a **bivalent** (the pairing is synapsis: beyond IB).' },
     { t: 23, h: 'Prophase I: crossing over', p: '**Crossing over**: one chromatid of each homologue, two **non-sister chromatids**, break where they touch and exchange the same length (the place is a chiasma: beyond IB). Each of these two chromatids now has a length from the other homologue. (D2.1.11)' },
     { t: 30, h: 'Prophase I ends', p: 'The centrosomes move to the poles. The **nuclear membrane** breaks into vesicles, and the centrosomes make the **spindle**: microtubules attach to the centromeres. (D2.1.6; B2.2.6, HL)' },
-    { t: 33, h: 'Metaphase I', p: 'The **bivalents** are arranged on the **equator**. Which homologue faces which pole is chance, for each pair separately: **random orientation**. With 2 pairs there are 4 combinations; with 23 pairs, 2²³ (about 8 million). (D2.1.11)' },
+    { t: 33, h: 'Metaphase I', p: 'The **bivalents** are arranged on the **equator**. Which homologue faces which pole is chance, for each pair separately: **random orientation**. So with 2 pairs there are 4 kinds of gamete; with 23 pairs, 2²³ (about 8 million). (D2.1.11)' },
     { t: 40, h: 'Anaphase I', p: 'The **homologous chromosomes separate**: one of each pair moves to each pole, the **first round of segregation**. The sister chromatids stay joined. (D2.1.9)' },
     { t: 47, h: 'Telophase I and cytokinesis', p: 'Two cells, each **haploid**: one chromosome of each pair, still two chromatids. Each cell has one centrosome. A nuclear membrane forms round each set. There is **no replication** before the second division.' },
     { t: 55, h: 'Prophase II', p: 'In each cell the centrosome doubles, and the two move to opposite sides: a new **spindle** forms at **right angles** to the first. The nuclear membrane breaks into vesicles again.' },
@@ -330,7 +330,7 @@
     /* the chromosomes */
     var T0 = terr(D.FOUR, NU2), cp = ease(seg(t, 7.4, 13)), co = ease(seg(t, 14.4, 19)), pr = ease(seg(t, 19, 22.6)), xo = ease(seg(t, 23.6, 27.6));
     var line = ease(seg(t, 37.4, 42)), a1 = ease(seg(t, 44.4, 49)), r2 = ease(seg(t, 59.4, 63)), m2 = ease(seg(t, 65.4, 69)), a2 = ease(seg(t, 71.4, 76)), un = seg(t, 84, 87.6);
-    var kTop = [], kBot = [], kL = [[], []], kR = [[], []];
+    var kTop = [], kBot = [], kL = [[], []], kR = [[], []], pieces = [];
     g.T0 = T0; g.x = []; g.v = [];
     /* crossing over (pair A): the top homologue's lower chromatid and the bottom homologue's upper one, from TX to the end */
     function tails(i) { return i === 0 && t >= 23.6 ? [null, TX] : i === 1 && t >= 23.6 ? [TX, null] : null; }
@@ -344,17 +344,16 @@
         c = mix(c, MET[i], line);
         c = [c[0], lerp(c[1], yC, a1)];
         if (t >= 59.4) { x = lerp(90, 0, r2); c = mix(c, [160, yC + (T.A ? -26 : 30)], m2); }
-        var Tm = D.at(T, c, x), tl = tails(i);
-        body += chrom(T, ph, co, { cross: Tm, tail: tl });
-        /* the exchange, as it happens: the old colours fade from the exchanged lengths */
-        if (tl && xo < 1) body += '<g' + op(1 - xo) + '>' + chrom(T, ph, co, { cross: Tm }) + '</g>';
+        var Tm = D.at(T, c, x), tl = tails(i), moving = !!tl && xo > 0 && xo < 1;
+        body += chrom(T, ph, co, { cross: Tm, tail: tl, cutTail: moving });
+        if (moving) pieces.push({ Tm: Tm, c: tl[0] != null ? 0 : 1, who: T.who, w: T.w });
         var cu = D.crossRod(Tm, 0).cen;
         if (t < 59.4) (up ? kTop : kBot).push(cu);
         else { kL[j].push(D.crossRod(Tm, 0).p0); kR[j].push(D.crossRod(Tm, 1).p0); }
         g.x.push(Tm);
       } else {
         var y = yC + (T.A ? -26 : 30), tl2 = tails(i) || [null, null];
-        var V = D.veePair(T, D.at(T, [160, y], 0), [96, y], [224, y], a2, true);
+        var V = D.veePair(T, D.at(T, [160, y], 0), [96, y], [224, y], a2, true, null, .07 * i);
         var Tg = [terr(D.TWO(T.who, T.who), gnuc(0, yC))[T.A ? 0 : 1], terr(D.TWO(T.who, T.who), gnuc(1, yC))[T.A ? 0 : 1]];
         if (t < 84) body += chrom(T, ph, 1, { rods: function (q) { return V[q]; }, split: true, tail: tl2 });
         else body += D.uncoil(Tg[0], ph, un, SZ.wd, V[0], { band: T.band, tail: tl2[0] }) + D.uncoil(Tg[1], ph, un, SZ.wd, V[1], { band: T.band, tail: tl2[1] });
@@ -362,6 +361,16 @@
         g.v.push({ i: i, j: j, V: V });
       }
     });
+    /* the exchange, as it happens (the audit, 6 Nov 2026: the colours used to fade in place, though the step says the
+       chromatids "break where they touch and exchange the same length"): each exchanged length, from TX to the end, keeps
+       its own colour and moves across the chiasma onto the other chromatid, the two passing each other */
+    if (pieces.length === 2) {
+      var e = xo, run = [0, 1].map(function (q) { var rd = D.crossRod(pieces[q].Tm, pieces[q].c), P = []; for (var f = TX; f <= 1.0001; f += .04) P.push(D.rodAt(rd, Math.min(1, f))); return P; });
+      [0, 1].forEach(function (q) {
+        var A = run[q], B = run[1 - q], sd = q ? 1 : -1, P = A.map(function (p, n) { var m = mix(p, B[n], e); return [m[0] + sd * 7 * Math.sin(Math.PI * e), m[1]]; });
+        body += '<path class="zm__arm zm__arm--' + pieces[q].who + '" d="' + D.poly(P) + '" stroke-width="' + n1(pieces[q].w * .9) + '" opacity=".8"/>';
+      });
+    }
     /* the chiasma: where the two non-sister chromatids cross, from crossing over until anaphase I */
     var chi = t >= 23.6 && t < 45.4 ? xo * (1 - seg(t, 44.4, 45.4)) : 0;
     if (chi > .02 && g.x.length > 1) {
