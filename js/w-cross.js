@@ -101,8 +101,11 @@
     ];
     /* each box a 25 % chance, then the chances of each phenotype added, in the order the phenotypes first appear in the
        boxes (Daniel, 7 Nov 2026: "a girl 25%, a boy 25%, a girl 25%, a boy 25%, and then clearly you just add up"; it
-       replaced a count of 1, 2 in the boxes) */
-    var SUM = (function () { var by = {}, out = []; [0, 1].forEach(function (r) { [0, 1].forEach(function (k) { var p = X.ph[r][k]; if (!(p in by)) { by[p] = out.length; out.push({ p: p, n: 0 }); } out[by[p]].n++; }); }); return out; })();
+       replaced a count of 1, 2 in the boxes); the girls before the boys, as the ratio under them names them (7 Nov 2026:
+       the sex-linked sums read girl, boy, girl, boy over a ratio of girl, girl, boy, boy) */
+    var SUM = (function () { var by = {}, out = []; [0, 1].forEach(function (r) { [0, 1].forEach(function (k) { var p = X.ph[r][k]; if (!(p in by)) { by[p] = out.length; out.push({ p: p, n: 0 }); } out[by[p]].n++; }); });
+      function boy(q) { return / boy\b/.test(q.p) ? 1 : 0; }
+      return out.filter(function (q) { return !boy(q); }).concat(out.filter(boy)); })();
     var AT_SUM = 3.6, AT_END = AT_SUM + 1.2 * SUM.length + .3;
     var M = [0, 6, 12, 19, 29.8, 39.3, 48.8, 48.8 + AT_END + 1.4];
     var box = h('div', 'widget wx');
