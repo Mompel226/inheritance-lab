@@ -377,7 +377,7 @@
         '<path class="lb__halo" d="' + d + '"/><path class="lb__lead" d="' + d + '"/>' +
         '<circle class="lb__pin" cx="' + f2(cx) + '" cy="' + f2(cy) + '" r="' + f2(r) + '"/>' +
         '<text class="lb__pinn" x="' + f2(cx) + '" y="' + f2(cy + font * .3) + '" text-anchor="middle" style="font-size:' + f2(font * .82) + 'px">' + n + '</text></g>';
-      order.push({ n: n, text: x.text, cls: x.cls, id: x.id });
+      order.push({ n: n, text: x.text, cls: x.cls, id: x.id, y: cy });
     });
     return out;
   }
@@ -388,8 +388,9 @@
      horizontal leader (so leaders still never cross), and the words go in a numbered list in a
      band above the drawing — the Plants Lab's rule for its animations on a phone.
      pinLabels(o): o as for labels(), with left/right the inner edges of the two pin columns.
-       returns { svg, order: [{ n, text, cls, id }] } — number 1 is the top of the left column (the top band's first, when
-       there is one). `id` names the part, since two parts may share their words ("divided: two single lines"). */
+       returns { svg, order: [{ n, text, cls, id, y }] } — number 1 is the top of the left column (the top band's first, when
+       there is one). `id` names the part, since two parts may share their words ("divided: two single lines"); `y` is where
+       its disc stands (a key beside the picture puts each name level with it). */
   function pinLabels(o) {
     var font = o.font || 18, r = font * .72, gap = o.gap == null ? 4 : o.gap, out = '', order = [];
     /* a band's pins (sides 'T', 'B', opt-in): the top band is numbered first, left to right; the bottom band last */
@@ -416,7 +417,7 @@
           '<path class="lb__halo" d="' + d + '"/><path class="lb__lead" d="' + d + '"/><circle class="lb__dot" cx="' + f2(x.x) + '" cy="' + f2(x.y) + '" r="' + (font * .16).toFixed(2) + '"/>' +
           '<circle class="lb__pin" cx="' + f2(cx) + '" cy="' + f2(x.ly) + '" r="' + f2(r) + '"/>' +
           '<text class="lb__pinn" x="' + f2(cx) + '" y="' + f2(x.ly + font * .3) + '" text-anchor="middle" style="font-size:' + f2(font * .82) + 'px">' + n + '</text></g>';
-        order.push({ n: n, text: x.text, cls: x.cls, id: x.id });
+        order.push({ n: n, text: x.text, cls: x.cls, id: x.id, y: x.ly });
       });
     });
     out += pinBandSvg(o, 'B', r, order);

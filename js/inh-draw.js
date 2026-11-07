@@ -3,8 +3,9 @@
    (new-lab.md §7: "Draw only abstract shapes … flat fills, every symbol in a key"; Daniel's approval of the plan, 4 Nov 2026).
 
    chromo     a chromosome: one rod, or after replication two identical copies joined at one point. Its colour says
-              which parent it came from (--mum, --dad: the key "from the mother / from the father" goes with every
-              drawing that uses them). A gene is a band across it, at the same place on both chromosomes of a pair.
+              which parent it came from (--mum, --dad: keyed "from the mother / from the father" in the first station;
+              later stations do not key them again, 7 Nov 2026). A gene is a band across it, at the same place on both
+              chromosomes of a pair.
    cell, nucleus   a cell's membrane and its nucleus
    helix      a length of DNA: two strands and the bases between them
    allele     an allele or a genotype written with real raised letters (js/genes.js tokens)

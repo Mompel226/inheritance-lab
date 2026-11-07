@@ -87,6 +87,9 @@
 
   /* ---------- small helpers ---------- */
   var pl = D.poly;
+  /* the same path to 0.0001 of a unit: for a picture drawn enlarged in a zoom (pl's 0.1 of a unit, enlarged 70 times,
+     put the gene picture's enzyme up to 7 px off the close-up's, 7 Nov 2026) */
+  function plx(P) { return 'M' + P.map(function (p) { return r4(p[0]) + ' ' + r4(p[1]); }).join(' L'); }
   function op(o) { return o < .999 ? ' opacity="' + n1(Math.max(0, o) * 100) / 100 + '"' : ''; }
   function rot(p, a) { var c = Math.cos(a), s = Math.sin(a); return [p[0] * c - p[1] * s, p[0] * s + p[1] * c]; }
   function mix(p, q, k) { return [lerp(p[0], q[0], k), lerp(p[1], q[1], k)]; }
@@ -225,9 +228,67 @@
     var inw = [CX - p[0], CY - p[1]]; if (-tg[1] * inw[0] + tg[0] * inw[1] < 0) tg = [-tg[0], -tg[1]];
     return { p: p, ang: Math.atan2(tg[1], tg[0]) };
   })();
+  /* while this picture enlarges into the pore (step 8), its nuclear membrane is drawn as the pore picture draws it: two
+     membranes (each a double layer of lipid) with the space between them, joined round each pore, each pore as wide as
+     there; the plain outline, with its wider pores, fades. Enlarged, the plain pore was a pale gap wider than the close-up
+     and showed on each side of it (Daniel, 7 Nov 2026: "I don't understand why you have white spaces on the side … it
+     should be a whole phospholipid bilayer, and not having those clear separations there"). ENVB: the outline's
+     ellipse (D.envelope's), sampled by length */
+  var ENVB = (function () {
+    var rx = 150, ry = 168, n = 1800, C = [], S = [0];
+    for (var i = 0; i <= n; i++) {
+      var a = i / n * 2 * PI, o = [Math.cos(a) / rx, Math.sin(a) / ry], l = Math.hypot(o[0], o[1]);
+      C.push({ p: [CX + rx * Math.cos(a), CY + ry * Math.sin(a)], o: [o[0] / l, o[1] / l] });
+      if (i) S.push(S[i - 1] + Math.hypot(C[i].p[0] - C[i - 1].p[0], C[i].p[1] - C[i - 1].p[1]));
+    }
+    return { C: C, S: S, n: n };
+  })();
+  function envB(o) {
+    if (o <= .01) return '';
+    var z = ZM[7].z, h = (EI - EO) / 2 / z, g = (ER + 22) / z, n = ENVB.n, S = ENVB.S, len = S[n], np = 18, lum = '', mem = '';
+    /* the point at length s round the ellipse: where, its outward normal o, its tangent f (the way s grows) */
+    var at = function (s) {
+      s = ((s % len) + len) % len;
+      var lo = 0, hi = n; while (hi - lo > 1) { var m = (lo + hi) >> 1; if (S[m] <= s) lo = m; else hi = m; }
+      var k = (s - S[lo]) / ((S[hi] - S[lo]) || 1), A = ENVB.C[lo], B = ENVB.C[hi], q = mix(A.o, B.o, k), l = Math.hypot(q[0], q[1]);
+      q = [q[0] / l, q[1] / l];
+      return { p: mix(A.p, B.p, k), o: q, f: [-q[1], q[0]] };
+    };
+    function sOf(a) { var x = a / (2 * PI) * n, i = Math.floor(x); return S[i] + (x - i) * (S[i + 1] - S[i]); }
+    /* the pores where D.envelope has them; between each two, one wall: its outer membrane, round the pore's side to its
+       inner membrane, back, round the other side */
+    var sp = []; for (var i = 0; i < np; i++) sp.push(sOf((i + .3) * 2 * PI / np));
+    sp.push(sp[0] + len);
+    /* near the pore the mRNA leaves by (pore 11, PORE), the membrane is straight, as the close-up draws it: within 6
+       units, then back on the outline by 14 (on the curve it stood 2.7 of the close-up's units off at the window's
+       edge) */
+    var s11 = sp[11], P11 = at(s11), curve = at;
+    at = function (s) {
+      var c = curve(s), u = Math.abs(((s - s11) % len + 1.5 * len) % len - len / 2), w = u <= 6 ? 1 : u >= 14 ? 0 : sstep((14 - u) / 8);
+      if (w <= 0) return c;
+      var d = ((s - s11) % len + 1.5 * len) % len - len / 2, q = mix(c.o, P11.o, w), l = Math.hypot(q[0], q[1]); q = [q[0] / l, q[1] / l];
+      return { p: mix(c.p, [P11.p[0] + d * P11.f[0], P11.p[1] + d * P11.f[1]], w), o: q, f: [-q[1], q[0]] };
+    };
+    for (i = 0; i < np; i++) {
+      var s0 = sp[i] + g, s1 = sp[i + 1] - g, out = [], inn = [], P = [], st = (s1 - s0) / Math.ceil(s1 - s0), s, c, j, ph;
+      for (s = s0; s <= s1 + 1e-6; s += st) { c = at(s); out.push(add(c.p, [c.o[0] * h, c.o[1] * h])); inn.push(add(c.p, [-c.o[0] * h, -c.o[1] * h])); }
+      P = out.slice();
+      c = at(s1); for (j = 1; j < 12; j++) { ph = j / 12 * PI; P.push(add(c.p, [h * (Math.cos(ph) * c.o[0] + Math.sin(ph) * c.f[0]), h * (Math.cos(ph) * c.o[1] + Math.sin(ph) * c.f[1])])); }
+      P = P.concat(inn.reverse());
+      c = at(s0); for (j = 1; j < 12; j++) { ph = j / 12 * PI; P.push(add(c.p, [-h * (Math.cos(ph) * c.o[0] + Math.sin(ph) * c.f[0]), -h * (Math.cos(ph) * c.o[1] + Math.sin(ph) * c.f[1])])); }
+      mem += plx(P.concat([P[0]])) + ' Z ';
+    }
+    /* the pore picture's widths (pt__mem 8.5, pt__mem2 2.4), in this picture's units: enlarged z times they are the same */
+    return '<g' + op(o) + '><path class="pt__lum" d="' + mem + '"/><path class="pt__mem" style="stroke-width:' + r4(8.5 / z) + 'px" d="' + mem + '"/>' +
+      '<path class="pt__mem2" style="stroke-width:' + r4(2.4 / z) + 'px" d="' + mem + '"/></g>';
+  }
   function frameB(t, z) {
     var lit = t < M[5] ? sstep(seg(loc(1, t), TZ + .4, TZ + 1.8)) : 1;
-    var out = ground('zm__far') + '<path class="pt__cellB" d="' + closed(CELLB) + '"/>' + D.envelope(CX, CY, 150, 168, 18) + threadsB(PHB, 1.3, lit, 6);
+    /* enlarging into the pore (step 8): the membrane becomes the pore picture's, before the close-up shows (envB) */
+    var hk = z && z.old && z.k === 7 ? seg(Math.pow(ZM[7].z, z.e), 1.4, 3.5) : 0;
+    var out = ground('zm__far') + '<path class="pt__cellB" d="' + closed(CELLB) + '"/>' +
+      (hk > 0 ? '<ellipse class="zm__nucl" cx="' + CX + '" cy="' + CY + '" rx="150" ry="168"/>' + D.envelope(CX, CY, 150, 168, 18, 1 - hk) + envB(hk) : D.envelope(CX, CY, 150, 168, 18)) +
+      threadsB(PHB, 1.3, lit, 6);
     if (t >= M[6] - 1e-6) out += mrnaB(t, z);
     return out;
   }
@@ -336,7 +397,7 @@
     function xOf(s) { return (s - CTR.s0) / KDC; }
     var g0 = Math.max(a0, CTR.s0 - 7.5 * KDC), up = [], dn = [];
     for (var s = g0; s <= a1; s += ds) { up.push(pt(s, -(DA + 14))); dn.push(pt(s, DA + 14)); }
-    if (up.length > 1) out += '<path class="pt__gzone" d="' + pl(up.concat(dn.reverse())) + ' Z"/>';
+    if (up.length > 1) out += '<path class="pt__gzone" d="' + plx(up.concat(dn.reverse())) + ' Z"/>';
     var sw = ' style="stroke-width:' + r4(9 * KDC) + 'px"', runs = [[], []];
     [0, DG].forEach(function (sh, w) {
       var cur = null;
@@ -346,7 +407,7 @@
       }
     });
     var back = '', front = '', mid = '';
-    runs.forEach(function (R) { R.forEach(function (r) { if (r.P.length > 1) { var d = '<path class="dna__s zm__s7' + (r.f ? '' : ' zm__back') + '"' + sw + ' d="' + pl(r.P) + '"/>'; if (r.f) front += d; else back += d; } }); });
+    runs.forEach(function (R) { R.forEach(function (r) { if (r.P.length > 1) { var d = '<path class="dna__s zm__s7' + (r.f ? '' : ' zm__back') + '"' + sw + ' d="' + plx(r.P) + '"/>'; if (r.f) front += d; else back += d; } }); });
     for (var j = Math.ceil(xOf(a0) / BP); j <= Math.floor(xOf(a1) / BP); j++) {
       var x = j * BP, s2 = CTR.s0 + x * KDC, ya = DA * Math.sin(ph + x * 2 * PI / DP), yb = DA * Math.sin(ph + DG + x * 2 * PI / DP), m = (ya + yb) / 2;
       mid += baseLine(pt(s2, ya), pt(s2, m), coding(j), 5.6 * KDC) + baseLine(pt(s2, yb), pt(s2, m), template(j), 5.6 * KDC);
@@ -361,7 +422,7 @@
     out += '<path class="pt__gene" d="' + pl(CTR.part(CTR.s0, CTR.s0 + CTR.glen, 2)) + '"' + op(1 - hk) + '/>';
     out += '<path class="dna__s pt__cdna" d="' + pl(CTR.P) + '"' + op(1 - hk) + '/>';
     NBR.runs.forEach(function (P) { out += '<path class="dna__s pt__cdna" d="' + pl(P) + '"/>'; });
-    if (hk > 0) { var zf = ZM[z.k].F(); out += '<g' + op(hk) + '>' + helixC(zs, z.k === 3 ? CTR.s0 + 60 * KDC : CTR.s0 + (enzX(M[5]) - 50) * KDC, zf.ang) + '</g>'; }
+    if (hk > 0) { var zf = ZM[z.k].F(); out += '<g' + op(hk) + '>' + helixC(zs, z.k === 3 ? CTR.s0 + 60 * KDC : CTR.s0 + CAMD.c[0] * KDC, zf.ang) + '</g>'; }
     NBR.beads.forEach(function (p) { out += '<circle class="zm__bead" cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="2.8"/>'; });
     var copying = t >= M[5] - 1e-6, sE = copying ? enzC(t) : -1e9, moving = copying && loc(5, t) < TZ + 9.6;
     BEADS.forEach(function (s) {
@@ -370,11 +431,22 @@
     });
     if (copying) {
       var pts = mrnaCpts(t);
-      if (pts.length > 1) out += '<path class="dna__s pt__mr pt__mrv" d="' + pl(pts) + '"/>';
+      if (pts.length > 1) out += '<path class="dna__s pt__mr pt__mrv" d="' + (zs > 1.2 ? plx : pl)(pts) + '"/>';
       /* the enzyme where the close-up has it, 30 of its units off the DNA's middle, so the zoom out of step 5 lands on it */
       var lv = ease(seg(loc(5, t), TZ + 9.6, TZ + 11.6)), g = CTR.at(sE), ep = [g.p[0] + 26 * lv - g.n[0] * 30 * KDC, g.p[1] - 58 * lv - g.n[1] * 30 * KDC];
+      /* in the zoom out of step 5 the DNA near the close-up is drawn straight, as the close-up has it (helixC): there the
+         enzyme lies on that straight DNA, turned as the close-up's last frame has it, until the thread is drawn again; on
+         the bending thread it lay 21 px off and turned 0.59 rad (Daniel, 7 Nov 2026: "it feels like the enzyme is broken") */
+      var ea = g.ang;
+      if (hk > 0 && z && !z.old && z.k === 5) {
+        var f5 = ZM[5].F(), sF = CTR.s0 + CAMD.c[0] * KDC, b5 = CTR.at(sF).p, dr = [Math.cos(f5.ang), Math.sin(f5.ang)], nS = [-dr[1], dr[0]], u = sE - sF;
+        ep = mix(ep, [b5[0] + u * dr[0] - 30 * KDC * nS[0], b5[1] + u * dr[1] - 30 * KDC * nS[1]], hk);
+        var da = f5.ang + .05 * Math.sin((M[5] - .001) * .6) - g.ang;
+        ea = g.ang + hk * Math.atan2(Math.sin(da), Math.cos(da));
+      }
       /* the enzyme at its real size here (about 12 nm), the shape of the close-up */
-      out += '<path class="pt__pol pt__polC" d="' + closed(place(ENZ, ep, g.ang, KDC)) + '"/>';
+      var EP = place(ENZ, ep, ea, KDC);
+      out += '<path class="pt__pol pt__polC" d="' + (zs > 1.2 ? plx(EP.concat([EP[0]])) + ' Z' : closed(EP)) + '"/>';
     }
     return out;
   }
@@ -964,7 +1036,11 @@
     { z: ZBC, F: function () { var g = geneB(M[2] * .5); return { p: g.p, ang: g.ang }; } },
     { z: .4 * KD / KC, F: function () { var s0 = CTR.s0 + 60 * KDC, g = CTR.at(s0), a = CTR.at(s0 - 10).p, b = CTR.at(s0 + 10).p; return { p: g.p, ang: Math.atan2(b[1] - a[1], b[0] - a[0]) }; } },
     null,
-    { z: KD / KC, out: true, F: function () { var g = CTR.at(CTR.s0 + (enzX(M[5]) - 50) * KDC); return { p: [g.p[0] - 10 * KDC * g.n[0], g.p[1] - 10 * KDC * g.n[1]], ang: g.ang }; } },
+    /* out of the close-up of the copying: its camera settles at CAMD (scale .84, over the middle of the enzyme's way),
+       so the close-up shrinks into the point of the gene under CAMD.c, .84 KD/KC times; with the camera of before (on the
+       enzyme, scale 1) the window landed 85 units off and the gene's enzyme lay round it 1.19 times too large (Daniel,
+       7 Nov 2026: "When you leave, it feels like the enzyme is broken"). Off the DNA square to it, as helixC draws it */
+    { z: CAMD.s * KD / KC, out: true, F: function () { var g = CTR.at(CTR.s0 + CAMD.c[0] * KDC), d = (CAMD.c[1] - DY) * KDC; return { p: [g.p[0] - d * Math.sin(g.ang), g.p[1] + d * Math.cos(g.ang)], ang: g.ang }; } },
     { z: ZBC, out: true, F: function () { var g = geneB(M[6] * .5); return { p: g.p, ang: g.ang }; } },
     { z: 33.3, F: function () { return { p: PORE.p, ang: PORE.ang }; } },
     { z: 7.5, F: function () { return { p: fToE(CF0), ang: EF.ang }; } },
@@ -975,7 +1051,8 @@
   var INSET = null;
   function grp(svg, P, a, s, Q, o, win) {
     if (o <= .01) return '';
-    return '<g' + op(o) + ' transform="translate(' + n1(P[0]) + ' ' + n1(P[1]) + ') rotate(' + dg(a) + ') scale(' + r4(s) + ') translate(' + n1(-Q[0]) + ' ' + n1(-Q[1]) + ')">' +
+    /* the point Q of the enlarged picture to 0.0001 of a unit: to 0.1, enlarged 70 times, it moved the picture 3.5 px */
+    return '<g' + op(o) + ' transform="translate(' + n1(P[0]) + ' ' + n1(P[1]) + ') rotate(' + dg(a) + ') scale(' + r4(s) + ') translate(' + r4(-Q[0]) + ' ' + r4(-Q[1]) + ')">' +
       (win && INSET ? '<g clip-path="url(#' + INSET + ')">' + svg + '</g>' : svg) + '</g>';
   }
   function stepOf(t) { var k = 0; for (var i = 0; i < M.length - 1; i++) if (t >= M[i] - 1e-6) k = i; return k; }
@@ -1032,8 +1109,14 @@
     var model = document.createElementNS(NSV, 'g'); svg.appendChild(model);
     var gLab = document.createElementNS(NSV, 'g'); svg.appendChild(gLab);
     var lay = null, narrow = false, key = K.pinKey(S);
-    var R = [0];
-    STEPS.forEach(function (s, i) { var w = (s.h + ' ' + s.p).replace(/\*\*/g, '').split(/\s+/).length; R.push(R[i] + Math.max(M[i + 1] - M[i], w / 2)); });
+    /* a step lasts long enough for its caption, and in Play all for its motion and then the reading of its new names
+       (WKit.namesWait; Daniel, 7 Nov 2026: the pore's six names had 6.5 s of the 7 s they need, and Play all went on) */
+    var R = [0], ME = MOTION['How a protein is made'], was = [];
+    STEPS.forEach(function (s, i) {
+      var w = (s.h + ' ' + s.p).replace(/\*\*/g, '').split(/\s+/).length, d = M[i + 1] - M[i];
+      var now = LB[i](M[i + 1] - .002).map(function (q) { return q.text.replace(/\s+/g, ' ').trim(); });
+      R.push(R[i] + Math.max(d, w / 2, Math.min(d, ME[i] + .15) + K.namesWait(now, was) + .1)); was = now;
+    });
     var clock = K.readerClock(R, M, 1);
     function draw(tt) {
       INSET = uid + 'w';
@@ -1048,11 +1131,12 @@
     /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
        "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'pt', [
-      /* each name only in the steps whose picture shows its part (the steps from 0) */
-      { key: [['mum', 'from the mother', [0, 1, 6]], ['dad', 'from the father', [0, 1, 6]], ['other', 'other chromosomes: also from the mother or the father', [0, 1, 6]], ['mito', 'mitochondria', [0]],
-              ['dna', 'DNA', [2, 3, 4, 5]], ['gene', 'the gene', [1, 6]], ['dnagene', 'the gene', [2, 3, 4, 5]], ['hist', 'proteins DNA is wound round', [2, 5]],
-              ['bases', 'the four bases of DNA', [3], 'ATCG'], ['bases', 'the bases (U: in RNA only)', [4], 'ATCGU'], ['bases', 'the bases of RNA', [8, 9, 10, 11, 12, 13], 'ACGU'],
-              ['enz', 'the enzyme', [3, 4, 5]], ['mrna', 'mRNA', [4, 5, 6, 7, 8, 9, 10, 11, 12, 13]], ['rib', 'a ribosome', [7, 8, 9, 10, 11, 12, 13]],
+      /* each name only in the steps whose picture shows its part (the steps from 0), and only what the first station's
+         animations have not keyed: the chromosomes from the mother and the father, the others, mitochondria, DNA, the
+         gene, its proteins, the four bases of DNA and an enzyme are keyed there (Daniel, 7 Nov 2026: "They already learned
+         the different colors … minimize the key to show the new things"; tools/keys.mjs) */
+      { key: [['bases', 'the bases (U: in RNA only)', [4], 'ATCGU'], ['bases', 'the bases of RNA', [8, 9, 10, 11, 12, 13], 'ACGU'],
+              ['mrna', 'mRNA', [4, 5, 6, 7, 8, 9, 10, 11, 12, 13]], ['rib', 'a ribosome', [7, 8, 9, 10, 11, 12, 13]],
               ['trna', 'small RNAs (IB: tRNA)', [8, 9, 10, 11, 12, 13]], ['aa', 'amino acids', [8, 9, 10, 11, 12, 13]],
               /* each amino acid with its three bases, from the step it first arrives (Daniel, 6 Nov 2026: "AGU equals, and
                  then the name of the amino acid … so for them to understand that they're coding for different amino acids") */

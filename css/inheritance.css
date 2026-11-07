@@ -508,6 +508,10 @@ p,li,dd,figcaption{text-wrap:pretty}
 .wx__bg{display:block;font-weight:700;font-size:20px}
 .wx__bp{display:block;font-size:13px;color:var(--grey);line-height:1.2;margin-top:2px}
 .wx__end{margin:0;font-size:15px;text-align:center}
+/* each box's chance, and the chances of each phenotype added (w-cross.js SUM) */
+.wx__pc{display:block;font-size:13px;font-weight:700;margin-top:2px}
+.wx__sums{display:flex;flex-direction:column;align-items:center;gap:2px}
+.wx__sum{margin:0;font-size:15px;text-align:center}
 .wx [data-s]{transition:opacity .25s}
 /* a line and its name lit together (w-cross.js MARK): a light behind each, its strength --wxb (0–1) from the clock */
 .wx__lt{display:inline-block}
@@ -517,10 +521,8 @@ p,li,dd,figcaption{text-wrap:pretty}
 .wx__from{padding:0 0 2px}
 .wx__ft{display:inline-block;font-size:13px;font-weight:400;color:var(--grey);line-height:1.2}
 .wx__from--side{max-width:76px;vertical-align:bottom;text-align:center}
-.wx__n{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:5px;padding:0 4px;border-radius:9px;background:var(--accent);color:var(--card);font-size:11px;font-weight:700;vertical-align:1px}
-/* the count keeps its own colour while its step is lit (.wx td .is-now turns text the accent: the badge's own colour) */
-.wx .wx__sq td .wx__n{color:var(--card)}
-.wx .is-now.wx__gam,.wx td .is-now{color:var(--accent)}
+/* a gamete is lit while its step lasts; the boxes never are (Daniel, 7 Nov 2026: from the offspring's genotypes on, no highlight) */
+.wx .is-now.wx__gam{color:var(--accent)}
 .wx__fig{margin:0}
 .wx__read{display:none}
 .tr__tally{font-size:13.5px;color:var(--grey);margin:2px 0 8px}

@@ -14,7 +14,7 @@
    of the picture.
 
    The cell drawn has 4 chromosomes: a long pair A and a short pair B, one of each pair from the mother (orange) and one
-   from the father (blue), keyed; its gene the yellow length (A at .78, B at .85 of its length: by identity, never by the
+   from the father (blue), keyed in the first station ("A line or a cross?"), not here; its gene the yellow length (A at .78, B at .85 of its length: by identity, never by the
    size it is drawn); the threads' lengths in the same proportion as the crosses' (A : B = 1.7). A human cell has 23 pairs;
    the pills say what happens to 46.
 
@@ -208,12 +208,13 @@
      read-outs above already say 4 of 46 (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much
      text"; "Why don't you show them instead of writing about them?"; "make sure that the keys appear when the things are
      in the images") */
-  var KEY = [['mum', 'from the mother'], ['dad', 'from the father'], ['gene', 'a gene']];
+  /* and only what an earlier station has not keyed: the chromosomes from the mother and the father, a gene, fibres and
+     pieces of the nuclear membrane are keyed in the first station's "A line or a cross?" (Daniel, 7 Nov 2026: "They
+     already learned the different colors … minimize the key to show the new things"; tools/keys.mjs). So mitosis has no
+     key, and meiosis keys only the egg cell's chromosomes */
   function mitosis(spec) {
     return widget(spec, 'dv', 'Mitosis, step by step', 'A body cell with four chromosomes copies them, they coil into crosses, fibres pull the copies apart, and two daughter cells each receive the same four.',
-      MI_STEPS, MI_M, MI.W, MI.H, mitRender, mitLabels, mitPills, [
-        { key: KEY.concat([['fibre', 'fibres', [3, 4]], ['vesicle', 'pieces of the nuclear membrane', [2, 3, 4]]]) }
-      ]);
+      MI_STEPS, MI_M, MI.W, MI.H, mitRender, mitLabels, mitPills, []);
   }
   /* the IGCSE · IB switch (Daniel, 4 Nov 2026), as the Immunity Lab's first meeting: one level shown at a time; the IB one
      is built the first time it is asked for (js/w-divide-ib.js) */
@@ -418,7 +419,7 @@
   function meiosis(spec) {
     return widget(spec, 'dv', 'Meiosis, step by step', 'A cell with two pairs of chromosomes divides twice to give four haploid cells with one chromosome of each pair; then a sperm cell and an egg cell fuse.',
       ME_STEPS, ME_M, ME.W, ME.H, meiRender, meiLabels, meiPills, [
-        { key: KEY.concat([['fibre', 'fibres', [3]], ['other', 'the egg cell’s chromosomes', [7]]]) }
+        { key: [['other', 'the egg cell’s chromosomes', [7]]] }
       ]);
   }
   L.add('meiosis', function (spec) { return levels(spec, meiosis, global.InhDivideIB.meiosis, 'Meiosis'); });

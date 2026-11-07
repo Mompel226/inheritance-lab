@@ -223,30 +223,45 @@
       var itemW = PX * (1.64 + 0.6 * lines.reduce(function (n, ls) { return Math.max(n, ls.reduce(function (k, l) { return Math.max(k, l.length); }, 0)); }, 0));
       function colH(ls) { return ls.reduce(function (h, x, i) { return h + x.length * lh + (i ? gap : 0); }, 0); }
       var sidesPx = (nl ? 18.7 : 0) + (nr ? 18.7 : 0), sidesU = (nl ? 16 : 10) + (nr ? 16 : 10);
+      /* beside the picture, each name's first line level with its own disc, so a number and its name read across (Daniel,
+         7 Nov 2026: "the numbers do not align with the text on the right … make sure that there is one line of text so that
+         you can read everything aligned"): one line a name when the room the picture leaves allows it (the picture as large
+         as its height lets it be), else wrapped only as far as it must, never narrower than its longest word (as before:
+         one line a name everywhere had shrunk pictures until their names took the place of pins, too small to read) */
+      var one = keys.map(function (p) { return [labelOf(m, p)]; }), itemW1 = PX * (1.64 + 0.6 * one.reduce(function (n, ls) { return Math.max(n, ls[0].length); }, 0));
+      function widest(L) { return PX * (1.64 + 0.6 * L.reduce(function (n, ls) { return Math.max(n, ls.reduce(function (k, l) { return Math.max(k, l.length); }, 0)); }, 0)); }
       var best = null, hB = colH(lines);
-      if (hB <= r.height - 10) {
-        var pb = Math.min((r.width - sidesPx - itemW - PX) / (m.w + sidesU), (r.height - (m.heads ? PX * 1.7 : 0) - bandPx) / (m.h + 20));
-        if (pb > 0) best = { p: pb, where: 'beside', cols: 1, h: hB };
+      var phH = (r.height - (m.heads ? PX * 1.7 : 0) - bandPx) / (m.h + 20), room = r.width - sidesPx - PX - phH * (m.w + sidesU), bls = one;
+      if (room < itemW1) { var nch = Math.max(KW, Math.floor((room / PX - 1.64) / 0.6)); bls = keys.map(function (p) { return wrapWords(labelOf(m, p), nch); }); }
+      var biw = widest(bls), bh = colH(bls);
+      if (bh <= r.height - 10) {
+        var pb = Math.min((r.width - sidesPx - biw - PX) / (m.w + sidesU), phH);
+        if (pb > 0) best = { p: pb, where: 'beside', cols: 1, h: bh, ls: bls, iw: biw };
       }
+      /* under the picture: each name on one line too where the columns are wide enough (a phone: 7 Nov 2026), else wrapped */
       [1, 2].forEach(function (cols) {
-        if (cols * itemW > r.width) return;
-        /* the key is drawn in pin order, not in this order: size it for the tallest names sharing one column */
-        var per = Math.ceil(lines.length / cols);
-        var hh = colH(lines.slice().sort(function (x, y) { return y.length - x.length; }).slice(0, per));
-        var pp = Math.min((r.width - sidesPx) / (m.w + sidesU), (r.height - hh - PX - (m.heads ? PX * 1.7 : 0) - bandPx) / (m.h + 20));
-        /* the key's columns share the picture's width, not the stage's: when the picture is limited by the height, its frame is
-           narrower than the stage, and two columns of long names would overlap (5 Nov 2026, the meiosis picture at 320 px) */
-        var fp = PX / pp, vwPx = (m.w + (nl ? 16 + 1.44 * fp : 10) + (nr ? 16 + 1.44 * fp : 10)) * pp;
-        if (cols * itemW > vwPx) return;
-        if (pp > 0 && (!best || pp > best.p)) best = { p: pp, where: 'below', cols: cols, h: hh };
+        [[one, itemW1], [lines, itemW]].forEach(function (v, j) {
+          var ls = v[0], iw = v[1];
+          if (cols * iw > r.width) return;
+          /* the key is drawn in pin order, not in this order: size it for the tallest names sharing one column */
+          var per = Math.ceil(ls.length / cols);
+          var hh = colH(ls.slice().sort(function (x, y) { return y.length - x.length; }).slice(0, per));
+          var pp = Math.min((r.width - sidesPx) / (m.w + sidesU), (r.height - hh - PX - (m.heads ? PX * 1.7 : 0) - bandPx) / (m.h + 20));
+          /* the key's columns share the picture's width, not the stage's: when the picture is limited by the height, its frame is
+             narrower than the stage, and two columns of long names would overlap (5 Nov 2026, the meiosis picture at 320 px) */
+          var fp = PX / pp, vwPx = (m.w + (nl ? 16 + 1.44 * fp : 10) + (nr ? 16 + 1.44 * fp : 10)) * pp;
+          if (cols * iw > vwPx) return;
+          /* one line a name wins unless wrapping makes the picture clearly larger */
+          if (pp > 0 && (!best || pp > best.p * (j ? 1.05 : 1))) best = { p: pp, where: 'below', cols: cols, h: hh, ls: ls, iw: iw };
+        });
       });
       if (!best || best.p < pLab * gain) return false;   /* words beside the parts teach the names best: pins only when they make the picture far larger */
       var f = PX / best.p, colL = nl ? 16 + 1.44 * f : 10, colR = nr ? 16 + 1.44 * f : 10, x0 = m.x0 || 0, y0 = m.y0 || 0;
       var hT = nbT * (1.44 * f + 8 / best.p), hB = nbB * (1.44 * f + 8 / best.p);
       var hu = headU(m, f), vw = m.w + colL + colR, vh = m.h + 20 + hu + hT + hB;
       /* a key beside the picture may be taller than it: the frame grows to hold the key, or its last names are cut off */
-      if (best.where === 'beside') { vw += (itemW + PX) / best.p; vh = Math.max(vh, best.h / best.p + 20 + hu + hT); } else vh += (best.h + PX) / best.p;
-      M.pins = { f: f, colL: colL, colR: colR, where: best.where, cols: best.cols, lines: lines, keys: keys, hU: best.h / best.p, vw: vw, hB: hB };
+      if (best.where === 'beside') { vw += (best.iw + PX) / best.p; vh = Math.max(vh, best.h / best.p + 20 + hu + hT); } else vh += (best.h + PX) / best.p;
+      M.pins = { f: f, colL: colL, colR: colR, where: best.where, cols: best.cols, lines: best.ls, keys: keys, hU: best.h / best.p, vw: vw, hB: hB };
       /* a top band's discs sit just under the frame's top edge, a bottom band's just under the picture */
       M.band = { T: y0 - 10 - hu - hT + 2 + 1.44 * f, B: y0 + m.h + 10 + 2, L: x0 - colL + 2, R: x0 + m.w + colR - 2 };
       M.font = f;
@@ -262,10 +277,20 @@
       var bx0 = P.where === 'beside' ? x0 + m.w + P.colR + f * 0.5 : x0 - P.colL + f * 0.5;
       var by0 = P.where === 'beside' ? y0 + Math.max(0, (m.h - P.hU) / 2) : y0 + m.h + 10 + (P.hB || 0) + f * 0.6;
       var yAt = [by0];
+      /* beside: each name's first line level with its disc; a name wrapped onto more lines, or two discs level (one each
+         side), push the next one down, and the last ones up again inside the frame */
+      var tops = {};
+      if (P.where === 'beside') {
+        var vb = (M.svg.getAttribute('viewBox') || '').split(' ').map(Number), bot = vb.length === 4 ? vb[1] + vb[3] - f * 0.2 : 1e9;
+        var es = order.map(function (it) { return { id: it.id, t: (it.y == null ? by0 + lh / 2 : it.y) - lh / 2, h: (linesOf[it.id] || [it.text]).length * lh }; }).sort(function (a, b) { return a.t - b.t; });
+        for (var q = 1; q < es.length; q++) es[q].t = Math.max(es[q].t, es[q - 1].t + es[q - 1].h + gap);
+        for (q = es.length - 1; q >= 0; q--) es[q].t = Math.min(es[q].t, q === es.length - 1 ? bot - es[q].h : es[q + 1].t - es[q].h - gap);
+        es.forEach(function (e) { tops[e.id] = e.t; });
+      }
       order.forEach(function (it, i) {
         var c = Math.floor(i / per), k = i % per, ls = linesOf[it.id] || [it.text];
         if (k === 0) yAt[c] = by0;
-        var bx = bx0 + c * colW, top = yAt[c], cy = top + lh / 2;
+        var bx = bx0 + c * colW, top = P.where === 'beside' ? tops[it.id] : yAt[c], cy = top + lh / 2;
         yAt[c] = top + ls.length * lh + gap;
         out += '<g class="lb lb--key ' + (it.cls || '') + '" data-lab="' + it.id + '">' +
           '<circle class="lb__pin" cx="' + (bx + rr).toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + rr.toFixed(1) + '"/>' +
@@ -305,7 +330,7 @@
         var pl = global.CircLearn.pinLabels({ items: items, left: (m.x0 || 0) - 4, right: (m.x0 || 0) + m.w + 4, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.25,
           bandT: bd.T, bandB: bd.B, bandL: bd.L, bandR: bd.R });
         /* each key entry opens its own part's card: by its id, never by its words (two rods share "divided: two single lines") */
-        M.labG.innerHTML = pl.svg + pinKey(M, pl.order.map(function (o) { return { n: o.n, text: o.text, cls: o.cls, id: o.id }; }));
+        M.labG.innerHTML = pl.svg + pinKey(M, pl.order.map(function (o) { return { n: o.n, text: o.text, cls: o.cls, id: o.id, y: o.y }; }));
       }
       if (m.heads) M.labG.innerHTML += m.heads.map(function (hd) {
         var hy = hd.y != null ? hd.y : (m.y0 || 0) - f * 0.55;
@@ -339,6 +364,8 @@
       modes.forEach(function (M, j) { M.svg.style.display = j === k ? '' : 'none'; M.btn.setAttribute('aria-pressed', j === k ? 'true' : 'false'); });
       draw(modes[k]);
       var ky = modes[k].spec.key || spec.key || null;
+      /* an empty key: everything in the picture was keyed in an earlier station (tools/build.mjs, KEYS) */
+      if (ky && !ky.length) ky = null;
       keyEl.hidden = !ky;
       keyEl.innerHTML = ky ? ky.map(function (q) { return '<li><i class="figkey__sw ' + q[0] + '" aria-hidden="true"></i>' + q[1] + '</li>'; }).join('') : '';
       note.hidden = !why; note.textContent = why || '';

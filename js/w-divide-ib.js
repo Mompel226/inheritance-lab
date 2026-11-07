@@ -252,8 +252,9 @@
   function mitosisIB(spec) {
     return widget(spec, 'Mitosis in detail (IB)', 'An animal cell with four chromosomes goes through G1, S, G2, prophase, metaphase, anaphase, telophase and cytokinesis.',
       MS, MM, W1, H1, mitIB, mitIBLabels, mitIBPills, [
-        { key: [['mum', 'from the mother'], ['dad', 'from the father'], ['gene', 'a gene'], ['cent', 'centrioles'], ['mito', 'mitochondria'],
-                ['fibre', 'spindle microtubules', [3, 4, 5, 6]], ['dna', 'DNA', [3]], ['hist', 'histones', [3]], ['vesicle', 'nuclear membrane vesicles', [4, 5, 6]], ['cring', 'the actin–myosin ring', [8]]] },
+        /* only what an earlier station has not keyed (7 Nov 2026; the first station keys the chromosomes, a gene,
+           mitochondria, DNA, histones, spindle microtubules and the nuclear membrane's pieces) */
+        { key: [['cent', 'centrioles'], ['cring', 'the actin–myosin ring', [8]]] },
         ['IB guide: D2.1.2, D2.1.5–D2.1.7, D2.1.13–D2.1.14 (HL), A2.2.8, B2.2.6 (HL).', 'widget__note--ib']
       ]);
   }
@@ -445,9 +446,8 @@
   function meiosisIB(spec) {
     return widget(spec, 'Meiosis in detail (IB)', 'An animal cell with two homologous pairs goes through both divisions of meiosis, with crossing over and random orientation, to four haploid cells.',
       ES, EM, W2, H2, meiIB, meiIBLabels, meiIBPills, [
-        { key: [['mum', 'from the mother'], ['dad', 'from the father'], ['mix', 'crossed over', [3, 4, 5, 6, 7, 8, 9, 10, 11]], ['gene', 'a gene'], ['cent', 'centrioles'],
-                ['chiasma', 'a chiasma', [3, 4, 5]], ['fibre', 'spindle microtubules', [4, 5, 6, 8, 9, 10]], ['vesicle', 'nuclear membrane vesicles', [4]],
-                ['cring', 'the actin–myosin ring', [11]]] },
+        /* only what is new here: centrioles and the ring are keyed in the mitosis station (7 Nov 2026) */
+        { key: [['mix', 'crossed over', [3, 4, 5, 6, 7, 8, 9, 10, 11]], ['chiasma', 'a chiasma', [3, 4, 5]]] },
         ['IB guide: D2.1.2, D2.1.5, D2.1.6, D2.1.9, D2.1.11.', 'widget__note--ib']
       ]);
   }

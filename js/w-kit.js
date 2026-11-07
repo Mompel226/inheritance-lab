@@ -60,18 +60,28 @@
       for (var i = 0; i + 1 < R.length; i++) if (t < R[i + 1]) {
         var end = R[i] + runOf(i);
         if (t <= end) return t;
-        if (held[i] == null) { if (!seen[i]) { seen[i] = 1; return t; } held[i] = f.need ? f.need() : .35; }
+        if (held[i] == null) { if (!seen[i]) { seen[i] = 1; return t; } held[i] = f.need ? f.need(i) : .35; }
         return t > end + held[i] ? R[i + 1] : t;
       }
       return t;
     }
     f.need = null;
+    /* the wait Play all gave step i for its names, once it has reached it (tools/flow-still.mjs allows a still that long) */
+    f.hold = function (i) { return held[i]; };
     /* where a single step (Play, Next step) stops: as soon as its motion has run, with its names on; it then holds until
        the reader presses Next step, never making them wait out a reading time first (Daniel, 6 Nov 2026: "allow you to
        read things, but they don't make you wait there for ages") */
     f.endOf = function (i) { return i + 1 < R.length ? Math.min(R[i + 1] - .02, R[i] + runOf(i)) : R[R.length - 1]; };
     f.R = R; f.M = M; f.pace = function (i) { return paceOf(P, i); }; f.title = title || null;
     return f;
+  }
+  /* the time to read the names new in a step: 0.5 s to find the first, 0.3 s more for each other, and 1 s for every 4 of
+     their words (Daniel, 7 Nov 2026); .35 s with none. Play all waits this long (mount's need), and a step with many
+     names lasts at least its motion and this (w-protein.js R) */
+  function namesWait(texts, before) {
+    var fresh = texts.filter(function (x) { return (before || []).indexOf(x) < 0; });
+    if (!fresh.length) return .35;
+    return .5 + .3 * (fresh.length - 1) + fresh.reduce(function (a, x) { return a + x.split(' ').length; }, 0) / 4;
   }
   function readerSteps(steps, R) { return steps.map(function (s, i) { var o = {}; for (var k in s) o[k] = s[k]; o.t = R[i]; return o; }); }
 
@@ -214,19 +224,22 @@
     S.box.__seek = function (t) { fit(); return sp.seek(t); };
     /* Play all's own clock, for the tools that time it (tools/flow-names.mjs) */
     S.box.__flow = sp.flow; S.box.__playEnd = sp.end;
-    /* how long Play all waits on a step's names: 0.5 s and 0.2 s a word for the longest, 0.2 s more for each other name,
-       at most 4 s (Daniel, 5 Nov 2026: first "you can barely read them", then "now it's too long … midterm"); Next
-       step still waits for as long as the reader likes */
-    if (sp.flow) sp.flow.need = function () {
+    /* how long Play all waits on a step's names: the names NEW in it (one kept from the step before was read there),
+       0.5 s to find the first, 0.3 s more for each other, and 1 s for every 4 of their words, with no upper limit (Daniel,
+       5 Nov 2026: first "you can barely read them", then a middle pace; 7 Nov 2026: "consider how many labels you're
+       putting, because that's how … much time the reader is going to take to read and process the information … rather
+       than the person having to pause": the wait was at most 4 s, for any number of names). Next step still waits for as
+       long as the reader likes */
+    var namesAt = {};
+    if (sp.flow) sp.flow.need = function (i) {
       var pk = S.fig.querySelector('.pinkey'), texts = [];
       if (pk && !pk.hidden) Array.prototype.forEach.call(pk.children, function (li) { texts.push(li.textContent.replace(/^\s*\d+\s*/, '')); });
       /* a widget with no drawing of names (the crosses' diagram, HTML) has none to wait for: without this test Play all
          stopped with an error at the end of its first step (6 Nov 2026) */
       else if (S.svg) Array.prototype.forEach.call(S.svg.querySelectorAll('.lb__txt'), function (tx) { var sp2 = tx.querySelectorAll('tspan'); texts.push(sp2.length ? Array.prototype.map.call(sp2, function (q) { return q.textContent; }).join(' ') : tx.textContent); });
-      texts = texts.filter(function (x) { return /\S/.test(x); });
-      if (!texts.length) return .35;
-      var mx = Math.max.apply(null, texts.map(function (x) { return x.trim().split(/\s+/).length; }));
-      return Math.min(4, .5 + .2 * mx + .2 * (texts.length - 1));
+      texts = texts.map(function (x) { return x.replace(/\s+/g, ' ').trim(); }).filter(function (x) { return x; });
+      namesAt[i] = texts;
+      return namesWait(texts, namesAt[i - 1]);
     };
     /* in a card, the animation plays all its steps as soon as its card opens (Daniel, 4 Nov 2026: "as soon as you open
        that, the full animation should play … if the user wants to go one by one or stop it, it just has to scroll
@@ -256,6 +269,6 @@
 
 
   global.WKit = { pinKey: pinKey, names: names, margins: margins, n1: n1, seg: seg, ease: ease, clamp01: clamp01, lerp: lerp, len: len, rng: rng, fitType: fitType,
-                  readerClock: readerClock, readerFlow: readerFlow, readerSteps: readerSteps, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
+                  readerClock: readerClock, readerFlow: readerFlow, readerSteps: readerSteps, namesWait: namesWait, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
                   mount: mount, NS: NS };
 })(window);

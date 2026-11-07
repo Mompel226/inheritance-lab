@@ -57,19 +57,19 @@
   var CB = { D: 'B', r: 'b', normal: 'normal colour vision', has: 'colour-blind' };
   var WORKED = {
     sex:      { title: 'The sex of a child', gene: XY, pp: ['a woman', 'a man'], pg: ['XX', 'XY'], who: ['the woman', 'the man'],
-                end: '<b>2 girls : 2 boys</b>, so 1 : 1: for each child, a <b>50 %</b> chance of a boy. An expected ratio (a probability), not an exact count: a family may have three girls.' },
+                end: 'So the ratio is <b>1 girl : 1 boy</b>: for each child, a 50 % chance of a boy. An expected ratio (a probability), not an exact count: a family may have three girls.' },
     peas31:   { title: 'Two heterozygous pea plants', gene: domGene(PEA), pp: ['round seeds', 'round seeds'], pg: ['Rr', 'Rr'],
-                end: '<b>3 round : 1 wrinkled</b>. Each seed has a 3 in 4 chance, 75 %, of being round: count 40 seeds from the pods and about 30 are round, often not exactly 30.' },
+                end: 'So the ratio is <b>3 round : 1 wrinkled</b>. Each seed has a 75 % chance of being round: count 40 seeds from the pods and about 30 are round, often not exactly 30.' },
     peas11:   { title: 'Heterozygous × homozygous recessive', gene: domGene(PEA), pp: ['round seeds', 'wrinkled seeds'], pg: ['Rr', 'rr'],
-                end: '<b>2 round : 2 wrinkled</b>, so 1 : 1. Each seed has a 50 % chance of being wrinkled.' },
+                end: 'So the ratio is <b>1 round : 1 wrinkled</b>. Each seed has a 50 % chance of being wrinkled.' },
     testRR:   { title: 'A test cross: if the round plant is RR', gene: domGene(PEA), pp: ['round seeds (genotype not known)', 'wrinkled seeds (homozygous recessive)'], pg: ['RR', 'rr'],
-                end: 'Every offspring is Rr: <b>all round</b> (4 of 4). Every gamete of the RR parent carries R. So if many offspring are all round, the round parent is <b>RR, homozygous dominant</b>.' },
+                end: 'Every offspring is Rr: <b>all round</b>. Every gamete of the RR parent carries R. So if many offspring are all round, the round parent is <b>RR, homozygous dominant</b>.' },
     testRr:   { title: 'A test cross: if the round plant is Rr', gene: domGene(PEA), pp: ['round seeds (genotype not known)', 'wrinkled seeds (homozygous recessive)'], pg: ['Rr', 'rr'],
-                end: '<b>2 round : 2 wrinkled</b>, so 1 : 1. So if any offspring is wrinkled, the round parent is <b>Rr, heterozygous</b>: a single wrinkled offspring shows it.' },
+                end: 'So the ratio is <b>1 round : 1 wrinkled</b>. If any offspring is wrinkled, the round parent is <b>Rr, heterozygous</b>: a single wrinkled offspring shows it.' },
     aAB:      { title: 'Blood group A × blood group AB', gene: ABO, pp: ['blood group A', 'blood group AB'], pg: ['IᴬIᴬ', 'IᴬIᴮ'],
-                end: '<b>2 blood group A : 2 blood group AB</b>, so 1 : 1. The AB children show codominance: both alleles contribute to the phenotype.' },
+                end: 'So the ratio is <b>1 blood group A : 1 blood group AB</b>. The AB children show codominance: both alleles contribute to the phenotype.' },
     cbCarrier: { title: 'A carrier woman × a colour-blind man', gene: sexGene(CB), pp: ['normal colour vision (a carrier)', 'colour-blind'], pg: ['XᴮXᵇ', 'XᵇY'], who: ['the woman', 'the man'],
-                end: '<b>1 carrier girl : 1 colour-blind girl : 1 boy with normal colour vision : 1 colour-blind boy</b>. Write the sex with each phenotype.' }
+                end: 'So the ratio is <b>1 carrier girl : 1 colour-blind girl : 1 boy with normal colour vision : 1 colour-blind boy</b>. Write the sex with each phenotype.' }
   };
 
   /* the cross worked out: gametes, the four boxes, their phenotypes */
@@ -97,17 +97,19 @@
       { t: 19, h: 'The Punnett square', p: 'A **Punnett square** is a grid that shows every way the gametes can fuse at fertilisation. Along the top: the gametes of ' + who[1] + side[1] + '. Down the side: the gametes of ' + who[0] + side[0] + '.' },
       { t: 29.8, h: 'The offspring’s genotypes', p: 'Each box: the gamete above it and the gamete beside it. Every box is equally likely.' },
       { t: 39.3, h: 'The offspring’s phenotypes', p: 'Under each genotype, its **phenotype**.' },
-      { t: 48.8, h: 'The ratio', p: 'Count each phenotype in the boxes. Then write the ratio, with the phenotypes named: an **expected ratio** (a probability), not an exact count.' }
+      { t: 48.8, h: 'The ratio', p: 'Each box has a **25 %** chance. Add the chances of the boxes with the same phenotype. Then write the ratio, with the phenotypes named: an **expected ratio** (a probability), not an exact count.' }
     ];
-    var M = [0, 6, 12, 19, 29.8, 39.3, 48.8, 54.3];
+    /* each box a 25 % chance, then the chances of each phenotype added, in the order the phenotypes first appear in the
+       boxes (Daniel, 7 Nov 2026: "a girl 25%, a boy 25%, a girl 25%, a boy 25%, and then clearly you just add up"; it
+       replaced a count of 1, 2 in the boxes) */
+    var SUM = (function () { var by = {}, out = []; [0, 1].forEach(function (r) { [0, 1].forEach(function (k) { var p = X.ph[r][k]; if (!(p in by)) { by[p] = out.length; out.push({ p: p, n: 0 }); } out[by[p]].n++; }); }); return out; })();
+    var AT_SUM = 3.6, AT_END = AT_SUM + 1.2 * SUM.length + .3;
+    var M = [0, 6, 12, 19, 29.8, 39.3, 48.8, 48.8 + AT_END + 1.4];
     var box = h('div', 'widget wx');
     box.appendChild(L.head(c.title, 'A genetic diagram, line by line', 'Press play'));
     var read = h('div', 'wx__read');
     var fig = h('figure', 'wx__fig');
     var d = h('div', 'wx__d');
-    /* each phenotype counted in its box, in reading order (Daniel, 6 Nov 2026: "add the numbers within … next to the
-       a girl, a boy, a girl, a boy"): the ratio is then read off the boxes */
-    var COUNT = (function () { var seen = {}, out = []; [0, 1].forEach(function (r) { [0, 1].forEach(function (k) { var p = X.ph[r][k]; seen[p] = (seen[p] || 0) + 1; out.push(seen[p]); }); }); return out; })();
     function row(lab, html, cls) { return '<div class="wx__row' + (cls ? ' ' + cls : '') + '"><span class="wx__lab"><span class="wx__lt">' + lab + '</span></span><span class="wx__cells">' + html + '</span></div>'; }
     d.innerHTML =
       row('parental phenotypes', '<span class="wx__c" data-s="0">' + c.pp[0] + '</span><span class="wx__x" data-s="0">×</span><span class="wx__c" data-s="0">' + c.pp[1] + '</span>') +
@@ -121,10 +123,14 @@
           return '<tr><th data-s="3" data-fly="S" data-at="' + (4.6 + .2 * r) + '" data-row="' + r + '"><i class="wx__gam">' + gm(X.side[r]) + '</i></th>' + [0, 1].map(function (k) {
             var n = r * 2 + k;
             return '<td><span class="wx__bg" data-s="4" data-k="' + n + '">' + G.html(X.boxes[r][k]) + '</span><span class="wx__bp" data-s="5" data-k="' + n + '">' + esc(X.ph[r][k]) +
-              '<b class="wx__n" data-s="6" data-at="' + (.4 + .8 * n) + '">' + COUNT[n] + '</b></span></td>';
+              '</span><span class="wx__pc" data-s="6" data-at="' + (.4 + .8 * n) + '">25&nbsp;%</span></td>';
           }).join('') + '</tr>';
         }).join('') + '</table></div>' +
-      '<p class="wx__end" data-s="6" data-at="3.6">' + c.end + '</p>';
+      '<div class="wx__sums">' + SUM.map(function (q, j) {
+        return '<p class="wx__sum" data-s="6" data-at="' + (AT_SUM + 1.2 * j).toFixed(1) + '">' + esc(q.p) + ': ' +
+          (q.n > 1 ? Array(q.n + 1).join('25&nbsp;% + ').slice(0, -3) + ' = <b>' + 25 * q.n + '&nbsp;%</b>' : '<b>25&nbsp;%</b>') + '</p>';
+      }).join('') + '</div>' +
+      '<p class="wx__end" data-s="6" data-at="' + AT_END.toFixed(1) + '">' + c.end + '</p>';
     fig.appendChild(d);
     var R = [0];
     STEPS.forEach(function (s, i) { var w = (s.h + ' ' + s.p).replace(/\*\*/g, '').split(/\s+/).length; R.push(R[i] + Math.max(M[i + 1] - M[i], w / 2)); });
@@ -139,15 +145,15 @@
     };
     /* each new line blinks together with its name, then stays lit while its step lasts: "parental phenotypes" with a
        woman and a man, "parental genotypes" with XX and XY, "gametes" with the gametes, each label of the square with its
-       gametes; the offspring's genotypes and then their phenotypes once every box is filled (Daniel, 6 Nov 2026: "make
-       the woman and man blink … and the phenotype word blink too … otherwise it's not very clear"). MARK: each group, its
-       step s and when (t0 s into the step) it blinks */
+       gametes (Daniel, 6 Nov 2026: "make the woman and man blink … and the phenotype word blink too … otherwise it's not
+       very clear"). From the offspring's genotypes on nothing blinks or is lit: what appears is what the step names (Daniel,
+       7 Nov 2026: "once you start showing the offspring genotype, you don't have to highlight … The offspring phenotype
+       and the ratio should not blink"). MARK: each group, its step s and when (t0 s into the step) it blinks */
     function all(q, el) { return Array.prototype.slice.call((el || d).querySelectorAll(q)); }
     var rows = all('.wx__row'), fr = all('.wx__ft');
     function gams(q) { return all(q).map(function (th) { return th.querySelector('.wx__gam'); }); }
     var MARK = [0, 1, 2].map(function (r) { return { s: r, t0: r === 2 ? 1.6 : 1.5, els: all('.wx__lt', rows[r]).concat(all('.wx__c', rows[r])) }; }).concat([
-      { s: 3, t0: 2.6, els: [fr[0]].concat(gams('th[data-col]')) }, { s: 3, t0: 7.1, els: [fr[1]].concat(gams('th[data-row]')) },
-      { s: 4, t0: 5.8, els: all('.wx__bg') }, { s: 5, t0: 5.8, els: all('.wx__bp') }]);
+      { s: 3, t0: 2.6, els: [fr[0]].concat(gams('th[data-col]')) }, { s: 3, t0: 7.1, els: [fr[1]].concat(gams('th[data-row]')) }]);
     MARK.forEach(function (g) { g.els.forEach(function (el) { el.classList.add('wx__mk'); }); });
     /* two and a half blinks of 1.1 s (0.7 s on the screen: the diagram runs 1.6 times faster than written), then a
        steady light: never a jump */
