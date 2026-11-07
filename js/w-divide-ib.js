@@ -91,6 +91,8 @@
   /* a piece of the broken nuclear membrane (InhDraw.opening's pieces), for a name */
   function pieceAt(nu, i) { var a = (i + .5) * 2 * Math.PI / 22, d = 1.08; return [nu.cx + Math.cos(a) * nu.rx * d, nu.cy + Math.sin(a) * nu.ry * d]; }
 
+  /* each step's real motion, in model seconds (written by tools/flow-still.mjs --write; checked by it) */
+  var MOTION = {"IB Mitosis in detail (IB)":[6.5,6.45,5.05,7.05,7,5.05,9,7,9.45],"IB Meiosis in detail (IB)":[0,6.05,8.65,4.65,7,5.05,5.05,6.05,5.6,4.05,7,9.65]};
   function widget(spec, title, aria, STEPS, M, W, H, render, labelsAt, pills, notes) {
     var S = K.shell(spec, 'dv', title, aria, [['ph', 'Phase:'], ['n', 'Chromosomes:']]);
     var svg = S.svg, NSV = K.NS, uid = 'dvb' + Math.random().toString(36).slice(2, 7);
@@ -112,7 +114,7 @@
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
       var pl = pills(t); S.pill('ph', pl[0], 'ok'); S.pill('n', pl[1], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, P) });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, P, MOTION, 'IB ' + title) });
     /* under the drawing the key, drawn, and the guide's statements in one line (Daniel, 4 Nov 2026: "this text is extremely
        long. It distracts from … the step-by-step"; 5 Nov: "Why don't you show them instead of writing about them?") */
     var box = K.mount(S, sp, 'dv', notes, function (Dw, nar) {

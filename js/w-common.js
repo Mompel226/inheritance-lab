@@ -70,7 +70,7 @@
 
     var T = 0, playing = false, raf = null, last = null, started = false, stopAt = null;
     function stepAt(t) { var k = 0; for (var i = 0; i < STEPS.length; i++) if (t >= STEPS[i].t - 1e-6) k = i; return k; }
-    function segEnd(i) { return i + 1 < STEPS.length ? STEPS[i + 1].t - .02 : END; }
+    function segEnd(i) { return opts.flow && opts.flow.endOf ? Math.min(i + 1 < STEPS.length ? STEPS[i + 1].t - .02 : END, opts.flow.endOf(i)) : i + 1 < STEPS.length ? STEPS[i + 1].t - .02 : END; }
     function atStepEnd() { return started && !playing && stopAt != null && T >= stopAt - 1e-3; }
     function paint(t) {
       render(t);

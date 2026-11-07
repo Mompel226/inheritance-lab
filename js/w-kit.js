@@ -49,11 +49,16 @@
      it are read, then goes on with the next step's motion. f.need() (set by mount) reads the names on the picture once
      the step's last frame is drawn; with none, a short beat (.35 s) so the eye sees the step change (Daniel, 5 Nov 2026:
      "when you play it all, sometimes some sections go so fast, the labels that appear, you can barely read them") */
-  function readerFlow(R, M, P) {
-    var held = {}, seen = {};
+  /* MOTION[title] (optional): how long each step's motion really runs, in the model's seconds (tools/flow-still.mjs
+     --write measures it into the widget's file; without --write it checks that nothing moves after it): Play all waits only for the names after that, and a single step stops there, so a
+     step whose drawing has stopped never holds the reader up (Daniel, 6 Nov 2026: "I have to wait like very long time to
+     see anything happen") */
+  function readerFlow(R, M, P, MOTION, title) {
+    var held = {}, seen = {}, ME = MOTION && title ? MOTION[title] : null;
+    function runOf(i) { var d = M[i + 1] - M[i], me = ME && ME[i] != null ? Math.min(d, ME[i] + .15) : d; return Math.min(me / paceOf(P, i), R[i + 1] - R[i]); }
     function f(t) {
       for (var i = 0; i + 1 < R.length; i++) if (t < R[i + 1]) {
-        var end = R[i] + Math.min((M[i + 1] - M[i]) / paceOf(P, i), R[i + 1] - R[i]);
+        var end = R[i] + runOf(i);
         if (t <= end) return t;
         if (held[i] == null) { if (!seen[i]) { seen[i] = 1; return t; } held[i] = f.need ? f.need() : .35; }
         return t > end + held[i] ? R[i + 1] : t;
@@ -61,6 +66,11 @@
       return t;
     }
     f.need = null;
+    /* where a single step (Play, Next step) stops: as soon as its motion has run, with its names on; it then holds until
+       the reader presses Next step, never making them wait out a reading time first (Daniel, 6 Nov 2026: "allow you to
+       read things, but they don't make you wait there for ages") */
+    f.endOf = function (i) { return i + 1 < R.length ? Math.min(R[i + 1] - .02, R[i] + runOf(i)) : R[R.length - 1]; };
+    f.R = R; f.M = M; f.pace = function (i) { return paceOf(P, i); }; f.title = title || null;
     return f;
   }
   function readerSteps(steps, R) { return steps.map(function (s, i) { var o = {}; for (var k in s) o[k] = s[k]; o.t = R[i]; return o; }); }
@@ -137,7 +147,10 @@
     cring: '<g class="cring"><circle cx="8" cy="7" r="3.2"/><circle cx="14" cy="7" r="3.2"/><circle cx="20" cy="7" r="3.2"/></g>',
     rib: '<ellipse class="pt__ls" cx="14" cy="5.4" rx="10" ry="4.4"/><ellipse class="pt__ss" cx="14" cy="10.6" rx="7" ry="3"/>',
     trna: '<path class="pt__trna" d="M8 1.5H20V6H16.5V12.5H11.5V6H8Z"/>',
-    aa: '<circle class="aa aa1" cx="6" cy="7" r="4"/><circle class="aa aa2" cx="14" cy="7" r="4"/><circle class="aa aa3" cx="22" cy="7" r="4"/>'
+    aa: '<circle class="aa aa1" cx="6" cy="7" r="4"/><circle class="aa aa2" cx="14" cy="7" r="4"/><circle class="aa aa3" cx="22" cy="7" r="4"/>',
+    /* one amino acid, in its colour (the code's key: "GCU = alanine") */
+    aa1: '<circle class="aa aa1" cx="14" cy="7" r="4.6"/>', aa2: '<circle class="aa aa2" cx="14" cy="7" r="4.6"/>',
+    aa3: '<circle class="aa aa3" cx="14" cy="7" r="4.6"/>', aa4: '<circle class="aa aa4" cx="14" cy="7" r="4.6"/>'
   };
   function keyOf(items) {
     var ul = h('ul', 'figkey anikey');
@@ -207,7 +220,9 @@
     if (sp.flow) sp.flow.need = function () {
       var pk = S.fig.querySelector('.pinkey'), texts = [];
       if (pk && !pk.hidden) Array.prototype.forEach.call(pk.children, function (li) { texts.push(li.textContent.replace(/^\s*\d+\s*/, '')); });
-      else Array.prototype.forEach.call(S.svg.querySelectorAll('.lb__txt'), function (tx) { var sp2 = tx.querySelectorAll('tspan'); texts.push(sp2.length ? Array.prototype.map.call(sp2, function (q) { return q.textContent; }).join(' ') : tx.textContent); });
+      /* a widget with no drawing of names (the crosses' diagram, HTML) has none to wait for: without this test Play all
+         stopped with an error at the end of its first step (6 Nov 2026) */
+      else if (S.svg) Array.prototype.forEach.call(S.svg.querySelectorAll('.lb__txt'), function (tx) { var sp2 = tx.querySelectorAll('tspan'); texts.push(sp2.length ? Array.prototype.map.call(sp2, function (q) { return q.textContent; }).join(' ') : tx.textContent); });
       texts = texts.filter(function (x) { return /\S/.test(x); });
       if (!texts.length) return .35;
       var mx = Math.max.apply(null, texts.map(function (x) { return x.trim().split(/\s+/).length; }));

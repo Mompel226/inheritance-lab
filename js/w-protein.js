@@ -42,7 +42,7 @@
                   a peptide bond and the ribosome moves three bases along the mRNA (D1.2.10); the empty tRNA leaves; the
                   chain leaves through the tunnel of the large subunit; at UAA (a stop codon) no tRNA fits, the chain is
                   released and the subunits separate; the chain folds into its shape (17.1.6; IB B1.2.7 HL)
-   · drawn larger than real, and said so in the notes: the mRNA in step 7; the bases of mRNA and tRNA and the amino acids
+   · drawn larger than real, and said so in the notes: the bases of mRNA and tRNA and the amino acids
      in steps 9–13; the DNA in the bubble is drawn untwisted. Everything is far slower than in a cell (RNA polymerase adds
      about 20–60 bases a second, a ribosome about 5 amino acids).
    SOURCES: syllabus 0610 2026–28 4.1.4, 17.1.5–17.1.8; IB Biology guide (2025) D1.2.1–D1.2.10, D1.2.13, D1.2.15, D1.2.17,
@@ -63,18 +63,20 @@
     { h: 'An enzyme at the start of the gene', p: 'Enlarged again: the start of the gene, about 60 of its 3,000 base pairs. An enzyme (IB: RNA polymerase) attaches here. It separates the two strands of the DNA for a short length.' },
     { h: 'mRNA, a copy of the gene', p: 'Free bases arrive, one at a time. Each pairs with a base on one strand of the DNA: C with G, and A with T, as in DNA. But mRNA has the base U instead of T, so U pairs with A. The enzyme joins the bases into a strand of **messenger RNA (mRNA)**, a **copy of the gene**. Behind the enzyme, the two strands of DNA join again.' },
     { h: 'A copy of the whole gene', p: 'The enzyme moves along the whole gene. The mRNA grows until it is a copy of the whole gene, thousands of bases long. Then the mRNA and the enzyme separate from the DNA. The **gene stays in the nucleus**.' },
-    { h: 'To the cytoplasm', p: 'The **mRNA moves from the nucleus to the cytoplasm**. First it moves to a pore in the nuclear membrane (the membrane round the nucleus). (Here the mRNA is drawn far larger than real.)' },
+    { h: 'To the cytoplasm', p: 'The **mRNA moves from the nucleus to the cytoplasm**. First it moves to a pore in the nuclear membrane (the membrane round the nucleus).' },
     { h: 'Through a pore', p: 'Enlarged: a pore in the nuclear membrane, which is two membranes (IB: the nuclear envelope). Pores are not in the 0610 syllabus. The mRNA passes through a pore, one end first, into the **cytoplasm**.' },
-    { h: 'A ribosome forms on the mRNA', p: 'Enlarged again: the start of the mRNA, in the cytoplasm. A **ribosome** forms on it from two parts, a small part and a large part (IB: subunits). Each part is made of RNA and protein. The mRNA lies between them. The first amino acid arrives, carried by a small RNA molecule (IB: tRNA), at the first three bases of the code, AUG (IB: start codon).' },
-    { h: 'Inside a ribosome (beyond 0610)', p: 'Seen through: a ribosome is made mostly of RNA (IB: rRNA), folded into the shape of each part, with proteins on its surface. Its RNA, not a protein, joins the amino acids. RNA can carry a code and do a job, so many scientists think that the first copier of life was RNA.' },
-    { h: 'A small RNA brings an amino acid', p: 'Small RNA molecules (IB: tRNA) bring **amino acids** to the ribosome. Each one carries one amino acid. Its three bases (IB: anticodon) pair with three bases of the mRNA (IB: codon). So each group of **three bases** in the mRNA codes for one amino acid.' },
+    { h: 'A ribosome forms on the mRNA', p: 'Enlarged again: the start of the mRNA, in the cytoplasm. A **ribosome** forms on it from two parts, a small part and a large part (IB: subunits). Each part is made of RNA and protein. First the **small part** attaches to the start of the mRNA. It already carries the **first amino acid**, on a small RNA molecule (IB: tRNA). The small part moves along the mRNA to the first three bases of the code, AUG (IB: start codon). Then the **large part** joins it. The mRNA lies between the two parts.' },
+    { h: 'Inside a ribosome (beyond 0610)', p: 'Seen through: a ribosome is mostly **RNA** (IB: rRNA). There are some **proteins** on its surface. The ribosome’s **RNA**, not a protein, **joins the amino acids** together. So RNA can **carry a code** (like mRNA) and also **do a job** (like an enzyme). This is why many scientists think that the **first copier of life** was RNA.' },
+    { h: 'A small RNA brings an amino acid', p: 'Small RNA molecules (IB: tRNA) bring **amino acids** to the ribosome. Each one carries one amino acid. Its three bases (IB: anticodon) pair with three bases of the mRNA (IB: codon). So each group of **three bases** in the mRNA codes for one amino acid: here GCU codes for **alanine** (the key gives each one).' },
     { h: 'Joining the amino acids', p: 'The **ribosome assembles amino acids** into a chain: first it joins the new amino acid to the chain (IB: a peptide bond). Then the **mRNA passes through the ribosome** by three bases. The empty small RNA leaves, and the next one arrives with its amino acid. In this way the **sequence of bases** in the mRNA decides the **sequence of amino acids**.' },
-    { h: 'The chain grows', p: 'Three bases at a time, one amino acid at a time, the chain grows. A ribosome adds about 5 amino acids each second. A real protein is a chain of hundreds of amino acids; the one drawn here has only 20.' },
-    { h: 'The chain folds into its shape', p: 'At the end of the code (IB: a stop codon), no small RNA fits. The chain is released, and the two parts of the ribosome separate. The chain folds into the **shape** of the protein. A different **sequence of amino acids** would give a different shape.' }
+    { h: 'The chain grows', p: 'Three bases at a time, one amino acid at a time, the chain grows. This chain is made of four kinds of amino acid: **methionine**, **alanine**, **serine** and **glycine**. A ribosome adds about 5 amino acids each second. A real protein is a chain of hundreds of amino acids; the one drawn here has only 20.' },
+    { h: 'The chain folds into its shape', p: 'At the end of the code (IB: a stop codon), no small RNA fits. The chain is released, and the two parts of the ribosome separate. The chain folds into the **3D shape** of the protein: it turns once here, so you can see it is not flat. A different **sequence of amino acids** would give a different 3D shape.' }
   ];
   /* how long each step's motion runs, in seconds (the reader's time: the clock is given a pace of 1) */
-  var DUR = [5, TZ + 4, TZ + 6, TZ + 9.6, TZ + 15.8, TZ + 12.8, TZ + 6.8, TZ + 8.8, TZ + 10, 4.5, 6.5, 8.4, 18, 11];
+  var DUR = [5, TZ + 4, TZ + 6, TZ + 9.6, TZ + 15.8, TZ + 12.8, TZ + 6.8, TZ + 8.8, TZ + 8.2, 4.5, 6.5, 8.4, 18, 13];
   var M = [0]; DUR.forEach(function (d, i) { M.push(M[i] + d); });
+  /* each step's real motion, in model seconds (written by tools/flow-still.mjs --write; checked by it) */
+  var MOTION = {"How a protein is made":[0,5.05,4.6,12.85,19,15.3,9.4,12,11.05,2.2,5.65,7.85,18,11.25]};
   var SEE = ['a body cell', 'its nucleus', 'one gene', 'the start of the gene', 'the gene being copied', 'the whole gene', 'the nucleus', 'a pore',
              'the start of the mRNA', 'inside a ribosome', 'a ribosome on the mRNA', 'a ribosome on the mRNA', 'the chain growing', 'the protein'];
   var WHERE = ['the whole cell', 'in the nucleus', 'in the nucleus', 'in the nucleus', 'in the nucleus', 'in the nucleus', 'from the nucleus to the cytoplasm',
@@ -223,7 +225,6 @@
     var inw = [CX - p[0], CY - p[1]]; if (-tg[1] * inw[0] + tg[0] * inw[1] < 0) tg = [-tg[0], -tg[1]];
     return { p: p, ang: Math.atan2(tg[1], tg[0]) };
   })();
-  var XB = 8;                      /* the mRNA in the nucleus is drawn this many times larger than real */
   function frameB(t, z) {
     var lit = t < M[5] ? sstep(seg(loc(1, t), TZ + .4, TZ + 1.8)) : 1;
     var out = ground('zm__far') + '<path class="pt__cellB" d="' + closed(CELLB) + '"/>' + D.envelope(CX, CY, 150, 168, 18) + threadsB(PHB, 1.3, lit, 6);
@@ -289,7 +290,7 @@
     return out.filter(function (s) { var p = CTR.at(s).p; return p[0] > -30 && p[0] < W + 30 && p[1] > -30 && p[1] < H + 30; });
   })();
   /* the coiled mRNA: one shape, drawn at its real size in the pore picture (E units), 0.6 times that in the gene picture,
-     1/33 of it (and XB times larger) in the nucleus. v 0 its 3' end, in the middle; 1 its 5' end, outside */
+     1/33 of it in the nucleus. v 0 its 3' end, in the middle; 1 its 5' end, outside */
   /* 7.6 turns: the coil is as long as the copy along the gene (about 590 units in the gene picture), so the mRNA never
      gets shorter as it coils (the audit, 6 Nov 2026: 2.6 turns held under a third of it); it ends where it always did */
   function spiralPt(v) { var th = v * 2 * PI * 7.6 + .3, r = 6 + 48 * v + 1.2 * Math.sin(v * 37); return [r * Math.cos(th), r * Math.sin(th) * .8]; }
@@ -298,8 +299,9 @@
   function enzC(t) { var e0 = (BP * NB + 20) * KDC; return CTR.s0 + e0 + (CTR.glen - e0) * seg(loc(5, t), TZ + .4, TZ + 9.4); }
   function relC(t) { return ease(seg(loc(5, t), TZ + 9.8, TZ + 12.2)); }
   /* the gene is yellow from the first moment of its picture: the same band as in the nucleus, enlarged (the audit, 6 Nov
-     2026: it arrived grey and was then lit again from its start); only the mark at its start appears after the zoom */
-  function startC(t) { return t < M[5] ? seg(loc(2, t), TZ + .4, TZ + 1.4) : 1; }
+     2026: it arrived grey and was then lit again from its start); the dashed mark at its start only in the steps that
+     name it, with its name (Daniel, 6 Nov 2026: "there is a dotted line, and I don't know why that dotted line is there") */
+  function startC(t) { return t < M[3] ? seg(loc(2, t), TZ + .4, TZ + 1.4) : 0; }
   function mrnaCpts(t) {
     var sE = enzC(t), rel = relC(t), pts = [];
     for (var b = CTR.s0; b <= sE + .01; b += 2.5) {
@@ -316,12 +318,50 @@
   var GTOP = (function () { var b = null; for (var s = CTR.s0; s <= CTR.s1; s += 1) { var p = CTR.at(s).p; if (p[0] > 160 && p[0] < 240 && (!b || p[1] < b[1])) b = p; } return b; })();
   /* a bead on the chromosome's next fold, the lowest DNA in the picture: its name stands below it */
   var BEADN = (function () { var b = null; NBR.beads.forEach(function (p) { if (p[1] > CY + 60 && p[1] < H - 8 && p[0] > 20 && p[0] < W - 20 && (!b || Math.abs(p[0] - 250) < Math.abs(b[0] - 250))) b = p; }); return b || NBR.beads[0]; })();
-  function frameC(t) {
-    var gl = startC(t), out = ground('zm__nucl');
+  /* the gene picture's thread, close up in a zoom, drawn as the DNA of the close-up: its two strands (the back one paler),
+     the bases between them in their colours, and the gene's yellow band from its start, the close-up's helix laid along
+     the thread (its x at CTR.s0 + x·KDC, its y along the thread's normal), so the close-up continues it exactly (Daniel,
+     6 Nov 2026: "all of the gray solid line should also be like the one that you have added in the middle"; "make sure
+     that it's also highlighted in yellow the proper way"). Only the part the zoom shows: 300 px each way of sF. Where the
+     close-up lies (7 units each way of sF) the thread runs straight along the zoom's direction ang, as the close-up's
+     DNA does, and bends back to its own path by 14 units: the two meet with no kink */
+  function helixC(zs, sF, ang) {
+    var half = 300 / zs, a0 = Math.max(0, sF - half), a1 = Math.min(CTR.len, sF + half), ds = DP * KDC / 18, ph = phD(0), out = '';
+    var base = CTR.at(sF).p, dir = [Math.cos(ang), Math.sin(ang)], nS = [-dir[1], dir[0]];
+    function pt(s, off) {
+      var g = CTR.at(s), u = Math.abs(s - sF), w = u <= 7 ? 1 : u >= 14 ? 0 : sstep((14 - u) / 7);
+      var p = mix(g.p, [base[0] + (s - sF) * dir[0], base[1] + (s - sF) * dir[1]], w), n = mix(g.n, nS, w), l = Math.hypot(n[0], n[1]) || 1;
+      return [p[0] + n[0] / l * off * KDC, p[1] + n[1] / l * off * KDC];
+    }
+    function xOf(s) { return (s - CTR.s0) / KDC; }
+    var g0 = Math.max(a0, CTR.s0 - 7.5 * KDC), up = [], dn = [];
+    for (var s = g0; s <= a1; s += ds) { up.push(pt(s, -(DA + 14))); dn.push(pt(s, DA + 14)); }
+    if (up.length > 1) out += '<path class="pt__gzone" d="' + pl(up.concat(dn.reverse())) + ' Z"/>';
+    var sw = ' style="stroke-width:' + r4(9 * KDC) + 'px"', runs = [[], []];
+    [0, DG].forEach(function (sh, w) {
+      var cur = null;
+      for (var s = a0; s <= a1; s += ds) {
+        var q = ph + sh + xOf(s) * 2 * PI / DP, p = pt(s, DA * Math.sin(q)), f = Math.cos(q) > 0;
+        if (!cur || cur.f !== f) { cur = { f: f, P: cur ? [cur.P[cur.P.length - 1], p] : [p] }; runs[w].push(cur); } else cur.P.push(p);
+      }
+    });
+    var back = '', front = '', mid = '';
+    runs.forEach(function (R) { R.forEach(function (r) { if (r.P.length > 1) { var d = '<path class="dna__s zm__s7' + (r.f ? '' : ' zm__back') + '"' + sw + ' d="' + pl(r.P) + '"/>'; if (r.f) front += d; else back += d; } }); });
+    for (var j = Math.ceil(xOf(a0) / BP); j <= Math.floor(xOf(a1) / BP); j++) {
+      var x = j * BP, s2 = CTR.s0 + x * KDC, ya = DA * Math.sin(ph + x * 2 * PI / DP), yb = DA * Math.sin(ph + DG + x * 2 * PI / DP), m = (ya + yb) / 2;
+      mid += baseLine(pt(s2, ya), pt(s2, m), coding(j), 5.6 * KDC) + baseLine(pt(s2, yb), pt(s2, m), template(j), 5.6 * KDC);
+    }
+    return out + back + mid + front;
+  }
+  function frameC(t, z) {
+    var gl = z && z.old ? 0 : startC(t), out = ground('zm__nucl');
+    /* in a zoom with the close-up of the DNA (into step 4, out of step 5), the thread is drawn as that DNA */
+    var zs = z && z.e < 1 ? (z.old && z.k === 3 ? Math.pow(ZM[3].z, z.e) : !z.old && z.k === 5 ? Math.pow(ZM[5].z, 1 - z.e) : 1) : 1, hk = seg(zs, 2.5, 6);
     if (gl > 0) { var g0 = CTR.at(CTR.s0).p; out += '<path class="pt__start pt__startC" d="M' + n1(g0[0]) + ' ' + n1(g0[1] - 3) + ' L' + n1(g0[0]) + ' ' + n1(g0[1] - 26) + '"' + op(gl) + '/>'; }
-    out += '<path class="pt__gene" d="' + pl(CTR.part(CTR.s0, CTR.s0 + CTR.glen, 2)) + '"/>';
-    out += '<path class="dna__s pt__cdna" d="' + pl(CTR.P) + '"/>';
+    out += '<path class="pt__gene" d="' + pl(CTR.part(CTR.s0, CTR.s0 + CTR.glen, 2)) + '"' + op(1 - hk) + '/>';
+    out += '<path class="dna__s pt__cdna" d="' + pl(CTR.P) + '"' + op(1 - hk) + '/>';
     NBR.runs.forEach(function (P) { out += '<path class="dna__s pt__cdna" d="' + pl(P) + '"/>'; });
+    if (hk > 0) { var zf = ZM[z.k].F(); out += '<g' + op(hk) + '>' + helixC(zs, z.k === 3 ? CTR.s0 + 60 * KDC : CTR.s0 + (enzX(M[5]) - 50) * KDC, zf.ang) + '</g>'; }
     NBR.beads.forEach(function (p) { out += '<circle class="zm__bead" cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="2.8"/>'; });
     var copying = t >= M[5] - 1e-6, sE = copying ? enzC(t) : -1e9, moving = copying && loc(5, t) < TZ + 9.6;
     BEADS.forEach(function (s) {
@@ -331,7 +371,8 @@
     if (copying) {
       var pts = mrnaCpts(t);
       if (pts.length > 1) out += '<path class="dna__s pt__mr pt__mrv" d="' + pl(pts) + '"/>';
-      var lv = ease(seg(loc(5, t), TZ + 9.6, TZ + 11.6)), g = CTR.at(sE), ep = [g.p[0] + 26 * lv, g.p[1] - 58 * lv];
+      /* the enzyme where the close-up has it, 30 of its units off the DNA's middle, so the zoom out of step 5 lands on it */
+      var lv = ease(seg(loc(5, t), TZ + 9.6, TZ + 11.6)), g = CTR.at(sE), ep = [g.p[0] + 26 * lv - g.n[0] * 30 * KDC, g.p[1] - 58 * lv - g.n[1] * 30 * KDC];
       /* the enzyme at its real size here (about 12 nm), the shape of the close-up */
       out += '<path class="pt__pol pt__polC" d="' + closed(place(ENZ, ep, g.ang, KDC)) + '"/>';
     }
@@ -353,19 +394,14 @@
     return out;
   }
 
-  /* the mRNA in the nucleus (step 7): the coil of the gene picture, then larger than real (XB), moving to the pore; its
-     5' end first along the pore's way in. z: during the zoom into the pore, back to its real size */
+  /* the mRNA in the nucleus (step 7): the coil of the gene picture at its real size, small, moving to the pore; its 5'
+     end first along the pore's way in. It shrinks and grows only with the camera, never drawn larger than real
+     (Daniel, 6 Nov 2026: "you show the DNA copy being small, and then suddenly you make it huge … Just leave it small,
+     but then when you uncoil it, you see the filament leaving the pore … don't make it bigger") */
   var E2B = 1 / 33.3;
-  /* the mRNA is drawn XB times its real size in this 10 µm picture (said in its name). In a zoom it keeps its size ON
-     THE SCREEN until its real size, zoomed, is larger; then it grows only with the camera, so it meets the pore
-     picture's coil at exactly that coil's size: it never swells and shrinks back (Daniel, 6 Nov 2026: "the swirl
-     suddenly gets bigger … a simplification … needs to follow some logical rules") */
   function mrnaB(t, z) {
     var g = geneB(M[6] * .5), q0 = add(g.p, rot([(QC[0] - CX) / ZBC, (QC[1] - CY) / ZBC], g.ang));
-    var zs = 1;
-    if (z && z.old && z.k === 7) zs = Math.pow(ZM[7].z, z.e);                  /* zooming in, into the pore */
-    else if (z && !z.old && z.k === 6 && z.e < 1) zs = Math.pow(ZM[6].z, 1 - z.e); /* zooming out, from the gene */
-    var X = Math.max(1, XB / zs);
+    var X = 1;
     var k = ease(seg(loc(6, t), TZ + .5, TZ + 5)), lead = ease(seg(loc(6, t), TZ + 4.4, TZ + 6.2));
     var a = lerp(g.ang, PORE.ang, k), home = add(PORE.p, rot([ESPC[0] - CX, ESPC[1] - CY], PORE.ang).map(function (v) { return v * E2B * X; }));
     var c = mix(q0, home, k), pts = [];
@@ -389,7 +425,7 @@
     if (loc(6, t) < TZ + 6.2) return [];
     var gg = GENEB;
     return [{ id: 'gene', text: 'the gene: it stays in the nucleus', x: gg.p[0], y: gg.p[1] - 2, side: 'T' },
-            { id: 'mr', text: 'mRNA, at a pore (drawn larger than real)', x: PORE.p[0] + 6, y: PORE.p[1] + 8, side: 'L' },
+            { id: 'mr', text: 'mRNA, at a pore', x: PORE.p[0] + 6, y: PORE.p[1] + 8, side: 'L' },
             { id: 'mem', text: 'the nuclear membrane (the membrane round the nucleus)', x: CX + 150, y: CY - 30, side: 'R' }];
   }
 
@@ -462,7 +498,8 @@
     var xl = c[0] - (CX + 40) / s, xr = c[0] + (CX + 40) / s, st = s < .7 ? 3 : 2;
     var out = ground('zm__nucl') + '<g transform="translate(' + CX + ' ' + CY + ') scale(' + r4(s) + ') translate(' + n1(-c[0]) + ' ' + n1(-c[1]) + ')">';
     out += '<rect class="pt__gzone" x="-7.5" y="' + (DY - DA - 14) + '" width="' + n1(Math.max(0, xr + 7.5)) + '" height="' + (2 * DA + 28) + '" rx="8"/>';
-    out += '<path class="pt__start" d="M-7.5 ' + (DY - 140) + ' L-7.5 ' + (DY + DA + 40) + '"/>';
+    var sk = t < M[4] ? seg(openD(t), .9, 1) : 0;
+    if (sk > 0) out += '<path class="pt__start" d="M-7.5 ' + (DY - 140) + ' L-7.5 ' + (DY + DA + 40) + '"' + op(sk) + '/>';
     var land = landD(t);
     if (land > 0) out += '<path class="pt__pol" d="' + closed(place(ENZ, [enzX(t), enzY(t)], .05 * Math.sin(t * .6))) + '"/>';
     /* the two strands, in runs behind (paler) or in front of the bases; where the bubble holds them apart, in front */
@@ -630,12 +667,18 @@
   function codon(n) { return MRNA.substr(MC + 3 * n, 3); }
   function codonX(n) { return FB * (MC + 3 * n + 1); }
   var RX0 = codonX(0) + 1.5 * FB, RXL = FB + 1.5 * FB;
-  var SS0 = [RXL + 40, 560], LS0 = [RX0 - 56, -280];
+  /* the small part comes in from the lower left and reaches the mRNA's level before it reaches the mRNA's end, so the tRNA
+     it carries never crosses the mRNA (SSW: the way it comes, a curve of three bends) */
+  var SS0 = [-200, 440], LS0 = [RX0 - 56, -280], SSW = [SS0, [-130, 296], [-60, 296], [RXL - 6, 296]];
+  /* where the first tRNA sits on the small part: over its three bases when the small part stops at AUG */
+  var SST = [codonX(0) - RX0 + 6, FYP - 296];
   var CF0 = [120, 205];
   /* the cycles: CYC[n] holds when tRNA n arrives (a0–a1), its amino acid is joined (b0–b1), and the ribosome moves on
      (c0–c1); tRNA 0 (methionine, at the start codon AUG) only arrives */
   var CYC = (function () {
-    var C = [{ a0: M[8] + TZ + 4.8, a1: M[8] + TZ + 6.8 }];
+    /* tRNA 0 rides in on the small part and moves along the mRNA with it to AUG: in human cells it is on the small part
+       as the small part attaches to the mRNA (Daniel, 6 Nov 2026: "Yes, change it") */
+    var C = [{ a0: M[8] + TZ + .3, a1: M[8] + TZ + 4.6 }];
     /* step 10: the second one arrives slowly; step 11: ONE cycle, in order: the bond, the move by three bases, the empty
        one leaves, the next arrives (the audit of 5 Nov: "the text's order cannot be seen" when cycles overlap); step 12
        repeats it, faster */
@@ -653,11 +696,12 @@
   }
   function apart(t) { return t < M[13] ? 0 : ease(seg(loc(13, t), 2.6, 5.6)); }
   function ssPos(t) {
-    if (t < M[8] + TZ + 2.8) return mix(SS0, [RXL - 6, 296], ease(seg(loc(8, t), TZ + .3, TZ + 2.8)));
+    if (t < M[8] + TZ + 2.8) { var k = ease(seg(loc(8, t), TZ + .3, TZ + 2.8)), u = 1 - k, w = [u * u * u, 3 * k * u * u, 3 * k * k * u, k * k * k];
+      return [0, 1].map(function (j) { return SSW.reduce(function (a, P, i) { return a + w[i] * P[j]; }, 0); }); }
     var k = apart(t); return [ribX(t) - 6 + 90 * k, 296 + 60 * k];
   }
   function lsPos(t) {
-    if (t < M[8] + TZ + 9.4) return mix(LS0, [RX0 - 4, 168], ease(seg(loc(8, t), TZ + 7, TZ + 9.4)));
+    if (t < M[8] + TZ + 7.6) return mix(LS0, [RX0 - 4, 168], ease(seg(loc(8, t), TZ + 5.2, TZ + 7.6)));
     var k = apart(t); return [ribX(t) - 4 + 120 * k, 168 - 100 * k];
   }
   /* a part of the ribosome: one smooth shape, a lighter centre for its depth (Daniel, 5 Nov 2026: the coiled RNA and the
@@ -691,6 +735,7 @@
   function trnaPose(n, t) {
     var C = CYC[n]; if (!C || t < C.a0) return null;
     var xb = codonX(n), o = [xb, FYP];
+    if (n === 0 && t < C.a1) return { o: add(ssPos(t), SST), a: 0, n: 0 };
     /* upright while it sits, so two side by side never touch (the audit, 6 Nov 2026); it leans only as it moves on */
     var tilt = 13 * DEG * trans(n + 1, t);
     var last = n === NAA - 1, e0 = last ? M[13] + 2.6 : CYC[n + 1].c1, e1 = e0 + (last ? 2.4 : n >= 3 ? .8 : 1.4);
@@ -756,10 +801,17 @@
   function released() { if (!FROZEN) FROZEN = chainAt(TREL); return FROZEN; }
   function protCentre() { var F = released(), c = [0, 0]; F.forEach(function (p) { c[0] += p[0] / F.length; c[1] += p[1] / F.length; }); return [c[0] - 10, c[1] + 10]; }
   function foldK(i, t) { return ease(seg(t, M[13] + 2.4 + .08 * i, M[13] + 5.6 + .08 * i)); }
+  /* the folded protein is 3D: each amino acid also has a depth (FOLDZ); once folded the protein turns once round an
+     upright line and then holds still, so a pupil sees a 3D shape, not a flat drawing; nearer amino acids are drawn
+     larger and in front (Daniel, 6 Nov 2026: "add some 3D … depending on the sequence of amino acids, the 3D shape will
+     be different") */
+  var FOLDZ = FOLD.map(function (p, i) { return 22 * Math.sin(i * 1.1) + 8 * Math.cos(i * 2.3); });
+  function turnF(t) { return t < M[13] ? 0 : 2 * PI * ease(seg(loc(13, t), 7.6, 11)); }
+  function depthOf(i, t) { if (t < TREL) return 0; var th = turnF(t); return foldK(i, t) * (-FOLD[i][0] * Math.sin(th) + FOLDZ[i] * Math.cos(th)); }
   function chainNow(t) {
     if (t < TREL) return chainAt(t);
-    var F = released(), pc = protCentre();
-    return F.map(function (p, i) { return mix(p, add(pc, FOLD[i]), foldK(i, t)); });
+    var F = released(), pc = protCentre(), th = turnF(t), c = Math.cos(th), sn = Math.sin(th);
+    return F.map(function (p, i) { var q = FOLD[i]; return mix(p, add(pc, [q[0] * c + FOLDZ[i] * sn, q[1]]), foldK(i, t)); });
   }
   function camF(t) {
     var rx = ribX(t), c = [lerp(CF0[0], rx, ease(seg(loc(8, t), TZ + 2.9, TZ + 4.9))), CF0[1]], s = 1;
@@ -775,7 +827,7 @@
     var see = seeF(t);
     out += subunit(SSH, ss, 'pt__ss', see);
     out += subunit(LSH, ls, 'pt__ls', see);
-    if (t >= M[8] + TZ + 9.4 && apart(t) < 1) out += '<path class="pt__tun" d="M' + n1(rx - 2) + ' 136 L' + n1(rx - 10) + ' 112 L' + n1(rx - 18) + ' 98 L' + n1(ls[1] < 168 ? rx - 26 : rx - 26) + ' 90"' + op(1 - apart(t)) + '/>';
+    if (t >= M[8] + TZ + 7.6 && apart(t) < 1) out += '<path class="pt__tun" d="M' + n1(rx - 2) + ' 136 L' + n1(rx - 10) + ' 112 L' + n1(rx - 18) + ' 98 L' + n1(ls[1] < 168 ? rx - 26 : rx - 26) + ' 90"' + op(1 - apart(t)) + '/>';
     /* the mRNA: the groups of three bases (shaded in turn) once tRNA is shown, its bases and their letters, its backbone */
     var ck = t < M[10] ? 0 : seg(loc(10, t), 2.6, 3.6), mr = '';
     var m0 = Math.max(0, Math.floor(xl / FB)), m1 = Math.min(MRNA.length - 1, Math.ceil(xr / FB));
@@ -795,7 +847,7 @@
     if (t >= M[13]) out += '<rect class="pt__box" x="' + n1(codonX(NAA) - 20.5) + '" y="' + (FYP - 2) + '" width="41" height="23" rx="4"' + op(seg(loc(13, t), .2, 1)) + '/>';
     /* the start of the code, AUG, boxed as the first small RNA pairs with it (the audit, 6 Nov 2026: GCC, the first three
        bases of the mRNA, could be read as "the first three bases of the code") */
-    if (t >= M[8] && t < M[9]) { var ak = seg(loc(8, t), TZ + 6.8, TZ + 7.6); if (ak > 0) out += '<rect class="pt__box" x="' + n1(codonX(0) - 20.5) + '" y="' + (FYP - 2) + '" width="41" height="23" rx="4"' + op(ak) + '/>'; }
+    if (t >= M[8] && t < M[9]) { var ak = seg(loc(8, t), TZ + 4.6, TZ + 5.4); if (ak > 0) out += '<rect class="pt__box" x="' + n1(codonX(0) - 20.5) + '" y="' + (FYP - 2) + '" width="41" height="23" rx="4"' + op(ak) + '/>'; }
     qs.forEach(function (q) { out += trnaSvg(q, lo, q.n === 1 ? bk : 0); });
     var ch = chainNow(t), nb = 0; for (var j = 1; j < NAA; j++) if (t >= CYC[j].b0) nb = j;
     if (ch.length > 1) {
@@ -811,9 +863,16 @@
       var pf = chainNow(t), hk = seg(loc(13, t), 6, 8);
       out += '<path class="pt__prot" d="' + hull(pf) + '"' + op(hk) + '/>';
     }
-    ch.forEach(function (p, i) { out += '<circle class="aa ' + AAK[codon(i)] + '" cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="6.5"/>'; });
+    /* each amino acid a small ball: a light spot for its roundness; once the chain folds, the far ones drawn first,
+       smaller and a little darker */
+    ch.map(function (p, i) { return { p: p, i: i, z: depthOf(i, t) }; }).sort(function (a, b) { return a.z - b.z; }).forEach(function (q) {
+      var r = 6.5 * (1 + q.z / 110), p = q.p;
+      out += '<circle class="aa ' + AAK[codon(q.i)] + '" cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="' + n1(r) + '"/>' +
+        (q.z < -2 ? '<circle class="aa__dk" cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="' + n1(r) + '"' + op(Math.min(.4, -q.z / 70)) + '/>' : '') +
+        '<circle class="aa__hi" cx="' + n1(p[0] - r * .32) + '" cy="' + n1(p[1] - r * .32) + '" r="' + n1(r * .34) + '"/>';
+    });
     /* amino acids still on their tRNA, not yet joined */
-    qs.forEach(function (q) { if (q.n > nb && q.n < NAA) { var tp = tipOf(q); out += '<circle class="aa ' + AAK[codon(q.n)] + '" cx="' + n1(tp[0]) + '" cy="' + n1(tp[1]) + '" r="6.5"/>'; } });
+    qs.forEach(function (q) { if (q.n > nb && q.n < NAA) { var tp = tipOf(q); out += '<circle class="aa ' + AAK[codon(q.n)] + '" cx="' + n1(tp[0]) + '" cy="' + n1(tp[1]) + '" r="6.5"/><circle class="aa__hi" cx="' + n1(tp[0] - 2.1) + '" cy="' + n1(tp[1] - 2.1) + '" r="2.2"/>'; } });
     return out + '</g>';
   }
   /* a rounded outline round points: the protein's surface */
@@ -833,7 +892,7 @@
     function it(id, text, p, side, alts) { var q = toF(t, p); out.push({ id: id, text: text, x: q[0], y: q[1], side: side, alts: (alts || []).map(function (a) { return toF(t, a); }) }); }
     var cm = camF(t), left = cm.c[0] - (CX - 18) / cm.s;
     if (k === 8) {
-      if (loc(8, t) < TZ + 9.6) return [];
+      if (loc(8, t) < TZ + 7.8) return [];
       var ls = lsPos(t), ss = ssPos(t), q00 = trnaPose(0, t);
       it('ls', 'the large part of a ribosome (IB: large subunit)', [ls[0] + 104, ls[1] - 6], 'R');
       it('ss', 'the small part (IB: small subunit)', [ss[0] + 92, ss[1] + 2], 'R');
@@ -879,9 +938,9 @@
       return out;
     }
     if (k === 13) {
-      if (loc(13, t) < 8.2) return [];
+      if (loc(13, t) < 11.2) return [];
       var pf = chainNow(t), lt = pf.reduce(function (a, p) { return p[0] < a[0] ? p : a; }, pf[0]), l2 = lsPos(t), s2 = ssPos(t);
-      it('prot', 'the protein: a chain of amino acids, folded into its shape', add(lt, [-12, 0]), 'L');
+      it('prot', 'the protein: a chain of amino acids, folded into its 3D shape', add(lt, [-12, 0]), 'L');
       it('ls', 'the large part of the ribosome, apart', [l2[0] + 104, l2[1] - 6], 'R');
       it('ss', 'the small part, apart', [s2[0] + 92, s2[1] + 2], 'R');
       it('stop', 'the end of the code (IB: stop codon)', [codonX(NAA), FYP + 21], 'B');
@@ -984,7 +1043,7 @@
       gLab.innerHTML = names(lay, items, narrow, key);
       S.pill('see', SEE[sc.k], 'ok'); S.pill('where', WHERE[sc.k], 'ok'); S.pill('size', SIZE[sc.k], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, 1) });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, 1, MOTION, 'How a protein is made') });
     S.box.__end = R[R.length - 1];
     /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
        "Why don't you show them instead of writing about them?") */
@@ -994,7 +1053,11 @@
               ['dna', 'DNA', [2, 3, 4, 5]], ['gene', 'the gene', [1, 6]], ['dnagene', 'the gene', [2, 3, 4, 5]], ['hist', 'proteins DNA is wound round', [2, 5]],
               ['bases', 'the four bases of DNA', [3], 'ATCG'], ['bases', 'the bases (U: in RNA only)', [4], 'ATCGU'], ['bases', 'the bases of RNA', [8, 9, 10, 11, 12, 13], 'ACGU'],
               ['enz', 'the enzyme', [3, 4, 5]], ['mrna', 'mRNA', [4, 5, 6, 7, 8, 9, 10, 11, 12, 13]], ['rib', 'a ribosome', [7, 8, 9, 10, 11, 12, 13]],
-              ['trna', 'small RNAs (IB: tRNA)', [8, 9, 10, 11, 12, 13]], ['aa', 'amino acids', [8, 9, 10, 11, 12, 13]]] }
+              ['trna', 'small RNAs (IB: tRNA)', [8, 9, 10, 11, 12, 13]], ['aa', 'amino acids', [8, 9, 10, 11, 12, 13]],
+              /* each amino acid with its three bases, from the step it first arrives (Daniel, 6 Nov 2026: "AGU equals, and
+                 then the name of the amino acid … so for them to understand that they're coding for different amino acids") */
+              ['aa4', 'AUG = methionine', [8, 9, 10, 11, 12, 13]], ['aa1', 'GCU = alanine', [10, 11, 12, 13]],
+              ['aa2', 'UCA = serine', [11, 12, 13]], ['aa3', 'GGU = glycine', [12, 13]]] }
     ], function (Dw, nar) {
       narrow = nar; lay = frameOf(svg, bg, model, cr, Dw, nar);
     });

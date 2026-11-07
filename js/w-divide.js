@@ -68,6 +68,8 @@
   function membranes(t, NU, tight, full, tm, horiz) { return D.nuclei(t, NU, tight, full, tm, horiz); }
   /* a copy on its own uncoiling into its thread (InhDraw.uncoil): no centromere dot at the IGCSE level */
   function unc(T, ph, u, V, s) { return D.uncoil(T, ph, u, (s || SZ).wd, V, { band: T.band, cen: false }); }
+  /* each step's real motion, in model seconds (written by tools/flow-still.mjs --write; checked by it) */
+  var MOTION = {"A line or a cross?":[0,7.05,8.65,7.45,6.05,11.65],"Mitosis, step by step":[0,6.45,8.65,6.65,6.05,7.45,6.05],"Meiosis, step by step":[0,6.45,9.65,7.45,8.65,8.85,7.45,16.65]};
   /* ============================================================ a step widget ============================================================ */
   function widget(spec, cls, title, aria, STEPS, M, W, H, render, labelsAt, pills, notes, pillNames) {
     var S = K.shell(spec, cls, title, aria, pillNames || [['n', 'Chromosomes:'], ['hu', 'In a human:']]);
@@ -91,7 +93,7 @@
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
       var pl = pills(t); S.pill('n', pl[0], 'ok'); S.pill('hu', pl[1], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, P) });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, P, MOTION, title) });
     return K.mount(S, sp, cls, notes, function (Dw, nar) {
       narrow = nar; var m = K.margins(nar, 15, 15, 90, 90);
       lay = K.frameOf(svg, bg, model, cr, { x0: 0, x1: W, y0: 0, y1: H }, false, Dw, m[0], m[1], m[2], m[3], 14.5);

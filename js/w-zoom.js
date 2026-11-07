@@ -41,6 +41,8 @@
   'use strict';
   var L = global.CircLearn, K = global.WKit, D = global.InhDraw; if (!L || !K || !D || !D.coiled) return;
   var n1 = K.n1, seg = K.seg, ease = K.ease, lerp = K.lerp;
+  /* each step's real motion, in model seconds (written by tools/flow-still.mjs --write; checked by it) */
+  var MOTION = {"From a cell to a gene":[0,5,5,6.5,5,7.85,8.65,8.2,9.4,5,7.6,6.85,4.3]};
   var W = 340, H = 380, CX = 170, CY = 190, PI = Math.PI, TZ = 5;
   var STEPS = [
     { h: 'A body cell', p: 'A cell from your body, about 25 micrometres across. Its **nucleus** holds the **chromosomes**: 46 in a human body cell.' },
@@ -553,7 +555,7 @@
       gLab.innerHTML = names(lay, items, narrow, key);
       S.pill('see', SEE[sc.k], 'ok'); S.pill('size', SIZE[sc.k], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, null, MOTION, 'From a cell to a gene') });
     /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
        "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'zm', [
