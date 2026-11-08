@@ -102,11 +102,10 @@
     var model = document.createElementNS(NSV, 'g'); svg.appendChild(model);
     var gLab = document.createElementNS(NSV, 'g'); svg.appendChild(gLab);
     var lay = null, narrow = false, key = K.pinKey(S);
-    var R = [0];
-    /* each step lasts at least one second for every 2 words of its caption (120 words a minute) */
-    STEPS.forEach(function (s, i) { var w = (s.h + ' ' + s.p).replace(/\*\*/g, '').split(/\s+/).length; R.push(R[i] + Math.max(M[i + 1] - M[i], w / 2)); });
-    /* the motion runs 1.25 times faster than written, as at the IGCSE level */
-    var P = 1.25, clock = K.readerClock(R, M, P);
+    /* the motion runs 1.25 times faster than written, as at the IGCSE level; each step: its motion, then the reading of
+       the names new at its end (WKit.timeline) */
+    var TL = K.timeline(M, 1.25, MOTION, 'IB ' + title, function (m) { var g = {}; render(m, 3, g); return labelsAt(m, 3, g).map(function (q) { return q.text; }); }),
+        R = TL.R, clock = TL.clock;
     function draw(tt) {
       var t = clock(tt), ph = 3, g = {};   /* the threads lie still, as at the IGCSE level (the audit, 6 Nov 2026) */
       model.innerHTML = '<g clip-path="url(#' + uid + ')">' + render(t, ph, g) + '</g>';
@@ -114,7 +113,7 @@
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
       var pl = pills(t); S.pill('ph', pl[0], 'ok'); S.pill('n', pl[1], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, P, MOTION, 'IB ' + title) });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: TL.end, render: draw, flow: TL.flow });
     /* under the drawing the key, drawn, and the guide's statements in one line (Daniel, 4 Nov 2026: "this text is extremely
        long. It distracts from … the step-by-step"; 5 Nov: "Why don't you show them instead of writing about them?") */
     var box = K.mount(S, sp, 'dv', notes, function (Dw, nar) {

@@ -135,9 +135,8 @@
       }).join('') + '</div>' +
       '<p class="wx__end" data-s="6" data-at="' + AT_END.toFixed(1) + '">' + c.end + '</p>';
     fig.appendChild(d);
-    var R = [0];
-    STEPS.forEach(function (s, i) { var w = (s.h + ' ' + s.p).replace(/\*\*/g, '').split(/\s+/).length; R.push(R[i] + Math.max(M[i + 1] - M[i], w / 2)); });
-    var clock = K.readerClock(R, M);
+    /* each step: its motion, then a short beat (no names on a picture to read; WKit.timeline) */
+    var TL = K.timeline(M), R = TL.R, clock = TL.clock;
     var parts = Array.prototype.slice.call(d.querySelectorAll('[data-s]'));
     var heads = Array.prototype.slice.call(d.querySelectorAll('th[data-col], th[data-row]'));
     /* each gamete of the square is a copy of one in the gametes line: the man's (the parent on the right) fly to the top,
@@ -203,7 +202,7 @@
         g.style.color = on ? 'var(--accent)' : ''; g.style.borderColor = on ? 'var(--accent)' : '';
       });
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M) });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: TL.end, render: draw, flow: TL.flow });
     var S = { box: box, read: read, fig: fig, title: c.title, spec: spec };
     return K.mount(S, sp, 'wx', [], function () {});
   }
@@ -443,6 +442,46 @@
     return box;
   }
   L.add('trainer', trainer);
+
+  /* ---------- writing  (station words, under "How to write the alleles") ----------
+     The four rules of that card, each shown: the wrong way struck out, then the right way (Daniel, 8 Nov 2026: "make it
+     very, very visual … even show it with a little animation there because they make mistakes with this, and I really,
+     really wanted them to not make mistakes with how to write the alleles"). The rules come one after another as the
+     card opens (and again on "Show again"); every rule then stays on the page. Only the card's own rules, in its words;
+     the examples are peas, never a context kept private (the header above). Reduced motion: all at once. */
+  function writing() {
+    var RULES = [
+      { h: 'One letter for the gene', body:
+          '<span class="aw__pair"><span class="aw__feat">round seeds<i>dominant</i></span><span class="aw__to" aria-hidden="true">\u2192</span><b class="aw__al aw__al--a">R</b><span class="aw__note">a capital letter</span></span>' +
+          '<span class="aw__pair"><span class="aw__feat">wrinkled seeds<i>recessive</i></span><span class="aw__to" aria-hidden="true">\u2192</span><b class="aw__al aw__al--b">r</b><span class="aw__note">the same letter, small</span></span>' },
+      { h: 'Never two different letters', bad: 'R and w', good: 'R and r' },
+      { h: 'No raised letters', bad: 'S\u1D3F and S\u1D42', good: 'R and r', note: 'Raised letters are only for codominant alleles and for alleles on the X chromosome.' },
+      { h: 'Use the letters the question gives', ask: 'A question says: \u201cUse G for the allele for green pods.\u201d', bad: 'P and p', good: 'G and g' }
+    ];
+    var box = h('div', 'widget aw');
+    box.innerHTML = '<ol class="aw__rules">' + RULES.map(function (r, i) {
+      return '<li class="aw__rule" style="--i:' + i + '"><p class="aw__h"><span class="aw__n">' + (i + 1) + '</span>' + esc(r.h) + '</p>' +
+        (r.ask ? '<p class="aw__ask">' + esc(r.ask) + '</p>' : '') +
+        (r.body ? '<p class="aw__eg">' + r.body + '</p>'
+          : '<p class="aw__eg"><span class="aw__bad"><span class="aw__mk" aria-hidden="true">\u2717</span><span class="aw__x">' + esc(r.bad) + '</span><span class="sr-only"> (wrong)</span></span>' +
+            '<span class="aw__good"><span class="aw__mk" aria-hidden="true">\u2713</span>' + esc(r.good) + '<span class="sr-only"> (right)</span></span></p>') +
+        (r.note ? '<p class="aw__fine">' + esc(r.note) + '</p>' : '') + '</li>';
+    }).join('') + '</ol><p class="aw__sum">So the three genotypes are <b>RR</b>, <b>Rr</b> and <b>rr</b>.</p>';
+    var again = h('button', 'aw__again', '<span aria-hidden="true">\u25B6</span> Show again'); again.type = 'button';
+    box.appendChild(again);
+    function run() { box.classList.remove('is-run'); void box.offsetWidth; box.classList.add('is-run'); }
+    again.addEventListener('click', run);
+    /* it plays each time it comes into view: its card opened, or scrolled to */
+    if (global.IntersectionObserver) {
+      var seen = false, io = new IntersectionObserver(function (es) {
+        if (!box.isConnected) { io.disconnect(); return; }
+        es.forEach(function (e) { if (e.isIntersecting && !seen) { seen = true; run(); } else if (!e.isIntersecting) seen = false; });
+      }, { threshold: .4 });
+      io.observe(box);
+    }
+    return box;
+  }
+  L.add('writing', writing);
 
   /* for the build's check and the lab's own tools: every cross a mode can make, worked out */
   global.InhCross = { WORKED: WORKED, solve: solve, makeCross: makeCross, domGene: domGene, codomGene: codomGene, ABO: ABO, sexGene: sexGene };

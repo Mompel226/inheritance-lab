@@ -277,6 +277,14 @@
    (assets/say/<word>-<uk|us|en>.mp3, the accent named beside the button when it is known; credited in assets/say/CREDITS.md and, as it
    plays, under the word). No browser voice, ever. Say.html(term) gives them for a key-word card or a glossary row (a
    phrase gets its hard words' guides, and no button); a press plays, and never turns the card.
+   CAMBRIDGE (Daniel, 8 Nov 2026: "I really like the fact that in the Cambridge you have the UK version and the US version
+   … link it directly so it sounds from the Cambridge website, but directly from my website … clearly referencing them";
+   he chose to play in place without asking Cambridge first): a word Cambridge Dictionary pronounces on its own page has
+   two buttons, UK and US, that play Cambridge's recordings from Cambridge's own server (nothing of theirs is stored
+   here), with "Audio: Cambridge Dictionary" beside them, a link to that word's page. The addresses were read from each
+   word's page on 8 Nov 2026 (its headword the word itself; each recording 0.6–2.4 s, none cut short). A recording that
+   will not play here plays the Commons one instead, if the word has one, or says so and offers Cambridge's page.
+   The Commons recordings stay for the words Cambridge has no page for (centromere).
    ============================================================ */
 (function (global) {
   'use strict';
@@ -320,6 +328,43 @@
     "chiasma": ["ky-AZ-muh", {}],
     "homologous": ["huh-MOL-uh-gus", {}]
   };
+  /* word: [its UK recording, its US recording, its page], each under https://dictionary.cambridge.org
+     (/media/english/uk_pron/….mp3, /media/english/us_pron/….mp3, /dictionary/english/…) */
+  var CAM_HOST = 'https://dictionary.cambridge.org';
+  var CAM = {
+    "allele": ["e/epd/epd00/epd00940", "e/eus/eus00/eus00917", "allele"],
+    "chromosome": ["u/ukc/ukcho/ukchora028", "c/chr/chrom/chromosome", "chromosome"],
+    "chromatid": ["c/csd/csdk0/csdk0132", "c/csd/csds0/csds0132", "chromatid"],
+    "gene": ["u/ukg/ukgec/ukgecko022", "g/gen/gene_/gene", "gene"],
+    "genome": ["u/ukg/ukgen/ukgenit006", "u/usg/usgec/usgecko027", "genome"],
+    "genotype": ["u/ukg/ukgen/ukgenit007", "e/eus/eus72/eus72009", "genotype"],
+    "phenotype": ["u/ukp/ukphe/ukpheno002", "u/usp/uspha/usphant011", "phenotype"],
+    "phenotypic": ["c/cdo/cdo08/cdo0824ukphen1774", "c/cdo/cdo08/cdo0824usphen1819", "phenotypic"],
+    "homozygous": ["e/epd/epd14/epd14287", "e/eus/eus14/eus14018", "homozygous"],
+    "heterozygous": ["e/epd/epd13/epd13969", "e/eus/eus13/eus13702", "heterozygous"],
+    "diploid": ["e/epd/epd08/epd08625", "e/eus/eus08/eus08449", "diploid"],
+    "haploid": ["e/epd/epd13/epd13421", "e/eus/eus13/eus13161", "haploid"],
+    "ribosome": ["c/cdo/cdo02/cdo0216ribouk1664", "c/cdo/cdo03/cdo0318usribo4160", "ribosome"],
+    "mitosis": ["u/ukm/ukmis/ukmiste025", "u/usm/usmis/usmisle029", "mitosis"],
+    "meiosis": ["e/epd/epd18/epd18821", "e/eus/eus18/eus18499", "meiosis"],
+    "gamete": ["u/ukg/ukgam/ukgambl009", "e/eus/eus71/eus71973", "gamete"],
+    "zygote": ["u/ukz/ukzit/ukzit__024", "u/usz/uszip/uszippy016", "zygote"],
+    "nucleus": ["u/ukn/uknow/uknowac018", "e/eus/eus73/eus73270", "nucleus"],
+    "nucleotide": ["e/epd/epd20/epd20509", "e/eus/eus20/eus20107", "nucleotide"],
+    "fertilisation": ["u/ukf/ukfer/ukferre007", "f/fer/ferti/fertilization", "fertilization"],
+    "dominant": ["u/ukd/ukdol/ukdolph013", "d/dom/domin/dominant", "dominant"],
+    "recessive": ["u/ukr/ukrec/ukrecep005", "u/usr/usrea/usreaso015", "recessive"],
+    "pedigree": ["u/ukp/ukped/ukpedal015", "e/eus/eus75/eus75860", "pedigree"],
+    "inheritance": ["u/uki/uking/ukingra016", "i/inh/inher/inheritance", "inheritance"],
+    "asexual": ["u/uka/ukasb/ukasbes017", "u/usa/usart/usartle017", "asexual"],
+    "characteristic": ["u/ukc/ukcha/ukchaot022", "c/cha/chara/characteristic", "characteristic"],
+    "mRNA": ["c/cdo/cdo02/cdo0216mrnauk1260", "c/cdo/cdo03/cdo0318usmrna3145", "mrna"],
+    "cytoplasm": ["u/ukc/ukcys/ukcyst_005", "e/eus/eus71/eus71126", "cytoplasm"],
+    "chiasma": ["c/cdo/cdo08/cdo0824ukchia0440", "c/cdo/cdo08/cdo0824uschia0450", "chiasma"],
+    "homologous": ["e/epd/epd14/epd14278", "e/eus/eus14/eus14009", "homologous"]
+  };
+  function camUrl(w, acc) { var c = CAM[w]; return CAM_HOST + '/media/english/' + acc + '_pron/' + c[acc === 'uk' ? 0 : 1] + '.mp3'; }
+  function camPage(w) { return CAM_HOST + '/dictionary/english/' + CAM[w][2]; }
   var LOW = {}; Object.keys(W).forEach(function (w) { LOW[w.toLowerCase()] = w; });
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function one(w) { var l = String(w).toLowerCase(); return LOW[l] || LOW[l.replace(/s$/, '')] || LOW[l.replace(/es$/, '')] || null; }
@@ -331,9 +376,12 @@
   var ACC = { uk: 'British English', us: 'American English', en: 'English' };
   function html(term) {
     var ws = words(term); if (!ws.length) return '';
-    var w = one(term), r = w ? rec(w) : null;
-    return '<span class="say" data-say="' + esc(term) + '"><span class="say__g">' + esc(ws.map(function (x) { return W[x][0]; }).join(' · ')) + '</span>' +
-      (r ? '<button type="button" class="say__b" aria-label="Listen to ' + esc(term) + ', ' + ACC[r[0]] + '">' + ICON + 'Listen' + (r[0] === 'en' ? '' : '<span class="say__a">' + r[0].toUpperCase() + '</span>') + '</button>' : '') + '</span>';
+    var w = one(term), r = w ? rec(w) : null, c = w && CAM[w];
+    var buttons = c ? '<span class="say__bs">' + ['uk', 'us'].map(function (a) {
+        return '<button type="button" class="say__b" data-acc="' + a + '" aria-label="Listen to ' + esc(term) + ', ' + ACC[a] + ', from the Cambridge Dictionary">' + ICON + a.toUpperCase() + '</button>';
+      }).join('') + '</span><a class="say__src" href="' + esc(camPage(w)) + '" target="_blank" rel="noopener">Audio: Cambridge Dictionary \u2197</a>'
+      : r ? '<button type="button" class="say__b" aria-label="Listen to ' + esc(term) + ', ' + ACC[r[0]] + '">' + ICON + 'Listen' + (r[0] === 'en' ? '' : '<span class="say__a">' + r[0].toUpperCase() + '</span>') + '</button>' : '';
+    return '<span class="say" data-say="' + esc(term) + '"><span class="say__g">' + esc(ws.map(function (x) { return W[x][0]; }).join(' · ')) + '</span>' + buttons + '</span>';
   }
   var audio = null, busy = null;
   function done() { if (busy) busy.classList.remove('is-playing'); busy = null; }
@@ -342,17 +390,40 @@
     el.innerHTML = r ? 'Recording: ' + esc(r[1]) + ', <a href="' + esc(r[3]) + '" target="_blank" rel="noopener">Wikimedia Commons</a>, ' + esc(r[2]) : '';
     el.hidden = !r;
   }
-  function play(btn) {
-    var box = btn.closest('.say'), w = one(box.getAttribute('data-say')), r = w && rec(w);
-    if (audio) { try { audio.pause(); } catch (e) {} audio = null; }
-    done(); if (!r) return;
-    busy = btn; btn.classList.add('is-playing'); credit(box, r);
+  function commons(btn, box, w, r) {
+    credit(box, r);
     audio = new Audio(DIR + w.toLowerCase() + '-' + r[0] + '.mp3');
     audio.onended = audio.onerror = done;
     var p = audio.play(); if (p && p.catch) p.catch(done);
   }
+  function play(btn) {
+    var box = btn.closest('.say'), w = one(box.getAttribute('data-say')), r = w && rec(w), acc = btn.getAttribute('data-acc');
+    if (audio) { try { audio.pause(); } catch (e) {} audio = null; }
+    done(); if (!w) return;
+    busy = btn; btn.classList.add('is-playing');
+    if (acc && CAM[w]) {
+      /* Cambridge's recording, from Cambridge; if it will not play here, the Commons one, or a note and their page */
+      credit(box, null);
+      var a = audio = new Audio(camUrl(w, acc)), failed = false;
+      function fail() {
+        if (failed || audio !== a) return; failed = true;
+        if (r) { commons(btn, box, w, r); return; }
+        done();
+        var el = box.querySelector('.say__c'); if (!el) { el = document.createElement('span'); el.className = 'say__c'; box.appendChild(el); }
+        el.innerHTML = 'It did not play here: <a href="' + esc(camPage(w)) + '" target="_blank" rel="noopener">listen on the Cambridge Dictionary \u2197</a>'; el.hidden = false;
+      }
+      a.onended = function () { if (audio === a) done(); };
+      a.onerror = fail;
+      var q = a.play(); if (q && q.catch) q.catch(function (e) { if (e && e.name === 'NotAllowedError') done(); else fail(); });
+      return;
+    }
+    if (r) commons(btn, box, w, r); else done();
+  }
   /* before the card or the row hears it: a press plays, it never turns the card */
-  document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.say__b'); if (!b) return; e.stopPropagation(); e.preventDefault(); play(b); }, true);
-  document.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('.say__b')) e.stopPropagation(); }, true);
-  global.Say = { html: html, words: words };
+  document.addEventListener('click', function (e) {
+    /* Cambridge's page (and a fallback note's link) opens in a new tab without turning the card */
+    if (e.target.closest && e.target.closest('.say__src, .say__c a')) { e.stopPropagation(); return; }
+    var b = e.target.closest && e.target.closest('.say__b'); if (!b) return; e.stopPropagation(); e.preventDefault(); play(b); }, true);
+  document.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('.say__b, .say__src, .say__c a')) e.stopPropagation(); }, true);
+  global.Say = { html: html, words: words, CAM: CAM };
 })(window);

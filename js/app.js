@@ -478,7 +478,7 @@
         out.forEach(fn);
       }
       var badge = '';
-      if (typeof b === 'object' && b.sup) badge = '<span class="sup tip" tabindex="0" data-tip="Supplement — examined on the Extended papers (2 and 4) only. Core candidates can skip it.">S</span>';
+      if (typeof b === 'object' && b.sup) badge = '<span class="sup tip" tabindex="0" data-tip="Supplement: examined on the Extended papers (2 and 4). Learn it too.">S</span>';
       /* in an older 0610 syllabus: its badge names that syllabus; beyond the syllabus: no badge, its heading says so */
       var pe = st.past && st.past.exam ? st.past.exam[i] : null;
       if (pe != null) badge = pastBadge(pe);
@@ -576,10 +576,15 @@
          (Daniel, 7 Oct 2026: less text beside the picture, one piece open at a time; memory explore-dont-scroll).
          Opening a card shows its part in the picture; a part pressed in the picture opens its card (openGroup). */
       if (typeof b === 'object' && b.head) makeCard(li, b.head);
+      /* a film marked to come first stands before its sentence (the protein: Daniel, 8 Nov 2026, "I don't mind having it
+         first … So that the students actually kind of watch it") */
+      if (!offK) widgets.filter(function (w) { return w.film && w.before === i; }).forEach(function (w) { list.appendChild(filmCard(w)); });
       if (offK) offAt[offK].push({ k: typeof b === 'object' && b.near != null ? b.near + 0.5 : i, li: li });
       else list.appendChild(li);
+      /* a film after its sentence, in a card of its own */
+      if (!offK) widgets.filter(function (w) { return w.film && w.after === i; }).forEach(function (w) { list.appendChild(filmCard(w)); });
       /* the thing to press, drag or count sits under the sentence it belongs to */
-      widgets.filter(function (w) { return w.after === i; }).forEach(function (w) {
+      widgets.filter(function (w) { return !w.film && w.after === i; }).forEach(function (w) {
         var el = window.Learn.widget(w, WIDGET_CTX);
         if (el && w.anchor && el.setAttribute) el.setAttribute('data-anchor', w.anchor);
         /* A tall, narrow diagram set under the sentence leaves a column of empty paper beside it.
@@ -592,7 +597,7 @@
         else into.appendChild(el);
       });
     });
-    widgets.filter(function (w) { return w.after == null; }).forEach(function (w) {
+    widgets.filter(function (w) { return w.after == null && w.before == null; }).forEach(function (w) {
       var el = window.Learn.widget(w, WIDGET_CTX);
       if (el && w.anchor && el.setAttribute) el.setAttribute('data-anchor', w.anchor);
       card.appendChild(el);
@@ -980,6 +985,30 @@
       target.classList.add('flash');
       setTimeout(function () { target.classList.remove('flash'); }, 2800);
     }
+  }
+
+  /* ---------- a film (a step animation) in a card of its own ----------
+     Daniel, 8 Nov 2026: "put the animation as a different kind of tab that has a different background … the sequence of
+     bases should just be the sentence"; then for every animation with steps ("wherever you have a heavy animation …
+     on its own kind of collapsible menu, and then anything else that they need to know … is just text"; and the worked
+     crosses: "with a different background … so it's visible that that opens an animation"). The card's heading is the
+     film's own title, with its number of steps; it opens and closes like a sentence's card, one open at a time, and the
+     film plays all as soon as it opens (WKit.mount). Spec: { type, film: true, after: i } or { …, before: i }. */
+  function filmCard(w) {
+    var li = document.createElement('li');
+    var el = window.Learn.widget(w, WIDGET_CTX);
+    if (el && w.anchor && el.setAttribute) el.setAttribute('data-anchor', w.anchor);
+    var hd = el && el.querySelector ? el.querySelector('.widget__h') : null, title = 'Animation';
+    /* the heading's own words, without its buttons (Reset) or its "Press play" */
+    if (hd) { var c = hd.cloneNode(true); Array.prototype.forEach.call(c.querySelectorAll('.widget__try, button'), function (x) { x.remove(); }); title = c.textContent.trim() || title; }
+    var steps = el && el.querySelector ? el.querySelector('.sp__steps') : null, n = steps ? steps.children.length : 0;
+    li.appendChild(el);
+    makeCard(li, title);
+    li.classList.add('xcard--film');
+    var t = li.querySelector('.xcard__t');
+    t.insertAdjacentHTML('beforebegin', '<span class="xcard__play" aria-hidden="true">\u25B6</span>');
+    t.insertAdjacentHTML('beforeend', '<span class="xcard__kind">Animation' + (n ? ' \u00b7 ' + n + ' steps' : '') + '</span>');
+    return li;
   }
 
   /* ---------- a sentence as a card ----------

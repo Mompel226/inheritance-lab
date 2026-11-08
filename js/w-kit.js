@@ -3,8 +3,8 @@
 
    frameOf   fits a model window into the svg with a margin each side for the names, at a readable size
    fitType   the font and the margins, so names stay about 13 px on any screen
-   readerClock / readerSteps   each step lasts at least one second for every 3.2 words of its caption; its motion runs
-             1.6 times faster than written and then holds (Play all skips the hold)
+   timeline  each step lasts its motion (1.6 times faster than written), then the reading of its new names: the step
+             bar's bands are those times; a single step stops at its motion's end, Play all runs straight through
    drawLabels  the names in both margins on ruled level lines (CircLearn.labels), each ending ON its part
    shell / mount  the widget's head, step bar, drawing and step list; on a wide screen the drawing stands in the
              picture's column and the steps stay beside it (memory animations-beside-their-buttons)
@@ -29,55 +29,57 @@
     return { f: f, mL: mL, mR: mR };
   }
 
-  /* Reading time. Each step's animation is written in its own time (the model's), and a step lasts at least 1 second
-     for every 3.2 words of its caption (the lab's rule is 4). R = when each step starts for the reader, M = in the
-     model. The motion is never stretched to fill the reading time (Daniel, 4 Nov 2026: "very slow"): it runs PACE
-     times faster than written, then the step holds its last frame until the reader's time is up. */
+  /* The time of each step. Each animation is written in its own time (the model's, M); a step's motion runs PACE times
+     faster than written (Daniel, 4 Nov 2026: "very slow"; P: one pace, or one for each step). MOTION[title] (written by
+     tools/flow-still.mjs --write, which checks it) is how long each step really moves, in the model's seconds; without it
+     the whole step moves. R[i] is when step i starts on the reader's clock, and each step lasts exactly what Play all
+     gives it: its motion, then the reading of the names new at its end (namesWait). So each band of the step bar is as
+     wide as the time spent on its step (Daniel, 8 Nov 2026: "make sure that the size of the band indicates the time that
+     it's there"; before, a step's band also held a reading time for its caption that nothing played, and step 9 of the
+     protein looked three times longer than it was). A single step (Play, Next step) stops at the end of its motion, its
+     band full, and waits there for the reader, as long as they like (memory animations-wait-for-the-reader; 8 Nov 2026:
+     "It should be completely to the end … and then I press next step"); Play all goes straight on, through the names'
+     reading time (Daniel, 7 Nov 2026: "consider how many labels you're putting … rather than the person having to pause").
+     namesAt(m): the names drawn at model time m (none: a short beat of .35 s, so the eye sees the step change). */
   var PACE = 1.6;
-  /* P: the pace of each step (an array), or one pace for all; PACE when not given */
   function paceOf(P, i) { return P == null ? PACE : typeof P === 'number' ? P : (P[i] || PACE); }
-  function readerClock(R, M, P) {
-    return function (t) {
-      for (var i = 0; i + 1 < R.length; i++) if (t < R[i + 1] || i + 2 === R.length) {
-        var run = Math.min((M[i + 1] - M[i]) / paceOf(P, i), R[i + 1] - R[i]), k = Math.min(1, Math.max(0, (Math.min(t, R[i + 1]) - R[i]) / run));
-        return M[i] + k * (M[i + 1] - M[i]) - (k === 1 && i + 2 < R.length ? .001 : 0);
-      }
-      return M[M.length - 1];
-    };
-  }
-  /* Play all skips each step's reading hold: once a step's motion has run, it waits only while the names that came with
-     it are read, then goes on with the next step's motion. f.need() (set by mount) reads the names on the picture once
-     the step's last frame is drawn; with none, a short beat (.35 s) so the eye sees the step change (Daniel, 5 Nov 2026:
-     "when you play it all, sometimes some sections go so fast, the labels that appear, you can barely read them") */
-  /* MOTION[title] (optional): how long each step's motion really runs, in the model's seconds (tools/flow-still.mjs
-     --write measures it into the widget's file; without --write it checks that nothing moves after it): Play all waits only for the names after that, and a single step stops there, so a
-     step whose drawing has stopped never holds the reader up (Daniel, 6 Nov 2026: "I have to wait like very long time to
-     see anything happen") */
-  function readerFlow(R, M, P, MOTION, title) {
-    var held = {}, seen = {}, ME = MOTION && title ? MOTION[title] : null;
-    function runOf(i) { var d = M[i + 1] - M[i], me = ME && ME[i] != null ? Math.min(d, ME[i] + .15) : d; return Math.min(me / paceOf(P, i), R[i + 1] - R[i]); }
-    function f(t) {
-      for (var i = 0; i + 1 < R.length; i++) if (t < R[i + 1]) {
-        var end = R[i] + runOf(i);
-        if (t <= end) return t;
-        if (held[i] == null) { if (!seen[i]) { seen[i] = 1; return t; } held[i] = f.need ? f.need(i) : .35; }
-        return t > end + held[i] ? R[i + 1] : t;
-      }
-      return t;
+  function timeline(M, P, MOTION, title, namesAt) {
+    var n = M.length - 1, ME = MOTION && title ? MOTION[title] : null, R = [0], mrun = [], run = [], wait = [], was = [], seen = [];
+    /* where step i holds, in the model: the end of its motion (just before the next step's start, which is the next
+       step's first frame) */
+    function stopAt(i) { return M[i] + mrun[i] - (i + 1 < n && mrun[i] >= M[i + 1] - M[i] - 1e-9 ? .001 : 0); }
+    for (var i = 0; i < n; i++) {
+      var d = M[i + 1] - M[i];
+      mrun.push(ME && ME[i] != null ? Math.min(d, ME[i] + .15) : d); run.push(mrun[i] / paceOf(P, i));
+      var now = namesAt ? namesAt(stopAt(i)).map(function (x) { return String(x).replace(/\s+/g, ' ').trim(); }).filter(Boolean) : [];
+      wait.push(namesAt ? namesWait(now, was) + .1 : .35); seen.push(now); was = now;
+      R.push(R[i] + run[i] + wait[i]);
     }
-    f.need = null;
-    /* the wait Play all gave step i for its names, once it has reached it (tools/flow-still.mjs allows a still that long) */
-    f.hold = function (i) { return held[i]; };
-    /* where a single step (Play, Next step) stops: as soon as its motion has run, with its names on; it then holds until
-       the reader presses Next step, never making them wait out a reading time first (Daniel, 6 Nov 2026: "allow you to
-       read things, but they don't make you wait there for ages") */
-    f.endOf = function (i) { return i + 1 < R.length ? Math.min(R[i + 1] - .02, R[i] + runOf(i)) : R[R.length - 1]; };
-    f.R = R; f.M = M; f.pace = function (i) { return paceOf(P, i); }; f.title = title || null;
-    return f;
+    /* Play all's clock: straight through (the reading of the names is part of each step) */
+    function flow(t) { return t; }
+    /* tools/flow-still.mjs sets flow.model to draw one moment of the model (its --write measures each step whole) */
+    flow.model = null;
+    function clock(t) {
+      if (flow.model != null) return flow.model;
+      /* the step the stepper says it is (it counts a step as started 1e-6 s early, CircLearn.stepper stepAt) */
+      for (var i = 0; i < n; i++) if (t < R[i + 1] - 1e-6 || i + 1 === n) {
+        var k = run[i] > 0 ? (t - R[i]) / run[i] : 1;
+        /* at the stop itself (k is 1 less a rounding error there) the held frame, so the stop and the hold are one frame */
+        return k >= 1 - 1e-9 ? stopAt(i) : M[i] + Math.max(0, k) * mrun[i];
+      }
+      return M[n];
+    }
+    /* the reading time Play all gives step i's names; where a single step stops (its motion's end) */
+    flow.hold = function (i) { return wait[i]; };
+    flow.endOf = function (i) { return R[i] + run[i]; };
+    flow.stopAt = stopAt;
+    /* the names each step ends with, as the wait counted them (tools/flow-names.mjs compares them with the drawn ones) */
+    flow.names = seen;
+    flow.R = R; flow.M = M; flow.pace = function (i) { return paceOf(P, i); }; flow.title = title || null;
+    return { R: R, clock: clock, flow: flow, end: R[n] };
   }
   /* the time to read the names new in a step: 0.5 s to find the first, 0.3 s more for each other, and 1 s for every 4 of
-     their words (Daniel, 7 Nov 2026); .35 s with none. Play all waits this long (mount's need), and a step with many
-     names lasts at least its motion and this (w-protein.js R) */
+     their words (Daniel, 7 Nov 2026); .35 s with none */
   function namesWait(texts, before) {
     var fresh = texts.filter(function (x) { return (before || []).indexOf(x) < 0; });
     if (!fresh.length) return .35;
@@ -204,7 +206,9 @@
     }
     sp.onStep = showKey;
     S.fig.appendChild(sp.now);
-    wrap.appendChild(left); wrap.appendChild(sp.list);
+    wrap.appendChild(left);
+    if (sp.legend) { var side = h('div', cls + '__side'); side.appendChild(sp.legend); side.appendChild(sp.list); wrap.appendChild(side); }
+    else wrap.appendChild(sp.list);
     S.box.appendChild(wrap);
     var lastD = 0, lastN = false;
     function fit() {
@@ -224,23 +228,6 @@
     S.box.__seek = function (t) { fit(); return sp.seek(t); };
     /* Play all's own clock, for the tools that time it (tools/flow-names.mjs) */
     S.box.__flow = sp.flow; S.box.__playEnd = sp.end;
-    /* how long Play all waits on a step's names: the names NEW in it (one kept from the step before was read there),
-       0.5 s to find the first, 0.3 s more for each other, and 1 s for every 4 of their words, with no upper limit (Daniel,
-       5 Nov 2026: first "you can barely read them", then a middle pace; 7 Nov 2026: "consider how many labels you're
-       putting, because that's how … much time the reader is going to take to read and process the information … rather
-       than the person having to pause": the wait was at most 4 s, for any number of names). Next step still waits for as
-       long as the reader likes */
-    var namesAt = {};
-    if (sp.flow) sp.flow.need = function (i) {
-      var pk = S.fig.querySelector('.pinkey'), texts = [];
-      if (pk && !pk.hidden) Array.prototype.forEach.call(pk.children, function (li) { texts.push(li.textContent.replace(/^\s*\d+\s*/, '')); });
-      /* a widget with no drawing of names (the crosses' diagram, HTML) has none to wait for: without this test Play all
-         stopped with an error at the end of its first step (6 Nov 2026) */
-      else if (S.svg) Array.prototype.forEach.call(S.svg.querySelectorAll('.lb__txt'), function (tx) { var sp2 = tx.querySelectorAll('tspan'); texts.push(sp2.length ? Array.prototype.map.call(sp2, function (q) { return q.textContent; }).join(' ') : tx.textContent); });
-      texts = texts.map(function (x) { return x.replace(/\s+/g, ' ').trim(); }).filter(function (x) { return x; });
-      namesAt[i] = texts;
-      return namesWait(texts, namesAt[i - 1]);
-    };
     /* in a card, the animation plays all its steps as soon as its card opens (Daniel, 4 Nov 2026: "as soon as you open
        that, the full animation should play … if the user wants to go one by one or stop it, it just has to scroll
        down"); it pauses when the card closes or the widget is hidden (the IGCSE / IB switch), and plays again when
@@ -269,6 +256,6 @@
 
 
   global.WKit = { pinKey: pinKey, names: names, margins: margins, n1: n1, seg: seg, ease: ease, clamp01: clamp01, lerp: lerp, len: len, rng: rng, fitType: fitType,
-                  readerClock: readerClock, readerFlow: readerFlow, readerSteps: readerSteps, namesWait: namesWait, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
+                  timeline: timeline, readerSteps: readerSteps, namesWait: namesWait, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
                   mount: mount, NS: NS };
 })(window);

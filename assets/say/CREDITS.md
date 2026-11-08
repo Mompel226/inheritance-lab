@@ -1,5 +1,17 @@
 # Pronunciation recordings
 
+**Cambridge Dictionary (since 8 Nov 2026).** The 🔊 UK and 🔊 US buttons play the Cambridge Dictionary's own recordings,
+straight from dictionary.cambridge.org: none of them is stored in this repository. Each word shows "Audio: Cambridge
+Dictionary ↗", a link to its page there. The recordings are © Cambridge University Press & Assessment and are not
+covered by this lab's licences. 30 words have them (allele, asexual, characteristic, chiasma, chromatid, chromosome,
+cytoplasm, diploid, dominant, fertilisation, gamete, gene, genome, genotype, haploid, heterozygous, homologous,
+homozygous, inheritance, meiosis, mitosis, mRNA, nucleotide, nucleus, pedigree, phenotype, phenotypic, recessive,
+ribosome, zygote). If one will not play, the word's Commons recording below plays instead, where it has one.
+
+**Wikimedia Commons.** The files below are kept for the word Cambridge has no page for (centromere) and as the
+backup.
+
+
 The recordings the 🔊 Listen buttons play, beside the hard words on the key-word cards and in the glossary
 (`js/terms.js`, Say). Each is a real speaker's recording from Wikimedia Commons, kept under its own licence, which
 this lab's licences do not change. Each file here is the MP3 that Commons makes of the original, its loudness evened

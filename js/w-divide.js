@@ -81,10 +81,10 @@
     var model = document.createElementNS(NSV, 'g'); svg.appendChild(model);
     var gLab = document.createElementNS(NSV, 'g'); svg.appendChild(gLab);
     var lay = null, narrow = false, key = K.pinKey(S);
-    var R = [0];
-    STEPS.forEach(function (s, i) { var w = (s.h + ' ' + s.p).replace(/\*\*/g, '').split(/\s+/).length; R.push(R[i] + Math.max(M[i + 1] - M[i], w / 2)); });
-    /* the motion runs 1.25 times faster than written (the kit's 1.6 made the membrane and fibres too quick to follow) */
-    var P = 1.25, clock = K.readerClock(R, M, P);
+    /* the motion runs 1.25 times faster than written (the kit's 1.6 made the membrane and fibres too quick to follow); each
+       step: its motion, then the reading of the names new at its end (WKit.timeline) */
+    var TL = K.timeline(M, 1.25, MOTION, title, function (m) { return labelsAt(m, 3).map(function (q) { return q.text; }); }),
+        R = TL.R, clock = TL.clock;
     function draw(tt) {
       /* the threads lie still: they wriggled under their names (the audit, 6 Nov 2026; standard 13) */
       var t = clock(tt), ph = 3;
@@ -93,7 +93,7 @@
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
       var pl = pills(t); S.pill('n', pl[0], 'ok'); S.pill('hu', pl[1], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, P, MOTION, title) });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: TL.end, render: draw, flow: TL.flow });
     return K.mount(S, sp, cls, notes, function (Dw, nar) {
       narrow = nar; var m = K.margins(nar, 15, 15, 90, 90);
       lay = K.frameOf(svg, bg, model, cr, { x0: 0, x1: W, y0: 0, y1: H }, false, Dw, m[0], m[1], m[2], m[3], 14.5);
@@ -113,13 +113,27 @@
              /* each new nucleus first forms close round its set of chromosomes, then grows as they uncoil */
              TN: [nuc(157, 113, 70, 34), nuc(157, 367, 70, 34)] };
   var MI_STEPS = [
-    { h: 'A working cell: lines', p: 'A body cell with **4 chromosomes**: 2 pairs, one of each pair from each parent. While the cell is working, each chromosome is **a single long, thin line** of DNA, folded in its own part of the nucleus. The yellow length is a **gene**.' },
-    { h: 'Copied exactly', p: 'Before mitosis, **each chromosome is copied exactly**: a new copy is made along the whole line. This is the **exact replication** of the chromosomes. There are still 4 chromosomes, but each is now **two identical copies** (IB: chromatids), side by side, held together most firmly at **one point** (IB: the centromere).' },
-    { h: 'Coiled: the cross', p: 'Each copy **coils**, again and again, until it is **short and thick**. Each chromosome is now the **X shape** you see in photographs: its two identical copies, joined. Then the **nuclear membrane** (the membrane round the nucleus) **breaks into pieces**.' },
-    { h: 'Across the middle', p: 'The chromosomes are arranged **in a line across the middle** of the cell. **Fibres** (IB: spindle microtubules; together, the spindle) from the two ends of the cell hold each chromosome at its joining point.' },
-    { h: 'The copies separate', p: 'The fibres pull the **two copies of each chromosome** to **opposite ends**, joining point first. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of **every** chromosome: 4.' },
-    { h: 'Two new nuclei', p: 'The pieces move to the chromosomes at each end and join into a new **nuclear membrane**: two new nuclei. **Mitosis is nuclear division**: one nucleus becomes two. The chromosomes **uncoil** and become **long, thin lines** again.' },
-    { h: 'Two daughter cells', p: 'The cytoplasm divides: **two daughter cells**. Each has the **same 4 chromosomes** as the parent cell, with the same genes: they are **genetically identical**. The **chromosome number is maintained**: 4 in each daughter cell, as in the parent cell.' }
+    { h: 'A working cell: lines', p: [
+      ['ig', 'A body cell with **4 chromosomes**: 2 pairs, one of each pair from each parent. While the cell is working, each chromosome is **a single long, thin line** of DNA, folded in its own part of the nucleus. The yellow length is a **gene**.']] },
+    { h: 'Copied exactly', p: [
+      ['ig', 'Before mitosis, **each chromosome is copied exactly**: this is the **exact replication** of the chromosomes. There are still 4 chromosomes, but each is now **two identical copies**, side by side, held together most firmly at **one point**.'],
+      /* D2.1.5 */
+      ['ib', 'Each copy is a **chromatid**; the point that holds them is the **centromere**.']] },
+    { h: 'Coiled: the cross', p: [
+      ['ig', 'Each copy **coils**, again and again, until it is **short and thick**. Each chromosome is now the **X shape** you see in photographs: its two identical copies, joined.'],
+      /* D2.1.6, D2.1.7 */
+      ['ib', 'Then the **nuclear membrane** (the membrane round the nucleus) breaks into pieces.']] },
+    { h: 'Across the middle', p: [
+      /* D2.1.6, D2.1.7 */
+      ['ib', 'The chromosomes are arranged **in a line across the middle** of the cell. **Fibres** (spindle microtubules; together, the spindle) from the two ends of the cell hold each chromosome at its joining point.']] },
+    { h: 'The copies separate', p: [
+      ['ig', 'The **two copies of each chromosome separate**, to **opposite ends**. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of **every** chromosome: 4.'],
+      ['ib', 'The fibres pull them, joining point first.']] },
+    { h: 'Two new nuclei', p: [
+      ['ig', '**Mitosis is nuclear division**: one nucleus becomes two.'],
+      ['ib', 'The pieces of membrane join round the chromosomes at each end into a new **nuclear membrane**. The chromosomes **uncoil** and become **long, thin lines** again.']] },
+    { h: 'Two daughter cells', p: [
+      ['ig', 'The cytoplasm divides: **two daughter cells**. Each has the **same 4 chromosomes** as the parent cell, with the same genes: they are **genetically identical**. The **chromosome number is maintained**: 4 in each daughter cell, as in the parent cell.']] }
   ];
   var MI_M = [0, 6, 13, 22, 30, 37, 45, 52];
   /* g collects where things are, for the names */
@@ -253,14 +267,33 @@
              /* Ad and Bm cross the nucleus to their partners: one passes above the other */
              BOW: [0, -20, 34, 0] };
   var ME_STEPS = [
-    { h: 'A cell that makes gametes', p: 'A cell in a **testis** or an **ovary**, with **4 chromosomes**: 2 pairs, one of each pair from each parent. Its nucleus is **diploid**: it has two sets of chromosomes, one set from each parent. Each chromosome is a long, thin line.' },
-    { h: 'Copied', p: 'Each chromosome is **copied exactly**, along its whole length (exact replication): two identical copies (IB: sister chromatids), side by side, held together most firmly at **one point** (IB: the centromere).' },
-    { h: 'Short and thick, in pairs', p: 'The copies **coil** until each chromosome is a short, thick **cross**. Inside the nucleus, the two chromosomes of **each pair** (IB: homologous chromosomes) lie **side by side**, gene beside gene (IB: a bivalent).' },
-    { h: 'The pairs across the middle', p: 'The **nuclear membrane** (the membrane round the nucleus) breaks into pieces. The pairs are arranged **across the middle** of the cell. **Fibres** (IB: spindle microtubules) from one end hold one chromosome of each pair; fibres from the other end hold the other chromosome. Which chromosome of a pair faces which end is **chance** (IB: random orientation).' },
-    { h: 'First division: the pairs separate', p: 'The fibres pull the two chromosomes of each pair to **opposite ends**, and the cell divides. Each new cell has **one chromosome of each pair**: 2. The number is **halved**, from diploid to haploid: meiosis is a **reduction division**.' },
-    { h: 'Second division: the copies separate', p: 'Each cell divides again. This time the **two copies** of each chromosome separate, as in mitosis. There are **4 cells**, each with 2 chromosomes.' },
-    { h: 'Four haploid cells', p: 'A nucleus forms in each cell, and the chromosomes become long, thin lines again. Four **haploid** cells: each nucleus has a single set of chromosomes, **one chromosome of each pair**. In a testis all four become **sperm cells**; in an ovary only one becomes an **egg cell**. Here they are of two kinds; with 23 pairs a person makes millions of kinds: the gametes are **genetically different**.' },
-    { h: 'Fertilisation', p: 'One of these cells, now a **sperm cell**, fuses with an **egg cell** from another person. The egg cell’s chromosomes are drawn grey. Inside the egg cell, the nucleus of the sperm cell becomes larger. The two nuclei fuse: this is **fertilisation**. In the **zygote**, the chromosomes from the sperm cell came from its father (blue) and those from the egg cell from its mother (orange): each pair has one from each parent. The zygote has 4 chromosomes again, 2 pairs: **diploid**.' }
+    { h: 'A cell that makes gametes', p: [
+      ['ig', 'A cell in a **testis** or an **ovary**, with **4 chromosomes**: 2 pairs, one of each pair from each parent. Its nucleus is **diploid**: it has two sets of chromosomes, one set from each parent. Each chromosome is a long, thin line.']] },
+    { h: 'Copied', p: [
+      /* D2.1.5 */
+      ['ib', 'Each chromosome is **copied exactly**, along its whole length: two identical copies (**sister chromatids**), side by side, held together most firmly at **one point** (the **centromere**).']] },
+    { h: 'Short and thick, in pairs', p: [
+      /* D2.1.6, D2.1.9 */
+      ['ib', 'The copies **coil** until each chromosome is a short, thick **cross**. Inside the nucleus, the two chromosomes of **each pair** (**homologous chromosomes**) lie **side by side**, gene beside gene (a **bivalent**).']] },
+    { h: 'The pairs across the middle', p: [
+      /* D2.1.9, D2.1.11 */
+      ['ib', 'The **nuclear membrane** (the membrane round the nucleus) breaks into pieces. The pairs are arranged **across the middle** of the cell. **Fibres** (spindle microtubules) from one end hold one chromosome of each pair; fibres from the other end hold the other chromosome. Which chromosome of a pair faces which end is **chance** (**random orientation**).']] },
+    { h: 'First division: the pairs separate', p: [
+      ['ig', 'Each new cell has **one chromosome of each pair**: 2. The number is **halved**, from diploid to haploid: meiosis is a **reduction division**.'],
+      /* D2.1.9 */
+      ['ib', 'The fibres pull the two chromosomes of each pair to opposite ends, and the cell divides: the first division of meiosis.']] },
+    { h: 'Second division: the copies separate', p: [
+      ['ig', 'Meiosis gives **4 cells**, each with 2 chromosomes.'],
+      /* D2.1.9 */
+      ['ib', 'Each cell divides again. This time the **two copies** of each chromosome separate, as in mitosis.']] },
+    { h: 'Four haploid cells', p: [
+      ['ig', 'Four **haploid** cells: each nucleus has a single set of chromosomes, **one chromosome of each pair**. Here they are of two kinds; with 23 pairs a person makes millions of kinds: the gametes are **genetically different**.'],
+      /* D3.1.14 (HL) */
+      ['ibhl', 'In a testis all four become **sperm cells**; in an ovary only one becomes an **egg cell**.']] },
+    { h: 'Fertilisation', p: [
+      ['ig', 'One of these cells, now a **sperm cell**, fuses with an **egg cell** from another person (the egg cell’s chromosomes are drawn grey). The two nuclei fuse: this is **fertilisation**. In the **zygote**, the chromosomes from the sperm cell came from its father (blue) and those from the egg cell from its mother (orange): each pair has one from each parent. The zygote has 4 chromosomes again, 2 pairs: **diploid**.'],
+      /* D3.1.6 */
+      ['ib', 'In humans, the nucleus of the sperm cell becomes larger inside the egg cell; then the membranes of the two nuclei break down, and their chromosomes join in the first mitosis of the zygote.']] }
   ];
   var ME_M = [0, 6, 13, 23, 31, 40, 49, 57, 74];
   /* the gametes' nuclei: copy 0 to the left cell, copy 1 to the right */
@@ -431,12 +464,23 @@
              /* the new nuclei: well inside their cells (the audit: the lower one had poked out), first close round the rods */
              D1: nuc(150, 134, 80, 64), D2: nuc(150, 338, 80, 64), TN: [nuc(150, 110, 56, 34), nuc(150, 338, 56, 34)] };
   var LC_STEPS = [
-    { h: 'A working cell: lines', p: 'While a cell is working, each chromosome is **a single long, thin line**: one molecule of DNA, folded in its own part of the nucleus. Here is **one pair**: the same chromosome from the **mother** (orange) and from the **father** (blue). The yellow length is a **gene**, at the same place on both.' },
-    { h: 'Copied: two lines', p: 'Before the cell divides, each chromosome is **copied exactly**: the copy is made **along the whole line**. This exact copying is called **replication**. Now each chromosome is **two identical lines**, side by side, held together most firmly at **one point**.' },
-    { h: 'Coiled: a cross', p: 'Each copy **coils**, again and again, until it is **short and thick**. The two copies, still joined, now form a **cross**: this is still **one chromosome**. Then the **nuclear membrane** (the membrane round the nucleus) breaks into pieces.' },
-    { h: 'Across the middle', p: 'The two chromosomes are arranged **across the middle** of the cell. **Fibres** (IB: spindle microtubules; together, the spindle) from its two ends hold each one at its joining point.' },
-    { h: 'The copies separate', p: 'The fibres pull the **two copies** of each chromosome to **opposite ends**. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of the mother’s chromosome and one of the father’s.' },
-    { h: 'Two new cells: lines again', p: 'A new nucleus forms at each end, and the rods **uncoil** into **long, thin lines** again. The cell divides: **two new cells**, each with the **same pair** as the first cell. This division is called **mitosis**: the two new cells are **genetically identical**. A cross is seen **only while a cell divides**.' }
+    { h: 'A working cell: lines', p: [
+      ['ig', 'While a cell is working, each chromosome is **a single long, thin line**: one molecule of DNA, folded in its own part of the nucleus. Here is **one pair**: the same chromosome from the **mother** (orange) and from the **father** (blue). The yellow length is a **gene**, at the same place on both.']] },
+    { h: 'Copied: two lines', p: [
+      ['ig', 'Before the cell divides, each chromosome is **copied exactly**: the copy is made **along the whole line**. This exact copying is called **replication**. Now each chromosome is **two identical lines**, side by side, held together most firmly at **one point**.']] },
+    { h: 'Coiled: a cross', p: [
+      ['ig', 'Each copy **coils**, again and again, until it is **short and thick**. The two copies, still joined, now form a **cross**: this is still **one chromosome**.'],
+      /* D2.1.7 */
+      ['ib', 'Then the **nuclear membrane** (the membrane round the nucleus) breaks into pieces.']] },
+    { h: 'Across the middle', p: [
+      /* D2.1.6, D2.1.7 */
+      ['ib', 'The two chromosomes are arranged **across the middle** of the cell. **Fibres** (spindle microtubules; together, the spindle) from its two ends hold each one at its joining point.']] },
+    { h: 'The copies separate', p: [
+      ['ig', 'The **two copies** of each chromosome **separate**, to **opposite ends**. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of the mother’s chromosome and one of the father’s.'],
+      ['ib', 'The fibres pull them apart.']] },
+    { h: 'Two new cells: lines again', p: [
+      ['ig', 'The rods **uncoil** into **long, thin lines** again. The cell divides: **two new cells**, each with the **same pair** as the first cell. This division is called **mitosis**: the two new cells are **genetically identical**. A cross is seen **only while a cell divides**.'],
+      ['ib', 'A new nuclear membrane forms round the chromosomes at each end.']] }
   ];
   var LC_M = [0, 6, 14, 23, 31, 38, 50];
   function lcRender(t, ph, g) {

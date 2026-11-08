@@ -166,6 +166,21 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 .xcard.is-open .xcard__a{transform:rotate(225deg);margin-top:4px}
 .xcard__b{border:1px solid var(--accent);border-top:0;border-radius:0 0 var(--r) var(--r);padding:12px 14px;background:var(--card)}
 .xcard__b[hidden]{display:none}
+/* a film (a step animation) in a card of its own, in the purple of the animations' step bar, so a pupil sees at once that
+   it opens an animation (Daniel, 8 Nov 2026: "a different kind of tab that has a different background"); the widget's own
+   title is the card's heading, so it is not shown twice */
+.xcard--film .xcard__h{background:color-mix(in srgb,var(--k-cell) 9%,var(--card));border-color:color-mix(in srgb,var(--k-cell) 45%,var(--edge));color:var(--ink)}
+.xcard--film .xcard__h:hover,.xcard--film.is-open .xcard__h{border-color:var(--k-cell)}
+.xcard--film.is-open .xcard__h{background:color-mix(in srgb,var(--k-cell) 14%,var(--card))}
+.xcard--film .xcard__h:focus-visible{outline-color:var(--k-cell)}
+.xcard--film .xcard__b{border-color:var(--k-cell)}
+.xcard__play{flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--k-cell);color:var(--card);font-size:11px;padding-left:2px}
+.xcard__kind{display:block;font-size:12.5px;font-weight:600;color:var(--k-cell);margin-top:1px}
+.xcard--film .xcard__b > .widget > .widget__h,.xcard--film .xcard__b > .widget > .widget__ask,
+.xcard--film .lvw__bar + .widget > .widget__h,.xcard--film .lvw__bar + .widget > .widget__ask{display:none}
+.exam-part[class*="exam-part--"] .xcard--film .xcard__h:hover,.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{border-color:var(--k-cell);color:var(--ink)}
+.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{background:color-mix(in srgb,var(--k-cell) 14%,var(--card))}
+.exam-part[class*="exam-part--"] .xcard--film .xcard__b{border-color:var(--k-cell)}
 /* a widget, photo or table inside a card sits inside it: the list's bullet margin (-26px in app.css) does not apply here */
 .exam-list li.xcard .widget,.exam-list li.xcard .media,.exam-list li.xcard .photo,.exam-list li.xcard .ctable{margin-left:0;margin-right:0;max-width:100%}
 /* a closed tooltip takes no room: laid out while hidden, it made the panel scroll sideways when its word sat near the
@@ -721,3 +736,66 @@ p,li,dd,figcaption{text-wrap:pretty}
 .say__c{flex-basis:100%;font-size:11.5px;color:var(--grey)}
 .say__c[hidden]{display:none}
 .say__c a{color:inherit}
+/* Cambridge's recordings play from Cambridge: their name beside the UK and US buttons, a link to the word's page (js/terms.js) */
+.say__bs{display:inline-flex;gap:6px;white-space:nowrap}
+.say__src{flex-basis:100%;font-size:11px;color:var(--grey);text-decoration:underline;text-decoration-color:var(--edge);text-underline-offset:2px;white-space:nowrap}
+.say__src:hover,.say__src:focus-visible{color:var(--accent);text-decoration-color:currentColor}
+
+/* a step's words in parts, each marked with its level (Daniel, 8 Nov 2026: "exactly what is IGCSE and what is IB and what
+   is beyond … It needs to be very, very clear"): IGCSE in the lab's green, IB in the IB blue, beyond both in grey italics,
+   each a filled tint (memory level-colours-never-blank); the key to them, once, above the steps */
+.sp__lv{display:block;margin-top:5px;padding:4px 9px 5px;border-radius:7px;border-left:3px solid var(--accent);background:var(--accent-tint)}
+.sp__lv:first-child{margin-top:0}
+.sp__lvt{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:var(--r-pill);margin-right:3px;vertical-align:1px;background:var(--accent);color:var(--card)}
+.sp__lv--ib,.sp__lv--ibhl{background:var(--c103);border-left-color:var(--c104)}
+.sp__lv--ib .sp__lvt,.sp__lv--ibhl .sp__lvt{background:var(--c104);color:var(--c103)}
+.sp__lv--bey{background:var(--c106);border-left-color:var(--c107)}
+.sp__lv--bey .sp__lvt{background:var(--c24);color:var(--card);font-style:italic}
+.sp__legend{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;font-size:12.5px;line-height:1.35}
+.sp__legend .sp__lv{display:inline-block;margin:0;padding:3px 8px}
+
+/* a Punnett square's boxes (inh-scenes.js punnett) */
+.gd__box{fill:var(--card);stroke:var(--ink);stroke-width:1.4}
+
+/* How to write the alleles (w-cross.js writing): four rules, each the wrong way struck out, then the right way; they come
+   in turn as the card opens (3 s apart), then all stay */
+.aw{margin:12px 0 4px}
+.aw__rules{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.aw__rule{background:var(--card-2);border:1px solid var(--edge);border-radius:var(--r);padding:10px 12px 12px}
+.aw__h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-weight:700;font-size:15px}
+.aw__n{flex:none;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--card);font-size:12.5px}
+.aw__ask{margin:0 0 6px;font-size:14px;color:var(--grey)}
+.aw__eg{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.aw__pair{display:flex;align-items:center;gap:8px;width:100%}
+.aw__feat{display:inline-flex;flex-direction:column;font-size:14px;min-width:100px}
+.aw__feat i{font-size:12px;color:var(--grey)}
+.aw__to{color:var(--grey)}
+.aw__al{font-size:30px;line-height:1;font-family:var(--font);min-width:26px;text-align:center}
+.aw__note{flex:1 1 90px;font-size:13px;color:var(--grey)}
+.aw__bad,.aw__good{display:inline-flex;align-items:center;gap:6px;font-size:21px;font-weight:700;padding:4px 12px;border-radius:var(--r-pill)}
+.aw__bad{background:var(--bad-tint);color:var(--bad);position:relative}
+.aw__x{position:relative}
+.aw__x::after{content:"";position:absolute;left:-3px;right:-3px;top:52%;height:2.5px;background:var(--bad);border-radius:2px}
+.aw__good{background:var(--ok-tint);color:var(--ok)}
+.aw__mk{font-size:15px}
+.aw__fine{margin:8px 0 0;font-size:13px;color:var(--grey)}
+.aw__sum{margin:10px 0 6px;font-size:15px}
+.aw__again{font:inherit;font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:var(--r-pill);border:1.5px solid var(--edge);background:var(--card);color:var(--ink);cursor:pointer}
+.aw__again:hover,.aw__again:focus-visible{border-color:var(--accent)}
+.aw.is-run .aw__rule{animation:aw-in .6s ease-out both;animation-delay:calc(var(--i) * 3s)}
+.aw.is-run .aw__al--a{animation:aw-in .5s ease-out both;animation-delay:.6s}
+.aw.is-run .aw__al--b{animation:aw-in .5s ease-out both;animation-delay:1.6s}
+.aw.is-run .aw__al--b + .aw__note{animation:aw-in .5s ease-out both;animation-delay:1.9s}
+.aw.is-run .aw__x::after{animation:aw-strike .5s ease-in both;animation-delay:calc(var(--i) * 3s + .9s);transform-origin:left center}
+.aw.is-run .aw__good{animation:aw-in .5s ease-out both;animation-delay:calc(var(--i) * 3s + 1.6s)}
+.aw.is-run .aw__sum{animation:aw-in .6s ease-out both;animation-delay:12s}
+@keyframes aw-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes aw-strike{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){.aw.is-run *{animation:none!important}}
+.aw .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* a step with no IGCSE line: its level on its button (w-common.js onlyLv) */
+.sp__only{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:0 6px;border-radius:var(--r-pill);vertical-align:1px;border:0;margin-left:2px}
+.sp__only.sp__lv--ib,.sp__only.sp__lv--ibhl{background:var(--c104);color:var(--c103)}
+.sp__only.sp__lv--bey{background:var(--c24);color:var(--card);font-style:italic}
+.sp__step--ib .sp__stepb,.sp__step--ibhl .sp__stepb{background:var(--c103)}
+.sp__step--bey .sp__stepb{background:var(--c106)}

@@ -45,19 +45,43 @@
   var MOTION = {"From a cell to a gene":[0,5,5,6.5,5,7.85,8.65,8.2,9.4,5,7.6,6.85,4.3]};
   var W = 340, H = 380, CX = 170, CY = 190, PI = Math.PI, TZ = 5;
   var STEPS = [
-    { h: 'A body cell', p: 'A cell from your body, about 25 micrometres across. Its **nucleus** holds the **chromosomes**: 46 in a human body cell.' },
-    { h: 'Inside the nucleus', p: 'In a working cell each chromosome is a long, very thin thread of **DNA**, folded many times in its own part of the nucleus. Chromosomes are in pairs: 23 pairs in a human body cell. One of each pair came from the mother, and one from the father. Two pairs are coloured here; not all 46 are drawn.' },
-    { h: 'Wound round proteins', p: 'Enlarged: the thread is DNA wound round small balls of protein, almost twice round each, like thread round beads. This is the first step in packing about 2 metres of DNA into one nucleus. Close up, DNA is drawn grey.' },
-    { h: 'A gene', p: 'Seen from a little further away: a **gene** is a length of DNA that codes for a protein. This gene, lit in yellow, is a short one: about 1,400 base pairs, wound round 7 balls of protein. It is not the ABO gene shown later. Genes differ in length: most are longer, thousands of base pairs. One chromosome carries many genes.' },
-    { h: 'The DNA of the gene', p: 'Enlarged: part of the gene, between two balls of protein. The DNA is two strands twisted into a **double helix**, with **bases** between them. Bonds between the pairs of bases hold the two strands together, and the bases always pair in the same way: A with T, and C with G.' },
-    { h: 'Replication begins', p: 'Before a cell divides, its DNA is copied exactly: this exact copying is called **replication**. An enzyme separates the two strands, and an enzyme makes a new strand along each old one: each new base pairs with the base opposite it, A with T and C with G.' },
-    { h: 'Two identical molecules', p: 'The whole chromosome is copied in this way. The result is two identical molecules of DNA, each with one old strand and one new strand: the chromosome is now two identical copies, and so is the gene (yellow).' },
-    { h: 'Back in the nucleus', p: 'Back in the nucleus: each chromosome is now two identical threads, side by side, held together most firmly at one point. The short gene is now too small to see. The yellow length on chromosome 9 is a different, longer gene, the **ABO gene** (about 20,000 base pairs), at the same place on both threads. The cell is ready to divide.' },
-    { h: 'Coiling into a cross', p: 'Each copy coils, again and again, until it is short and thick. The copies stay joined at one point, so the chromosome is now a cross. You see a cross only while a cell divides.' },
-    { h: 'Inside one copy', p: 'Enlarged: the end of the long arm of one copy. Its DNA and proteins are folded into thousands of loops. The ABO gene, lit yellow, is a short length of one loop: about 20,000 base pairs. The yellow band on a drawing of a chromosome marks its place, but is drawn much larger than the gene.' },
-    { h: 'A pair, and two alleles', p: 'Back to the whole pair: chromosome 9 from the mother and, brought beside it, chromosome 9 from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one chromosome and Iᵒ on the other. The two copies of each chromosome carry the same allele.' },
-    { h: 'Two alleles: different bases', p: 'Enlarged: the same part of the ABO gene on the two chromosomes (the bases along one strand). **Iᴬ** and **Iᵒ** have the same bases, except one: a G is missing in Iᵒ. The bases are read in threes, so after the gap every three is different, and the protein of Iᵒ does not work. **Iᴮ** differs from Iᴬ in 7 bases: its protein works a little differently, which gives blood group B.' },
-    { h: 'Genotype and phenotype', p: 'Back to the pair. The alleles a person has are their **genotype**: this person’s genotype is IᴬIᵒ. The feature that can be observed is their **phenotype**: this person’s phenotype is blood group A, because Iᴬ is dominant to Iᵒ.' }
+    { h: 'A body cell', p: [
+      ['ig', 'A cell from your body, about 25 micrometres across. Its **nucleus** holds the **chromosomes**: 46 in a human body cell.']] },
+    { h: 'Inside the nucleus', p: [
+      ['ig', 'In a working cell each chromosome is a long, very thin thread of **DNA**, folded many times in its own part of the nucleus. Chromosomes are in pairs: 23 pairs in a human body cell. One of each pair came from the mother, and one from the father. Two pairs are coloured here; not all 46 are drawn.']] },
+    { h: 'Wound round proteins', p: [
+      /* A1.2.13 (HL), D2.1.6 */
+      ['ibhl', 'Enlarged: the thread is DNA wound round small balls of protein (**histones**), almost twice round each, like thread round beads (a **nucleosome**). Close up, DNA is drawn grey.'],
+      ['bey', 'This is the first step in packing about 2 metres of DNA into one nucleus.']] },
+    { h: 'A gene', p: [
+      ['ig', 'Seen from a little further away: a **gene** is a length of DNA that codes for a protein. One chromosome carries many genes.'],
+      ['bey', 'This gene, lit in yellow, is a short one: about 1,400 base pairs, wound round 7 balls of protein. It is not the ABO gene shown later. Genes differ in length: most are longer, thousands of base pairs.']] },
+    { h: 'The DNA of the gene', p: [
+      ['ig', 'Enlarged: part of the gene, between two balls of protein. The DNA is two strands twisted into a **double helix**, with **bases** between them. Bonds between the pairs of bases hold the two strands together, and the bases always pair in the same way: A with T, and C with G.']] },
+    { h: 'Replication begins', p: [
+      ['ig', 'Before a cell divides, its DNA is copied exactly: this exact copying is called **replication**.'],
+      /* D1.1.2, D1.1.3 */
+      ['ib', 'An enzyme, **helicase**, separates the two strands, and another, **DNA polymerase**, makes a new strand along each old one: each new base pairs with the base opposite it, A with T and C with G.']] },
+    { h: 'Two identical molecules', p: [
+      ['ig', 'The whole chromosome is copied in this way: the chromosome is now two identical copies, and so is the gene (yellow).'],
+      /* D1.1.2 */
+      ['ib', 'Each of the two molecules of DNA has one old strand and one new strand.']] },
+    { h: 'Back in the nucleus', p: [
+      ['ig', 'Back in the nucleus: each chromosome is now two identical threads, side by side, held together most firmly at one point. The cell is ready to divide.'],
+      ['bey', 'The short gene is now too small to see. The yellow length on chromosome 9 is a different, longer gene, the **ABO gene** (about 20,000 base pairs), at the same place on both threads.']] },
+    { h: 'Coiling into a cross', p: [
+      ['ig', 'Each copy coils, again and again, until it is short and thick. The copies stay joined at one point, so the chromosome is now a cross. You see a cross only while a cell divides.']] },
+    { h: 'Inside one copy', p: [
+      ['bey', 'Enlarged: the end of the long arm of one copy. Its DNA and proteins are folded into thousands of loops. The ABO gene, lit yellow, is a short length of one loop: about 20,000 base pairs. The yellow band on a drawing of a chromosome marks its place, but is drawn much larger than the gene.']] },
+    { h: 'A pair, and two alleles', p: [
+      ['ig', 'Back to the whole pair: chromosome 9 from the mother and, brought beside it, chromosome 9 from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one chromosome and Iᵒ on the other. The two copies of each chromosome carry the same allele.']] },
+    { h: 'Two alleles: different bases', p: [
+      ['ig', 'Enlarged: the same part of the ABO gene on the two chromosomes (the bases along one strand). **Iᴬ** and **Iᵒ** have the same bases, except one: a G is missing in Iᵒ.'],
+      /* D1.2.8, D1.2.11 */
+      ['ib', 'The bases are read in threes, so after the gap every three is different, and the protein of Iᵒ does not work.'],
+      ['bey', '**Iᴮ** differs from Iᴬ in 7 bases: its protein works a little differently, which gives blood group B.']] },
+    { h: 'Genotype and phenotype', p: [
+      ['ig', 'Back to the pair. The alleles a person has are their **genotype**: this person’s genotype is IᴬIᵒ. The feature that can be observed is their **phenotype**: this person’s phenotype is blood group A, because Iᴬ is dominant to Iᵒ.']] }
   ];
   var M = [0, 7, 18, 30, 39, 49, 59, 69, 81, 92, 103, 114, 125, 133];
   var SEE = ['a body cell', 'its nucleus', 'DNA round proteins', 'a gene', 'part of the gene: its DNA', 'the DNA being copied', 'two identical molecules', 'the copied chromosomes', 'the chromosomes coiling', 'part of one copy', 'one pair', 'the bases of two alleles', 'one pair'];
@@ -545,9 +569,9 @@
     var model = document.createElementNS(NSV, 'g'); svg.appendChild(model);
     var gLab = document.createElementNS(NSV, 'g'); svg.appendChild(gLab);
     var lay = null, narrow = false, key = K.pinKey(S);
-    var R = [0];
-    STEPS.forEach(function (s, i) { var w = (s.h + ' ' + s.p).replace(/\*\*/g, '').split(/\s+/).length; R.push(R[i] + Math.max(M[i + 1] - M[i], w / 2)); });
-    var clock = K.readerClock(R, M);
+    /* each step: its motion, then the reading of the names new at its end (WKit.timeline) */
+    var TL = K.timeline(M, null, MOTION, 'From a cell to a gene', function (m) { var sc = scene(m); return sc.e >= .999 ? LB[sc.k](m).map(function (q) { return q.text; }) : []; }),
+        R = TL.R, clock = TL.clock;
     function draw(tt) {
       var t = clock(tt), sc = scene(t);
       model.innerHTML = '<g clip-path="url(#' + uid + ')">' + sc.svg + '</g>';
@@ -555,7 +579,7 @@
       gLab.innerHTML = names(lay, items, narrow, key);
       S.pill('see', SEE[sc.k], 'ok'); S.pill('size', SIZE[sc.k], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, null, MOTION, 'From a cell to a gene') });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: TL.end, render: draw, flow: TL.flow });
     /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
        "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'zm', [

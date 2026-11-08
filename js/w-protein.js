@@ -56,21 +56,64 @@
   var L = global.CircLearn, K = global.WKit, D = global.InhDraw; if (!L || !K || !D || !D.coiled || !D.envelope) return;
   var n1 = K.n1, seg = K.seg, ease = K.ease, lerp = K.lerp, clamp01 = K.clamp01;
   var W = 340, H = 380, CX = 170, CY = 190, PI = Math.PI, TZ = 3.2;
+  /* Each step's words in parts, each with its level (Daniel, 8 Nov 2026: "not all of the content is IGCSE level … make
+     sure that in the step message that you show, exactly what is IGCSE and what is IB and what is beyond … Otherwise,
+     they're going to go crazy"): 'ig' what the 0610 syllabus asks (17.1.1, 17.1.2, 17.1.5–17.1.8, 4.1.2, 4.1.4), always
+     first; 'ib' / 'ibhl' what only the IB guide (2025) asks, SL or HL only (the statement in the comment); 'bey' what
+     neither asks. The IB names stay in brackets in the pictures' names, as everywhere in the lab */
   var STEPS = [
-    { h: 'A cell makes a protein', p: 'A cell from your body, about 25 micrometres across. It makes the **proteins** it needs, such as enzymes. The instructions for each protein are in a **gene**, in the **nucleus**.' },
-    { h: 'The gene, in the nucleus', p: 'Enlarged: the nucleus. Each **chromosome** is a long, very thin thread of **DNA**. The gene for this protein (not the ABO gene) is one short length of one thread (yellow): here, on chromosome 9 from the mother.' },
-    { h: 'A gene: thousands of base pairs', p: 'Enlarged again: the gene. A **gene** is a length of DNA that codes for a protein, usually thousands of base pairs long. This one has about 3,000. All along the DNA, in the gene too, it is wound round small balls of protein. The next pictures show only the start of the gene.' },
-    { h: 'An enzyme at the start of the gene', p: 'Enlarged again: the start of the gene, about 60 of its 3,000 base pairs. An enzyme (IB: RNA polymerase) attaches here. It separates the two strands of the DNA for a short length.' },
-    { h: 'mRNA, a copy of the gene', p: 'Free bases arrive, one at a time. Each pairs with a base on one strand of the DNA: C with G, and A with T, as in DNA. But mRNA has the base U instead of T, so U pairs with A. The enzyme joins the bases into a strand of **messenger RNA (mRNA)**, a **copy of the gene**. Behind the enzyme, the two strands of DNA join again.' },
-    { h: 'A copy of the whole gene', p: 'The enzyme moves along the whole gene. The mRNA grows until it is a copy of the whole gene, thousands of bases long. Then the mRNA and the enzyme separate from the DNA. The **gene stays in the nucleus**.' },
-    { h: 'To the cytoplasm', p: 'The **mRNA moves from the nucleus to the cytoplasm**. First it moves to a pore in the nuclear membrane (the membrane round the nucleus).' },
-    { h: 'Through a pore', p: 'Enlarged: a pore in the nuclear membrane, which is two membranes (IB: the nuclear envelope). Pores are not in the 0610 syllabus. The mRNA passes through a pore, one end first, into the **cytoplasm**.' },
-    { h: 'A ribosome forms on the mRNA', p: 'Enlarged again: the start of the mRNA, in the cytoplasm. A **ribosome** forms on it from two parts, a small part and a large part (IB: subunits). Each part is made of RNA and protein. First the **small part** attaches to the start of the mRNA. It already carries the **first amino acid**, on a small RNA molecule (IB: tRNA). The small part moves along the mRNA to the first three bases of the code, AUG (IB: start codon). Then the **large part** joins it. The mRNA lies between the two parts.' },
-    { h: 'Inside a ribosome (beyond 0610)', p: 'Seen through: a ribosome is mostly **RNA** (IB: rRNA). There are some **proteins** on its surface. The ribosome’s **RNA**, not a protein, **joins the amino acids** together. So RNA can **carry a code** (like mRNA) and also **do a job** (like an enzyme). This is why many scientists think that the **first copier of life** was RNA.' },
-    { h: 'A small RNA brings an amino acid', p: 'Small RNA molecules (IB: tRNA) bring **amino acids** to the ribosome. Each one carries one amino acid. Its three bases (IB: anticodon) pair with three bases of the mRNA (IB: codon). So each group of **three bases** in the mRNA codes for one amino acid: here GCU codes for **alanine** (the key gives each one).' },
-    { h: 'Joining the amino acids', p: 'The **ribosome assembles amino acids** into a chain: first it joins the new amino acid to the chain (IB: a peptide bond). Then the **mRNA passes through the ribosome** by three bases. The empty small RNA leaves, and the next one arrives with its amino acid. In this way the **sequence of bases** in the mRNA decides the **sequence of amino acids**.' },
-    { h: 'The chain grows', p: 'Three bases at a time, one amino acid at a time, the chain grows. This chain is made of four kinds of amino acid: **methionine**, **alanine**, **serine** and **glycine**. A ribosome adds about 5 amino acids each second. A real protein is a chain of hundreds of amino acids; the one drawn here has only 20.' },
-    { h: 'The chain folds into its shape', p: 'At the end of the code (IB: a stop codon), no small RNA fits. The chain is released, and the two parts of the ribosome separate. The chain folds into the **3D shape** of the protein: it turns once here, so you can see it is not flat. A different **sequence of amino acids** would give a different 3D shape.' }
+    { h: 'A cell makes a protein', p: [
+      ['ig', 'A cell from your body. It makes the **proteins** it needs, such as **enzymes**. The instructions for each protein are in a **gene**, in the **nucleus**.']] },
+    { h: 'The gene, in the nucleus', p: [
+      ['ig', 'Enlarged: the nucleus. Each **chromosome** is made of **DNA**: a long, very thin thread. The gene for this protein (yellow; not the ABO gene) is one short length of one thread.']] },
+    { h: 'A gene: thousands of base pairs', p: [
+      ['ig', 'Enlarged again: the gene. A **gene** is a length of DNA that codes for a protein.'],
+      ['bey', 'A gene is usually thousands of base pairs long: this one has about 3,000. The next pictures show only its start.'],
+      /* A1.2.13 (HL) */
+      ['ibhl', 'All along the DNA, the gene too, it is wound round small balls of protein (histones).']] },
+    { h: 'An enzyme at the start of the gene', p: [
+      ['ig', 'Enlarged again: the start of the gene. DNA is **two strands**, coiled together into a **double helix**. The bases pair: **A with T**, and **C with G**.'],
+      /* D1.2.1 */
+      ['ib', 'An enzyme, **RNA polymerase**, attaches here. It separates the two strands for a short length.']] },
+    { h: 'mRNA, a copy of the gene', p: [
+      ['ig', '**Messenger RNA (mRNA)**, a **copy of the gene**, is made in the nucleus.'],
+      /* D1.2.1, D1.2.2, A1.2.7 */
+      ['ib', 'The enzyme, **RNA polymerase**, makes it (**transcription**). Free RNA nucleotides arrive, one at a time. The base of each pairs with a base on one strand of the DNA (the template strand): C with G, G with C, T with A. RNA has the base **U** instead of T, so U pairs with A. Behind the enzyme, the two strands of DNA join again.']] },
+    { h: 'A copy of the whole gene', p: [
+      ['ig', 'The mRNA is a **copy of the whole gene**. The **gene stays in the nucleus**.'],
+      ['ib', 'RNA polymerase moves along the whole gene, and the mRNA grows until it is thousands of bases long. Then the mRNA and the enzyme separate from the DNA.']] },
+    { h: 'To the cytoplasm', p: [
+      ['ig', 'The **mRNA moves from the nucleus to the cytoplasm**.'],
+      /* B2.2.6 (HL) */
+      ['ibhl', 'It moves to a **pore** in the nuclear membrane (the membrane round the nucleus).']] },
+    { h: 'Through a pore', p: [
+      ['ig', 'The mRNA moves into the **cytoplasm**.'],
+      /* B2.2.6 (HL) */
+      ['ibhl', 'Enlarged: a pore. The nuclear membrane is two membranes (the nuclear envelope), with pores in it. The mRNA passes through a pore, one end first.']] },
+    { h: 'A ribosome forms on the mRNA', p: [
+      ['ig', 'In the cytoplasm, the mRNA **passes through ribosomes**. Here the first one forms, at its start.'],
+      /* D1.2.6 */
+      ['ib', 'A ribosome has two parts, a **small subunit** and a **large subunit**, each made of RNA and protein. The mRNA binds to the small subunit.'],
+      /* D1.2.17 (HL) */
+      ['ibhl', 'The small subunit attaches at the start of the mRNA, already carrying the first amino acid on a **tRNA**. It moves along the mRNA to the **start codon**, AUG. Then the large subunit joins it.']] },
+    { h: 'Inside a ribosome', p: [
+      /* A2.1.6 (HL) */
+      ['ibhl', 'Seen through: a ribosome is mostly **RNA** (rRNA), with some proteins on its surface. The ribosome’s RNA, not a protein, **joins the amino acids** together. So RNA can **carry a code** and also **do a job**, like an enzyme. This is why many scientists think that the **first genetic material** of life was RNA.']] },
+    { h: 'A small RNA brings an amino acid', p: [
+      ['ig', 'The **sequence of bases** in the mRNA decides which amino acid comes next.'],
+      /* D1.2.6–D1.2.9 */
+      ['ib', 'Each small RNA, a **tRNA**, brings one **amino acid**. Its three bases (the **anticodon**) pair with three bases of the mRNA (a **codon**). One codon codes for one amino acid: here GCU codes for **alanine** (the key gives each one).']] },
+    { h: 'Joining the amino acids', p: [
+      ['ig', 'The **mRNA passes through the ribosome**, and the **ribosome assembles amino acids** into a protein. The **sequence of bases** in the mRNA decides the **sequence of amino acids**.'],
+      /* D1.2.10 */
+      ['ib', 'The new amino acid is joined to the chain by a **peptide bond**. Then the ribosome moves three bases along the mRNA. The empty tRNA leaves, and the next one arrives with its amino acid.']] },
+    { h: 'The chain grows', p: [
+      ['ig', 'One amino acid at a time, the chain grows. A **protein** is a chain of **amino acids**.'],
+      ['bey', 'A ribosome adds about 5 amino acids each second. A real protein has hundreds of amino acids; the one drawn here has only 20, of four kinds: methionine, alanine, serine and glycine.']] },
+    { h: 'The chain folds into its shape', p: [
+      ['ig', 'The chain folds into the **3D shape** of the protein: it turns once here, so you can see it is not flat. **Different sequences of amino acids** give **different shapes** to protein molecules.'],
+      /* D1.2.8, D1.2.9 (the code's stop codons) */
+      ['ib', 'At the end of the code, a **stop codon**, no tRNA fits. The chain is released, and the two subunits separate.']] }
   ];
   /* how long each step's motion runs, in seconds (the reader's time: the clock is given a pace of 1) */
   var DUR = [5, TZ + 4, TZ + 6, TZ + 9.6, TZ + 15.8, TZ + 12.8, TZ + 6.8, TZ + 8.8, TZ + 8.2, 4.5, 6.5, 8.4, 18, 13];
@@ -655,6 +698,11 @@
                  alts: [toD(t, ex - 200, yA(ex - 200, ph5, 0)), toD(t, ex - 230, yB(ex - 230, ph5, 0)), toD(t, ex - 190, yB(ex - 190, ph5, 0))] });
       var q = nucleotide(NB + 1, t, x0D(t)), f = toD(t, q.b[0] + 6, q.b[1]);
       out.push({ id: 'free', text: 'free bases (IB: RNA nucleotides)', x: f[0], y: f[1], side: 'R' });
+      /* the enzyme named too, inside its body, right of the bubble (Daniel, 8 Nov 2026: "you're showing the enzyme, but I
+         don't see the name of the enzyme") */
+      var ey = enzY(t), pz = toD(t, ex + 25, ey - 150);
+      out.push({ id: 'pol', text: 'the enzyme that makes mRNA (IB: RNA polymerase)', x: pz[0], y: pz[1], side: 'R',
+                 alts: [toD(t, ex + 60, ey + 106), toD(t, ex + 55, ey - 100)] });
     }
     return out;
   }
@@ -1109,15 +1157,9 @@
     var model = document.createElementNS(NSV, 'g'); svg.appendChild(model);
     var gLab = document.createElementNS(NSV, 'g'); svg.appendChild(gLab);
     var lay = null, narrow = false, key = K.pinKey(S);
-    /* a step lasts long enough for its caption, and in Play all for its motion and then the reading of its new names
-       (WKit.namesWait; Daniel, 7 Nov 2026: the pore's six names had 6.5 s of the 7 s they need, and Play all went on) */
-    var R = [0], ME = MOTION['How a protein is made'], was = [];
-    STEPS.forEach(function (s, i) {
-      var w = (s.h + ' ' + s.p).replace(/\*\*/g, '').split(/\s+/).length, d = M[i + 1] - M[i];
-      var now = LB[i](M[i + 1] - .002).map(function (q) { return q.text.replace(/\s+/g, ' ').trim(); });
-      R.push(R[i] + Math.max(d, w / 2, Math.min(d, ME[i] + .15) + K.namesWait(now, was) + .1)); was = now;
-    });
-    var clock = K.readerClock(R, M, 1);
+    /* each step: its motion, then the reading of the names new at its end (WKit.timeline) */
+    var TL = K.timeline(M, 1, MOTION, 'How a protein is made', function (m) { var sc = scene(m); return sc.e > .95 ? LB[sc.k](m).map(function (q) { return q.text; }) : []; }),
+        R = TL.R, clock = TL.clock;
     function draw(tt) {
       INSET = uid + 'w';
       var t = clock(tt), sc = scene(t);
@@ -1126,8 +1168,8 @@
       gLab.innerHTML = names(lay, items, narrow, key);
       S.pill('see', SEE[sc.k], 'ok'); S.pill('where', WHERE[sc.k], 'ok'); S.pill('size', SIZE[sc.k], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: R[R.length - 1], render: draw, flow: K.readerFlow(R, M, 1, MOTION, 'How a protein is made') });
-    S.box.__end = R[R.length - 1];
+    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: TL.end, render: draw, flow: TL.flow });
+    S.box.__end = TL.end;
     /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
        "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'pt', [

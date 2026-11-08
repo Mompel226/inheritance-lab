@@ -241,6 +241,25 @@
       spots: { pp: [180, y[0] - 7, 128, 14], pg: [180, y[1] - 7, 118, 14], gam: [180, y[2] - 6, 132, 19], og: [180, y[3] - 7, 136, 14], op: [180, y[4] - 6, 146, 12], ratio: [180, y[5] - 6, rw + 12, 12] } };
   }
 
+  /* 10b · a Punnett square of Rr × Rr (Daniel, 8 Nov 2026: "when you click actually the Punnett square, you don't see
+     the Punnett square. So it's very, very confusing"): one parent's gametes along the top, the other parent's down the
+     side, each in a circle as in the genetic diagram; each box the genotype of one possible offspring, its two alleles
+     the gametes above it and beside it (17.4.12) */
+  function punnett() {
+    var out = '', S = 72, x0 = 150, y0 = 120, top = ['R', 'r'], side = ['R', 'r'];
+    out += D.allele(x0 + S, 40, 'Rr', { cls: 'gd__al' }) + '<text class="gd__w gd__w--s" x="' + (x0 + S) + '" y="18" text-anchor="middle">one parent</text>';
+    out += D.allele(40, y0 + S + 6, 'Rr', { cls: 'gd__al' }) + '<text class="gd__w gd__w--s" x="40" y="' + (y0 + S - 36) + '" text-anchor="middle">the other</text><text class="gd__w gd__w--s" x="40" y="' + (y0 + S - 19) + '" text-anchor="middle">parent</text>';
+    top.forEach(function (g, c) { var x = x0 + S / 2 + c * S; out += '<circle class="gd__gam" cx="' + x + '" cy="' + (y0 - 32) + '" r="17"/>' + D.allele(x, y0 - 26, g, { cls: 'gd__al' }); });
+    side.forEach(function (g, r) { var y = y0 + S / 2 + r * S; out += '<circle class="gd__gam" cx="' + (x0 - 32) + '" cy="' + y + '" r="17"/>' + D.allele(x0 - 32, y + 6, g, { cls: 'gd__al' }); });
+    [0, 1].forEach(function (r) { [0, 1].forEach(function (c) {
+      var x = x0 + c * S, y = y0 + r * S, g = [top[c], side[r]].sort(function (a, b) { return a === a.toUpperCase() ? -1 : b === b.toUpperCase() ? 1 : 0; }).join('');
+      out += '<rect class="gd__box" x="' + x + '" y="' + y + '" width="' + S + '" height="' + S + '"/>' + D.allele(x + S / 2, y + S / 2 + 6, g, { cls: 'gd__al' });
+    }); });
+    return { w: 360, h: 290, svg: out,
+      pts: { top: [x0 + S * 1.5 + 17, y0 - 32, 'R'], side: [x0 - 49, y0 + S * 1.5, 'L'], box: [x0 + 2 * S, y0 + S * 1.5, 'R'] }, alts: {},
+      spots: { top: [x0 + S, y0 - 32, S + 4, 20], side: [x0 - 32, y0 + S, 20, S + 4], box: [x0 + S, y0 + S, S + 2, S + 2] } };
+  }
+
   /* 11 · a family over three generations: dry earwax (shaded), the recessive allele w; wet earwax, the dominant W.
      No couple in which both have wet earwax has a child with dry earwax: that is the frame of a private mock question
      (Daniel, 4 Nov 2026: "Redraw it"). Persons 2, 6 and 8 are ww; 3, 4, 5 and 7 must be Ww; person 1 may be WW or Ww. */
@@ -324,7 +343,7 @@
     gene: gene, linecross: linecross, pair9: function () { return pair9(); }, karyoM: function () { return karyo('m'); }, karyoF: function () { return karyo('f'); },
     protein: protein,
     exPancreas: function () { return express(['amylase']); }, exNerve: function () { return express(['receptor']); }, exGut: function () { return express(['carrier']); },
-    mitosis: mitosis, meiosis: meiosis, genotypes: genotypes, diagram: function () { return diagram(); },
+    mitosis: mitosis, meiosis: meiosis, genotypes: genotypes, diagram: function () { return diagram(); }, punnett: punnett,
     diagram11: function () { return diagram({ pp: ['round', 'wrinkled'], pg: ['Rr', 'rr'], g: [['R', 'r'], ['r', 'r']], og: ['Rr', 'Rr', 'rr', 'rr'], op: ['round', 'round', 'wrinkled', 'wrinkled'], ratio: '1 round : 1 wrinkled' }); },
     testRR: function () { return diagram({ pp: ['round', 'wrinkled'], pg: ['RR', 'rr'], g: [['R', 'R'], ['r', 'r']], og: ['Rr', 'Rr', 'Rr', 'Rr'], op: ['round', 'round', 'round', 'round'], ratio: 'all round' }); },
     testRr: function () { return diagram({ pp: ['round', 'wrinkled'], pg: ['Rr', 'rr'], g: [['R', 'r'], ['r', 'r']], og: ['Rr', 'Rr', 'rr', 'rr'], op: ['round', 'round', 'wrinkled', 'wrinkled'], ratio: '1 round : 1 wrinkled' }); },
