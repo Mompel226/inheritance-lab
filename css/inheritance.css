@@ -166,21 +166,33 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 .xcard.is-open .xcard__a{transform:rotate(225deg);margin-top:4px}
 .xcard__b{border:1px solid var(--accent);border-top:0;border-radius:0 0 var(--r) var(--r);padding:12px 14px;background:var(--card)}
 .xcard__b[hidden]{display:none}
-/* a film (a step animation) in a card of its own, in the purple of the animations' step bar, so a pupil sees at once that
-   it opens an animation (Daniel, 8 Nov 2026: "a different kind of tab that has a different background"); the widget's own
-   title is the card's heading, so it is not shown twice */
-.xcard--film .xcard__h{background:color-mix(in srgb,var(--k-cell) 9%,var(--card));border-color:color-mix(in srgb,var(--k-cell) 45%,var(--edge));color:var(--ink)}
-.xcard--film .xcard__h:hover,.xcard--film.is-open .xcard__h{border-color:var(--k-cell)}
-.xcard--film.is-open .xcard__h{background:color-mix(in srgb,var(--k-cell) 14%,var(--card))}
-.xcard--film .xcard__h:focus-visible{outline-color:var(--k-cell)}
-.xcard--film .xcard__b{border-color:var(--k-cell)}
-.xcard__play{flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--k-cell);color:var(--card);font-size:11px;padding-left:2px}
-.xcard__kind{display:block;font-size:12.5px;font-weight:600;color:var(--k-cell);margin-top:1px}
+/* a film (a step animation) in a card of its own, drawn as a dark "screen", like a video player, so a pupil sees at once
+   that it opens an animation (Daniel, 8 Nov 2026: "a different kind of tab that has a different background"; then: not
+   purple, "because purple is the color that you use for IB extensions … not any other color used for color coding, but
+   still easy to see"). --anim: ink in a bright page, near white in a dark one; it is also the player's Play button, step
+   bar and current step, so nothing in an animation is purple. The widget's own title is the card's heading. */
+:root{--anim:#1B2430;--anim-ink:#FFFFFF;--anim-soft:#C9D2DC}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--anim:#E6EBF1;--anim-ink:#121820;--anim-soft:#3B4756}}
+:root[data-theme="dark"]{--anim:#E6EBF1;--anim-ink:#121820;--anim-soft:#3B4756}
+.xcard--film .xcard__h{background:var(--anim);border-color:var(--anim);color:var(--anim-ink)}
+.xcard--film .xcard__h:hover{filter:brightness(1.12)}
+.xcard--film.is-open .xcard__h{background:var(--anim);color:var(--anim-ink)}
+.xcard--film .xcard__h:focus-visible{outline-color:var(--anim)}
+.xcard--film .xcard__a{border-color:var(--anim-ink)}
+.xcard--film .xcard__b{border-color:var(--anim)}
+.xcard__play{flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--anim-ink);color:var(--anim);font-size:11px;padding-left:2px}
+.xcard__kind{display:block;font-size:12.5px;font-weight:600;color:var(--anim-soft);margin-top:1px}
 .xcard--film .xcard__b > .widget > .widget__h,.xcard--film .xcard__b > .widget > .widget__ask,
 .xcard--film .lvw__bar + .widget > .widget__h,.xcard--film .lvw__bar + .widget > .widget__ask{display:none}
-.exam-part[class*="exam-part--"] .xcard--film .xcard__h:hover,.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{border-color:var(--k-cell);color:var(--ink)}
-.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{background:color-mix(in srgb,var(--k-cell) 14%,var(--card))}
-.exam-part[class*="exam-part--"] .xcard--film .xcard__b{border-color:var(--k-cell)}
+.exam-part[class*="exam-part--"] .xcard--film .xcard__h,.exam-part[class*="exam-part--"] .xcard--film .xcard__h:hover,.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{background:var(--anim);border-color:var(--anim);color:var(--anim-ink)}
+.exam-part[class*="exam-part--"] .xcard--film .xcard__b{border-color:var(--anim)}
+/* the player in the animation colour: Play, the step bar, the step on screen and its words' panel */
+.sp__bar{--sp:var(--anim)}
+.sp__play{color:var(--anim-ink)}
+.sp__step.is-on .sp__stepb{border-color:var(--anim);background:color-mix(in srgb,var(--anim) 7%,var(--card))}
+.sp__step.is-on .sp__num{background:var(--anim);color:var(--anim-ink)}
+.sp__now.sp__now--panel{border-left-color:var(--anim)}
+@keyframes sp-next{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--anim) 45%,transparent)}100%{box-shadow:0 0 0 11px transparent}}
 /* a widget, photo or table inside a card sits inside it: the list's bullet margin (-26px in app.css) does not apply here */
 .exam-list li.xcard .widget,.exam-list li.xcard .media,.exam-list li.xcard .photo,.exam-list li.xcard .ctable{margin-left:0;margin-right:0;max-width:100%}
 /* a closed tooltip takes no room: laid out while hidden, it made the panel scroll sideways when its word sat near the
@@ -799,3 +811,8 @@ p,li,dd,figcaption{text-wrap:pretty}
 .sp__only.sp__lv--bey{background:var(--c24);color:var(--card);font-style:italic}
 .sp__step--ib .sp__stepb,.sp__step--ibhl .sp__stepb{background:var(--c103)}
 .sp__step--bey .sp__stepb{background:var(--c106)}
+
+/* how a diagram draws a chromosome, in the "A line or a cross?" key: a plain line, or a cross of two copies joined at
+   one point, in the grey of a textbook drawing, larger than the other samples */
+.figkey__sw.sw--asline{width:7px;height:28px;border:none;border-radius:4px;background:var(--grey);margin:0 9px 0 8px}
+.figkey__sw.sw--ascross{width:24px;height:28px;border:none;border-radius:0;background:linear-gradient(55deg,transparent 42%,var(--grey) 42% 58%,transparent 58%),linear-gradient(-55deg,transparent 42%,var(--grey) 42% 58%,transparent 58%)}
