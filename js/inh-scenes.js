@@ -266,6 +266,16 @@
       spots: { top: [x0 + S, y0 - 32, S + 4, 20], side: [x0 - 32, y0 + S, 20, S + 4], box: [x0 + S, y0 + S, S + 2, S + 2] } };
   }
 
+  /* 1b · how a diagram draws a chromosome (under the "A line or a cross?" film): the same chromosome from the mother, its
+     gene band at the same place, drawn as the lab draws every chromosome (InhDraw.chromo): a single line (one copy, one
+     chromatid) and a cross (two identical copies joined at one point). HTML: each drawing beside its words */
+  function asDrawn() {
+    function svg(o) { return '<svg viewBox="-22 -46 44 92" aria-hidden="true">' + D.chromo(o) + '</svg>'; }
+    return { html: '<p class="figdiag__h">How a diagram draws a chromosome</p>' +
+      '<figure>' + svg({ x: 0, y: 0, len: 80, w: 11, who: 'mum', bands: [.72] }) + '<figcaption><b>A line:</b> one copy (one chromatid). A working cell, or a new cell after it divides.</figcaption></figure>' +
+      '<figure>' + svg({ x: 0, y: 0, len: 80, w: 11, who: 'mum', bands: [.72], copies: 2 }) + '<figcaption><b>A cross:</b> two identical copies (chromatids), joined at one point. Only while a cell divides.</figcaption></figure>' };
+  }
+
   /* 11 · a family over three generations: dry earwax (shaded), the recessive allele w; wet earwax, the dominant W.
      No couple in which both have wet earwax has a child with dry earwax: that is the frame of a private mock question
      (Daniel, 4 Nov 2026: "Redraw it"). Persons 2, 6 and 8 are ww; 3, 4, 5 and 7 must be Ww; person 1 may be WW or Ww. */
@@ -349,7 +359,7 @@
     gene: gene, linecross: linecross, pair9: function () { return pair9(); }, karyoM: function () { return karyo('m'); }, karyoF: function () { return karyo('f'); },
     protein: protein,
     exPancreas: function () { return express(['amylase']); }, exNerve: function () { return express(['receptor']); }, exGut: function () { return express(['carrier']); },
-    mitosis: mitosis, meiosis: meiosis, genotypes: genotypes, diagram: function () { return diagram(); }, punnett: punnett,
+    mitosis: mitosis, meiosis: meiosis, genotypes: genotypes, diagram: function () { return diagram(); }, punnett: punnett, asDrawn: asDrawn,
     diagram11: function () { return diagram({ pp: ['round', 'wrinkled'], pg: ['Rr', 'rr'], g: [['R', 'r'], ['r', 'r']], og: ['Rr', 'Rr', 'rr', 'rr'], op: ['round', 'round', 'wrinkled', 'wrinkled'], ratio: '1 round : 1 wrinkled' }); },
     testRR: function () { return diagram({ pp: ['round', 'wrinkled'], pg: ['RR', 'rr'], g: [['R', 'R'], ['r', 'r']], og: ['Rr', 'Rr', 'Rr', 'Rr'], op: ['round', 'round', 'round', 'round'], ratio: 'all round' }); },
     testRr: function () { return diagram({ pp: ['round', 'wrinkled'], pg: ['Rr', 'rr'], g: [['R', 'r'], ['r', 'r']], og: ['Rr', 'Rr', 'rr', 'rr'], op: ['round', 'round', 'wrinkled', 'wrinkled'], ratio: '1 round : 1 wrinkled' }); },

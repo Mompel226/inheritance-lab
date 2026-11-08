@@ -812,7 +812,11 @@ p,li,dd,figcaption{text-wrap:pretty}
 .sp__step--ib .sp__stepb,.sp__step--ibhl .sp__stepb{background:var(--c103)}
 .sp__step--bey .sp__stepb{background:var(--c106)}
 
-/* how a diagram draws a chromosome, in the "A line or a cross?" key: a plain line, or a cross of two copies joined at
-   one point, in the grey of a textbook drawing, larger than the other samples */
-.figkey__sw.sw--asline{width:7px;height:28px;border:none;border-radius:4px;background:var(--grey);margin:0 9px 0 8px}
-.figkey__sw.sw--ascross{width:24px;height:28px;border:none;border-radius:0;background:linear-gradient(55deg,transparent 42%,var(--grey) 42% 58%,transparent 58%),linear-gradient(-55deg,transparent 42%,var(--grey) 42% 58%,transparent 58%)}
+/* how a diagram draws a chromosome, under the "A line or a cross?" film: two drawings side by side, each with its words
+   (figure.js `diagram`, inh-scenes.js asDrawn) */
+.figdiag{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin:10px 4px 2px}
+.figdiag[hidden]{display:none}
+.figdiag__h{grid-column:1/-1;margin:0;font-size:13px;font-weight:700;color:var(--ink)}
+.figdiag figure{margin:0;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--edge);border-radius:var(--r);padding:8px 10px}
+.figdiag svg{flex:none;width:44px;height:auto;overflow:visible}
+.figdiag figcaption{font-size:13px;line-height:1.35;color:var(--ink)}

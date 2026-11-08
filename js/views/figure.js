@@ -61,7 +61,9 @@
     var stage = h('div', 'cellv__stage');
     /* a drawing's key, in HTML under it (never words inside the scaled drawing): `key: [[swatch class, words], …]` */
     var keyEl = h('ul', 'figkey'); keyEl.hidden = true;
-    root.appendChild(bar); root.appendChild(stage); root.appendChild(keyEl); root.appendChild(note);
+    /* a mode may show a small diagram under its picture (spec `diagram`: a LabScenes name giving { html }) */
+    var diagEl = h('div', 'figdiag'); diagEl.hidden = true;
+    root.appendChild(bar); root.appendChild(stage); root.appendChild(diagEl); root.appendChild(keyEl); root.appendChild(note);
     var uid = 'cv' + Math.random().toString(36).slice(2, 7);
 
     /* a mode that names a drawn scene (js/inh-scenes.js) takes its size, its picture and its points from it */
@@ -366,6 +368,8 @@
       var ky = modes[k].spec.key || spec.key || null;
       /* an empty key: everything in the picture was keyed in an earlier station (tools/build.mjs, KEYS) */
       if (ky && !ky.length) ky = null;
+      var dg = modes[k].spec.diagram && global.LabScenes ? global.LabScenes.get(modes[k].spec.diagram) : null;
+      diagEl.hidden = !(dg && dg.html); diagEl.innerHTML = dg && dg.html ? dg.html : '';
       keyEl.hidden = !ky;
       keyEl.innerHTML = ky ? ky.map(function (q) { return '<li><i class="figkey__sw ' + q[0] + '" aria-hidden="true"></i>' + q[1] + '</li>'; }).join('') : '';
       note.hidden = !why; note.textContent = why || '';
