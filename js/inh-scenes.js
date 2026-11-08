@@ -40,7 +40,8 @@
   /* 1 · the nucleus, part of one chromosome, part of its DNA: three levels, one above another (5 Nov 2026, the final
      audit: drawn as the animation draws them). In the working cell each chromosome is a long thin thread in its own part of
      the nucleus (InhDraw.territory): two pairs coloured, others grey. The box is on the middle of one of the mother's
-     threads; the panel below shows only part of that thread, so it runs off both edges; the DNA below is all one gene,
+     threads; the panel below shows only part of that thread, so it runs off both edges, its gene a yellow length round the
+     box (8 Nov 2026); the DNA below is all one gene,
      which runs off both edges too (a gene is thousands of base pairs long), its bases paired A with T and C with G. */
   function gene() {
     var nu = { cx: 176, cy: 80, rx: 50, ry: 40 };
@@ -57,7 +58,12 @@
     out += '<path class="zm__line" d="M' + bx[0] + ' ' + n1(mid[1] + 5) + ' L14 186 M' + n1(mid[0] + 7) + ' ' + n1(mid[1] + 5) + ' L286 186"/>';
     out += '<rect class="zm__pane" x="14" y="186" width="272" height="72" rx="10"/>';
     /* part of one chromosome: cut square at the panel's edges */
-    out += thread([[14, 214], [54, 232], [96, 204], [138, 236], [180, 206], [222, 236], [262, 208], [286, 222]], 'mum', 9).replace('/>', ' style="stroke-linecap:butt"/>');
+    var TP = [[14, 214], [54, 232], [96, 204], [138, 236], [180, 206], [222, 236], [262, 208], [286, 222]];
+    out += thread(TP, 'mum', 9).replace('/>', ' style="stroke-linecap:butt"/>');
+    /* the gene, a yellow length of the thread round the box, as the DNA below is all yellow (Daniel, 8 Nov 2026: "in the
+       part of one chromosome, you are not highlighting in yellow … it doesn't need to be the whole thread. It can be just
+       a part, and then … part of a gene, makes sense"): the same path, shown from about x 100 to 208 of its 14–286 */
+    out += thread(TP, 'mum', 9).replace('class="thr thr--mum"', 'class="pt__gband" pathLength="1000"').replace('/>', ' style="stroke-linecap:butt" stroke-dasharray="0 316 397 1000"/>');
     out += '<rect class="zm__box" x="132" y="200" width="44" height="40" rx="3"/>';
     out += '<path class="zm__line" d="M132 240 L10 300 M176 240 L290 300"/>';
     out += '<rect class="zm__pane" x="10" y="300" width="280" height="96" rx="10"/>';
