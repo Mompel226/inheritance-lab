@@ -735,23 +735,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .exg__rec{fill:none;stroke:var(--aa2);stroke-width:4.5;stroke-linecap:round}
 .exg__cris{fill:none;stroke:var(--mito-edge);stroke-width:1.2}
 /* ---------- end of the labels block ---------- */
-/* how to say a hard word (js/terms.js Say): its spelling guide and two small buttons beside the word, on a key-word card
-   and in the glossary; the recording's credit shows under it while it is the last one played */
-.say{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:5px 0 0;font-weight:400;font-size:12.5px;line-height:1.3}
-.say__g{color:var(--grey);letter-spacing:.01em}
-.say__b{font:inherit;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:3px;padding:2px 8px 2px 6px;border-radius:var(--r-pill);border:1px solid var(--edge);background:var(--card);color:var(--ink);cursor:pointer}
-.say__b svg{width:13px;height:13px;flex:none}
-.say__a{font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--grey);margin-left:2px}
-.say__b:hover,.say__b:focus-visible{border-color:var(--accent);color:var(--accent)}
-.say__b:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.say__b.is-playing{background:var(--accent-tint);border-color:var(--accent);color:var(--accent)}
-.say__c{flex-basis:100%;font-size:11.5px;color:var(--grey)}
-.say__c[hidden]{display:none}
-.say__c a{color:inherit}
-/* Cambridge's recordings play from Cambridge: their name beside the UK and US buttons, a link to the word's page (js/terms.js) */
-.say__bs{display:inline-flex;gap:6px;white-space:nowrap}
-.say__src{flex-basis:100%;font-size:11px;color:var(--grey);text-decoration:underline;text-decoration-color:var(--edge);text-underline-offset:2px;white-space:nowrap}
-.say__src:hover,.say__src:focus-visible{color:var(--accent);text-decoration-color:currentColor}
+/* how to say a hard word: its look is in labs-shared/say/say.js (js/say.js) since 8 Nov 2026 */
 
 /* a step's words in parts, each marked with its level (Daniel, 8 Nov 2026: "exactly what is IGCSE and what is IB and what
    is beyond … It needs to be very, very clear"): IGCSE in the lab's green, IB in the IB blue, beyond both in grey italics,

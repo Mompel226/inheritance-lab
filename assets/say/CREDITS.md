@@ -3,10 +3,12 @@
 **Cambridge Dictionary (since 8 Nov 2026).** The 🔊 UK and 🔊 US buttons play the Cambridge Dictionary's own recordings,
 straight from dictionary.cambridge.org: none of them is stored in this repository. Each word shows "Audio: Cambridge
 Dictionary ↗", a link to its page there. The recordings are © Cambridge University Press & Assessment and are not
-covered by this lab's licences. 30 words have them (allele, asexual, characteristic, chiasma, chromatid, chromosome,
-cytoplasm, diploid, dominant, fertilisation, gamete, gene, genome, genotype, haploid, heterozygous, homologous,
-homozygous, inheritance, meiosis, mitosis, mRNA, nucleotide, nucleus, pedigree, phenotype, phenotypic, recessive,
-ribosome, zygote). If one will not play, the word's Commons recording below plays instead, where it has one.
+covered by this lab's licences. The words that have them are listed in `js/say.js` (`CAM`: each word's UK and US
+recording and its page, read from that page in a browser on 8 Nov 2026). If one will not play, the word's Commons
+recording below plays instead, where it has one; otherwise the button says so and links the word's Cambridge page.
+
+This folder and `js/say.js` are the same in every engine lab: they are copied in from `labs-shared/say/` by the lab's
+build (`tools/build.mjs`), so a change is made there, never here.
 
 **Wikimedia Commons.** The files below are kept for the word Cambridge has no page for (centromere) and as the
 backup.
