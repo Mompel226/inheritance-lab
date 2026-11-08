@@ -69,7 +69,7 @@
   /* a copy on its own uncoiling into its thread (InhDraw.uncoil): no centromere dot at the IGCSE level */
   function unc(T, ph, u, V, s) { return D.uncoil(T, ph, u, (s || SZ).wd, V, { band: T.band, cen: false }); }
   /* each step's real motion, in model seconds (written by tools/flow-still.mjs --write; checked by it) */
-  var MOTION = {"A line or a cross?":[0,7.05,8.65,7.45,6.05,11.65],"Mitosis, step by step":[0,6.45,8.65,6.65,6.05,7.45,6.05],"Meiosis, step by step":[0,6.45,9.65,7.45,8.65,8.85,7.45,16.65]};
+  var MOTION = {"A line or a cross?":[0,7.05,8.65,7.45,6.05,11.65],"Mitosis, step by step":[0,6.45,8.65,6.65,6.05,7.45,6.05],"Meiosis, step by step":[0,6.45,9.65,7.45,8.65,8.85,7.45,16.25]};
   /* ============================================================ a step widget ============================================================ */
   function widget(spec, cls, title, aria, STEPS, M, W, H, render, labelsAt, pills, notes, pillNames) {
     var S = K.shell(spec, cls, title, aria, pillNames || [['n', 'Chromosomes:'], ['hu', 'In a human:']]);
@@ -89,7 +89,7 @@
       /* the threads lie still: they wriggled under their names (the audit, 6 Nov 2026; standard 13) */
       var t = clock(tt), ph = 3;
       model.innerHTML = '<g clip-path="url(#' + uid + ')">' + render(t, ph) + '</g>';
-      var items = labelsAt(t, ph).map(function (q) { var p = lay.to(q.x, q.y); return { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side }; });
+      var items = labelsAt(t, ph).map(function (q) { var p = lay.to(q.x, q.y); return { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side, alts: (q.alts || []).map(function (a) { return lay.to(a[0], a[1]); }) }; });
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
       var pl = pills(t); S.pill('n', pl[0], 'ok'); S.pill('hu', pl[1], 'ok');
     }
@@ -291,7 +291,7 @@
       /* D3.1.14 (HL) */
       ['ibhl', 'In a testis all four become **sperm cells**; in an ovary only one becomes an **egg cell**.']] },
     { h: 'Fertilisation', p: [
-      ['ig', 'One of these cells, now a **sperm cell**, fuses with an **egg cell** from another person (the egg cell’s chromosomes are drawn grey). The two nuclei fuse: this is **fertilisation**. In the **zygote**, the chromosomes from the sperm cell came from its father (blue) and those from the egg cell from its mother (orange): each pair has one from each parent. The zygote has 4 chromosomes again, 2 pairs: **diploid**.'],
+      ['ig', 'One of these cells becomes a **sperm cell**, and an **egg cell** comes from another person. From here the colours show the parents of the new organism: **blue**, the chromosomes from its **father** (in the sperm cell); **orange**, those from its **mother** (in the egg cell). The two nuclei fuse: this is **fertilisation**. The **zygote** has 4 chromosomes again, 2 pairs, each pair one from each parent: **diploid**.'],
       /* D3.1.6 */
       ['ib', 'In humans, the nucleus of the sperm cell becomes larger inside the egg cell; then the membranes of the two nuclei break down, and their chromosomes join in the first mitosis of the zygote.']] }
   ];
@@ -369,10 +369,16 @@
      turned grey, then blue, while they moved): the sperm's chromosomes stay drawn in its head (small, never gone); its
      nucleus enlarges over 2.4 s; the two nuclei fuse, every chromosome keeping its colour; then, with nothing moving, the
      colours change together, slowly (rc), to the zygote's own parents' */
-  var FT = { fd: [57.4, 58.6], sp: [57.8, 60.6], eg: [58.2, 60.6], rest: [60.6, 64.2], sw: [64.2, 65.8], inn: [65.8, 67], swell: [66.8, 69.2], fu: [69.2, 71.4], rc: [71.8, 73.6] };
+  /* the colours (Daniel, 8 Nov 2026: "it's very confusing … one of those chromosomes might be from mom and might be from dad,
+     but the mom and dad of the organism that made that gamete … can you improve the coloring there … and also you show
+     maybe a key with the colors"): until the gamete becomes a sperm cell, orange and blue are this person's own mother's
+     and father's chromosomes (one of each pair); while the chosen gamete is still (rc), its two turn blue: from now on blue
+     is the new organism's father, and the egg cell's chromosomes come in orange, its mother. Nothing changes colour later.
+     In the zygote each parent's two chromosomes are outlined together and named together (grp) */
+  var FT = { fd: [57.4, 58.6], rc: [57.6, 58.4], sp: [58.6, 61.4], eg: [59.0, 61.4], rest: [61.4, 65.0], sw: [65.0, 66.6], inn: [66.6, 67.8], swell: [67.6, 70.0], fu: [70.0, 72.2], grp: [72.4, 73.2] };
   function fert(t, ph, g) {
     function k(n) { return ease(seg(t, FT[n][0], FT[n][1])); }
-    var out = '', fd = 1 - seg(t, FT.fd[0], FT.fd[1]), sp = k('sp'), eg = k('eg'), sw = k('sw'), inn = k('inn'), swell = k('swell'), fu = k('fu'), rc = k('rc');
+    var out = '', fd = 1 - seg(t, FT.fd[0], FT.fd[1]), sp = k('sp'), eg = k('eg'), sw = k('sw'), inn = k('inn'), swell = k('swell'), fu = k('fu'), rc = k('rc'), grp = k('grp');
     /* the other three gametes go */
     if (fd > .02) {
       var rest3 = '';
@@ -389,7 +395,7 @@
     /* the sperm cell: the gamete shrinks into a small head with a tail, rests, swims to the egg, and enters it */
     var hx = lerp(lerp(92, 70, sp), 116, sw), hy = lerp(lerp(134, 200, sp), 250, sw);
     hx = lerp(hx, PN.cx, inn); hy = lerp(hy, PN.cy, inn);
-    var hrx = lerp(66, 9, sp), hry = lerp(100, 13, sp), head = 1 - seg(t, 66.6, 67.4), tail = sp * (1 - seg(t, 65.8, 66.8));
+    var hrx = lerp(66, 9, sp), hry = lerp(100, 13, sp), head = 1 - seg(t, 67.4, 68.2), tail = sp * (1 - seg(t, 66.6, 67.6));
     if (tail > .02) {
       var Pt = [], L = 64 * sp;
       for (var i = 0; i <= 14; i++) { var f = i / 14, d = hry + L * f; Pt.push([hx - d * .62 + 4 * Math.sin(f * 9 + t * 3) * .7, hy - d * .78 + 4 * Math.sin(f * 9 + t * 3) * .55]); }
@@ -401,18 +407,34 @@
     var sn = nuc(lerp(hx, ZN.cx, fu), lerp(hy, ZN.cy, fu), lerp(lerp(lerp(50, 6, sp), PN.rx, swell), ZN.rx, fu), lerp(lerp(lerp(72, 9, sp), PN.ry, swell), ZN.ry, fu));
     var en = nuc(lerp(ex + EN.cx - EGG[0], ZN.cx, fu), lerp(EN.cy, ZN.cy, fu), lerp(EN.rx, ZN.rx, fu), lerp(EN.ry, ZN.ry, fu));
     out += D.envelope(en.cx, en.cy, en.rx, en.ry, 12) + (fu < .98 ? D.envelope(sn.cx, sn.cy, sn.rx, sn.ry, 12) : '');
-    /* the chromosomes: the sperm's (orange A, blue B: which of the man's parents each came from), small in its head and
-       larger as its nucleus enlarges; the egg's grey; in the zygote, once still, the sperm's blue and the egg's orange */
-    var Z = terr(FOUR, ZN), gs = terr(TWO('mum', 'dad'), sn), ge = terr(TWO('other', 'other'), en);
-    var so = 1;
-    var to = [[gs[0], Z[0], so, 'dad'], [gs[1], Z[3], so, 'dad'], [ge[0], Z[1], 1, 'mum'], [ge[1], Z[2], 1, 'mum']];
+    /* the chromosomes: the sperm's, first in the man's own parents' colours (orange A from his mother, blue B from his
+       father), blue from rc on (the new organism's father), small in its head and larger as its nucleus enlarges; the
+       egg's orange (its mother) */
+    var Z = terr(FOUR, ZN), gs = terr(TWO('dad', 'dad'), sn), was = terr(TWO('mum', 'dad'), sn), ge = terr(TWO('mum', 'mum'), en);
+    var to = [[gs[0], Z[0]], [gs[1], Z[3]], [ge[0], Z[1]], [ge[1], Z[2]]];
     g.Z = [];
-    to.forEach(function (q) {
-      var T = tmix(q[0], q[1], fu); T.who = q[0].who;
-      var U = Object.assign({}, T, { who: q[3] });
-      if (q[2] * (1 - rc) > .02) out += '<g opacity="' + n1(q[2] * (1 - rc) * 100) / 100 + '">' + chrom(T, ph, -1) + '</g>';
-      if (rc > .02) out += rc < .999 ? '<g opacity="' + n1(rc * 100) / 100 + '">' + chrom(U, ph, -1) + '</g>' : chrom(U, ph, -1);
+    to.forEach(function (q, i) {
+      var T = tmix(q[0], q[1], fu);
+      if (i < 2 && rc < .999) {
+        out += '<g opacity="' + n1((1 - rc) * 100) / 100 + '">' + chrom(Object.assign({}, T, { who: was[i].who }), ph, -1) + '</g>';
+        if (rc > .02) out += '<g opacity="' + n1(rc * 100) / 100 + '">' + chrom(T, ph, -1) + '</g>';
+      } else out += chrom(T, ph, -1);
       g.Z.push(T);
+    });
+    /* in the zygote, once still, each parent's two chromosomes in one dashed outline, in that parent's colour */
+    g.box = {};
+    [['dad', [g.Z[0], g.Z[1]]], ['mum', [g.Z[2], g.Z[3]]]].forEach(function (q) {
+      var P = []; q[1].forEach(function (T) { P = P.concat(thr(T, ph)); });
+      var x0 = Math.min.apply(null, P.map(function (p) { return p[0]; })) - 6, x1 = Math.max.apply(null, P.map(function (p) { return p[0]; })) + 6;
+      var y0 = Math.min.apply(null, P.map(function (p) { return p[1]; })) - 5, y1 = Math.max.apply(null, P.map(function (p) { return p[1]; })) + 5;
+      g.box[q[0]] = { x0: x0, x1: x1, y0: y0, y1: y1 };
+    });
+    /* the father's two above, the mother's two below: the outlines meet at most at a 4-unit gap between them */
+    var bd = g.box.dad, bm = g.box.mum;
+    if (bd.y1 > bm.y0 - 4) { var mid = (bd.y1 + bm.y0) / 2; bd.y1 = mid - 2; bm.y0 = mid + 2; }
+    [['dad', bd], ['mum', bm]].forEach(function (q) {
+      var x0 = q[1].x0, x1 = q[1].x1, y0 = q[1].y0, y1 = q[1].y1;
+      if (grp > .02) out += '<rect class="dv__grp dv__grp--' + q[0] + '" x="' + n1(x0) + '" y="' + n1(y0) + '" width="' + n1(x1 - x0) + '" height="' + n1(y1 - y0) + '" rx="8"' + (grp < .999 ? ' opacity="' + n1(grp * 100) / 100 + '"' : '') + '/>';
     });
     return out;
   }
@@ -437,22 +459,27 @@
       return [{ id: 'g0', text: 'a haploid cell', x: 26, y: 134, side: 'L' }, { id: 'g1', text: 'a cell: one of each pair', x: 294, y: 134, side: 'R' }, { id: 'g2', text: 'a cell of the other kind', x: 294, y: 366, side: 'R' }]; }
     /* the sperm cell and the egg cell, named while they rest; the zygote at the end */
     if (t >= FT.rest[0] && t < FT.rest[1]) return [{ id: 's', text: 'a sperm cell', x: g.head[0], y: g.head[1], side: 'L' }, { id: 'e', text: 'an egg cell, from another person', x: g.egg[0], y: g.egg[1], side: 'R' }];
-    if (!rest(t, FT.rc[1])) return [];
-    /* both parents' names on the left, each on its nearest chromosome (the zygote's name, three lines, fills the right) */
-    var mum = g.Z[2].c[0] < g.Z[3].c[0] ? g.Z[2] : g.Z[3];   /* g.Z: the sperm cell's two, then the egg cell's two */
-    var dad = g.Z[0], a = leftOf(thr(dad, ph).filter(function (p) { return p[1] < dad.c[1]; })), b = leftOf(thr(mum, ph).filter(function (p) { return p[1] > mum.c[1]; }));   /* the upper half of one, the lower half of the other: the two names stand apart */
-    return [{ id: 'z', text: 'the zygote: 4\u00a0chromosomes, 2\u00a0pairs', x: EGG[0] + EGG[2], y: EGG[1], side: 'R' }, { id: 'o', text: 'from its father', x: a[0], y: a[1], side: 'L' },
-            { id: 'f', text: 'from its mother', x: b[0], y: b[1], side: 'L' }];
+    if (!rest(t, FT.grp[1])) return [];
+    /* each parent's two chromosomes named together, on their outline's left side (Daniel, 8 Nov 2026: "you're only labeling
+       one chromosome"); the zygote's name, three lines, fills the right */
+    var bd = g.box.dad, bm = g.box.mum;
+    return [{ id: 'z', text: 'the zygote: 4\u00a0chromosomes, 2\u00a0pairs', x: EGG[0] + EGG[2], y: EGG[1], side: 'R' },
+            { id: 'o', text: '2 from its father: one of each pair', x: bd.x0, y: (bd.y0 + bd.y1) / 2, side: 'L', alts: [[bd.x0, bd.y0 + 8], [bd.x0, bd.y0 + (bd.y1 - bd.y0) * .3]] },
+            { id: 'f', text: '2 from its mother: one of each pair', x: bm.x0, y: (bm.y0 + bm.y1) / 2, side: 'L', alts: [[bm.x0, bm.y1 - 8], [bm.x0, bm.y0 + (bm.y1 - bm.y0) * .7]] }];
   }
   function meiPills(t) {
-    return byTime([0, 9.4, 20.6, 33.9, 38, 46.3, 53, 67.8],
+    return byTime([0, 9.4, 20.6, 33.9, 38, 46.3, 53, 68.6],
       ['4, 2 pairs (diploid)', '4, each two copies', '4, as 2 pairs side by side', '2 moving to each end', '2 in each of 2 cells (haploid)', '2 in each of 4 cells', '2 in each gamete (haploid)', 'the zygote: 4, 2 pairs (diploid)'],
       ['46: 23 pairs', '46, each two copies', '23 pairs side by side', '23 moving to each end', '23 in each cell', '23 in each cell', '23 in each gamete', '23 + 23 = 46'], t);
   }
   function meiosis(spec) {
     return widget(spec, 'dv', 'Meiosis, step by step', 'A cell with two pairs of chromosomes divides twice to give four haploid cells with one chromosome of each pair; then a sperm cell and an egg cell fuse.',
       ME_STEPS, ME_M, ME.W, ME.H, meiRender, meiLabels, meiPills, [
-        { key: [['other', 'the egg cell’s chromosomes', [7]]] }
+        /* the colours' meaning, step by step (Daniel, 8 Nov 2026: "you show maybe a key with the colors, so everything
+           makes more sense"): this person's own parents while the cell divides; the new organism's parents from the sperm
+           cell and the egg cell on */
+        { key: [['mum', 'from this person’s mother', [0, 1, 2, 3, 4, 5, 6]], ['dad', 'from this person’s father', [0, 1, 2, 3, 4, 5, 6]],
+                ['dad', 'in the sperm cell: from the father', [7]], ['mum', 'in the egg cell: from the mother', [7]]] }
       ]);
   }
   L.add('meiosis', function (spec) { return levels(spec, meiosis, global.InhDivideIB.meiosis, 'Meiosis'); });

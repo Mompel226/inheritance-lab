@@ -119,7 +119,7 @@
   var DUR = [5, TZ + 4, TZ + 6, TZ + 9.6, TZ + 15.8, TZ + 12.8, TZ + 6.8, TZ + 8.8, TZ + 8.2, 4.5, 6.5, 8.4, 18, 13];
   var M = [0]; DUR.forEach(function (d, i) { M.push(M[i] + d); });
   /* each step's real motion, in model seconds (written by tools/flow-still.mjs --write; checked by it) */
-  var MOTION = {"How a protein is made":[0,5.05,4.6,12.85,19,15.3,9.4,12,11.05,2.2,5.65,7.85,18,11.25]};
+  var MOTION = {"How a protein is made":[0,5.05,4.6,12.85,19,15.3,9.45,12,11.05,2.2,5.65,7.85,18,11.25]};
   var SEE = ['a body cell', 'its nucleus', 'one gene', 'the start of the gene', 'the gene being copied', 'the whole gene', 'the nucleus', 'a pore',
              'the start of the mRNA', 'inside a ribosome', 'a ribosome on the mRNA', 'a ribosome on the mRNA', 'the chain growing', 'the protein'];
   var WHERE = ['the whole cell', 'in the nucleus', 'in the nucleus', 'in the nucleus', 'in the nucleus', 'in the nucleus', 'from the nucleus to the cytoplasm',

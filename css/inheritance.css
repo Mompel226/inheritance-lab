@@ -804,3 +804,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .figdiag figure{margin:0;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--edge);border-radius:var(--r);padding:8px 10px}
 .figdiag svg{flex:none;width:44px;height:auto;overflow:visible}
 .figdiag figcaption{font-size:13px;line-height:1.35;color:var(--ink)}
+
+/* fertilisation, in the zygote: each parent's two chromosomes in one dashed outline, in that parent's colour (w-divide.js fert) */
+.dv__grp{fill:none;stroke-width:1.6;stroke-dasharray:5 3}
+.dv__grp--dad{stroke:var(--dad)} .dv__grp--mum{stroke:var(--mum)}
