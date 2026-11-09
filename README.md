@@ -34,7 +34,7 @@ in its order and in its words. Then the questions say right or wrong, never the 
 | ✖️ **A line or a cross?** | a chromosome is a single line in a working cell, a cross only while the cell divides, then two single rods again |
 | 🎬 **Step by step** | from a cell to a gene (the DNA copied, coiled into a cross, wound round histones, down to the double helix, each at its real size); how a protein is made, from a gene thousands of base pairs long to the folded protein (the mRNA leaving through a pore, the ribosome's two parts, the small RNAs that bring the amino acids); mitosis and meiosis, each with an IGCSE level and a detailed IB level (every phase, the spindle, centrosomes, crossing over), all drawn the same way; "A line or a cross?", the mother's and the father's chromosome from a thin line to a cross and back. Each animation, and each worked cross, opens in a card of its own; every line of a step says whether it is IGCSE, IB or beyond both, and each step waits for "Next step". The mitosis, meiosis and "What mitosis is for" pictures play as short films |
 | 📷 **Real pictures** | a dividing cell under a fluorescence microscope, an embryo of 8 cells, a blood group test, a colour-vision chart |
-| 📖 **A shared glossary** | one wording per term, the same in every lab |
+| 📖 **A shared glossary** | one wording per term, the same in every lab; press 한국어, 中文 or 日本語 to see each word's name in Korean, Chinese or Japanese (the definitions stay in English) |
 
 > [!NOTE]
 > **The right answers are stored only as scrambled fingerprints.** The lab can tell a student they are wrong, but its
