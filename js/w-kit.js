@@ -85,6 +85,30 @@
     if (!fresh.length) return .35;
     return .5 + .3 * (fresh.length - 1) + fresh.reduce(function (a, x) { return a + x.split(' ').length; }, 0) / 4;
   }
+  /* Reduce motion (Daniel, 9 Nov 2026: "Nothing should disappear"): a step may give its still's moment in the model's
+     time (`still` on the step), a moment at which its parts are all drawn; the stepper wants it on the reader's clock.
+     Steps without one show their still where they stop. */
+  function stillsOf(steps, TL) {
+    return function (i) {
+      var m = steps[i] && steps[i].still; if (m == null) return null;
+      var a = TL.R[i], b = TL.R[i + 1] - .02;
+      for (var k = 0; k < 40; k++) { var c = (a + b) / 2; if (TL.clock(c) < m) a = c; else b = c; }
+      return b;
+    };
+  }
+  /* the names drawn at the reader's time t, ready for the labeller: lay().to puts each on the screen; the first name of
+     each id only, unless `all` */
+  function itemsOf(lay, labelsAt, all) {
+    return function (t) {
+      var seen = {};
+      return labelsAt(t).filter(function (q) { if (all) return true; if (seen[q.id]) return false; seen[q.id] = 1; return true; }).map(function (q) {
+        var p = lay().to(q.x, q.y), o = { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side, pri: q.pri };
+        if (q.alts) o.alts = q.alts.map(function (a) { return lay().to(a[0], a[1]); });
+        if (q.was) o.was = q.was;
+        return o;
+      });
+    };
+  }
   function readerSteps(steps, R) { return steps.map(function (s, i) { var o = {}; for (var k in s) o[k] = s[k]; o.t = R[i]; return o; }); }
 
   /* px: the size the names are drawn at on screen (13 by default; this lab's animations ask for 14.5) */
@@ -256,6 +280,6 @@
 
 
   global.WKit = { pinKey: pinKey, names: names, margins: margins, n1: n1, seg: seg, ease: ease, clamp01: clamp01, lerp: lerp, len: len, rng: rng, fitType: fitType,
-                  timeline: timeline, readerSteps: readerSteps, namesWait: namesWait, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
+                  timeline: timeline, readerSteps: readerSteps, stillsOf: stillsOf, itemsOf: itemsOf, namesWait: namesWait, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
                   mount: mount, NS: NS };
 })(window);

@@ -85,11 +85,14 @@
        step: its motion, then the reading of the names new at its end (WKit.timeline) */
     var TL = K.timeline(M, 1.25, MOTION, title, function (m) { return labelsAt(m, 3).map(function (q) { return q.text; }); }),
         R = TL.R, clock = TL.clock;
-    function draw(tt) {
+    var itemsAt = K.itemsOf(function () { return lay; }, function (tt) { return labelsAt(clock(tt), 3); }, true), memo = {};
+    function draw(tt, still) {
       /* the threads lie still: they wriggled under their names (the audit, 6 Nov 2026; standard 13) */
       var t = clock(tt), ph = 3;
       model.innerHTML = '<g clip-path="url(#' + uid + ')">' + render(t, ph) + '</g>';
-      var items = labelsAt(t, ph).map(function (q) { var p = lay.to(q.x, q.y); return { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side, alts: (q.alts || []).map(function (a) { return lay.to(a[0], a[1]); }) }; });
+      var items = itemsAt(tt);
+      /* Reduce motion: the step's still also names what came and went during the step (CircLearn.stillItems) */
+      items = L.stillItems(still, itemsAt, items, tt, memo, narrow + '|' + lay.f);
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
       var pl = pills(t); S.pill('n', pl[0], 'ok'); S.pill('hu', pl[1], 'ok');
     }
@@ -463,8 +466,9 @@
     /* each parent's two chromosomes named together, on their outline's left side (Daniel, 8 Nov 2026: "you're only labeling
        one chromosome"); the zygote's name, three lines, fills the right */
     var bd = g.box.dad, bm = g.box.mum;
-    return [{ id: 'z', text: 'the zygote: 4\u00a0chromosomes, 2\u00a0pairs', x: EGG[0] + EGG[2], y: EGG[1], side: 'R' },
-            { id: 'o', text: '2 from its father: one of each pair', x: bd.x0, y: (bd.y0 + bd.y1) / 2, side: 'L', alts: [[bd.x0, bd.y0 + 8], [bd.x0, bd.y0 + (bd.y1 - bd.y0) * .3]] },
+    /* `was` (a still with Reduce motion): the zygote was the egg cell, the father's two came in the sperm cell */
+    return [{ id: 'z', was: 'e', text: 'the zygote: 4\u00a0chromosomes, 2\u00a0pairs', x: EGG[0] + EGG[2], y: EGG[1], side: 'R' },
+            { id: 'o', was: 's', text: '2 from its father: one of each pair', x: bd.x0, y: (bd.y0 + bd.y1) / 2, side: 'L', alts: [[bd.x0, bd.y0 + 8], [bd.x0, bd.y0 + (bd.y1 - bd.y0) * .3]] },
             { id: 'f', text: '2 from its mother: one of each pair', x: bm.x0, y: (bm.y0 + bm.y1) / 2, side: 'L', alts: [[bm.x0, bm.y1 - 8], [bm.x0, bm.y0 + (bm.y1 - bm.y0) * .7]] }];
   }
   function meiPills(t) {

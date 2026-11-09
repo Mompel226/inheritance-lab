@@ -5,10 +5,16 @@
                             pattern: each step PLAYS, then HOLDS on its last frame until the reader
                             presses "Next step" (a continuous run was faster than an EAL reader can
                             read — Daniel, Sept 2026); "Play all" runs straight through for revision;
-                            with reduced motion each press shows the next step's last frame, no timer.
+                            with Reduce motion nothing moves and nothing is lost (Daniel, 9 Nov 2026: "Nothing
+                            should disappear"): each press shows that step's ONE still, holding every part and name
+                            the step shows while it moves, and Play all shows the stills in turn, each for its band.
        opts.steps   [{ t, h, p, tag? }]   start time (s), heading, one short paragraph
        opts.end     the last moment (s)
-       opts.render  render(t) — must be a pure function of t, so any moment can be drawn on demand
+       opts.render  render(t) — must be a pure function of t, so any moment can be drawn on demand; with Reduce
+                    motion render(t, { step, from, to }): the still of that step, which a widget may give the names that
+                    came and went between from and to
+       opts.stills  optional, with Reduce motion: each step's still time (an array, or a function of the step), a
+                    moment at which every part and name of the step shows; else where the step stops
        opts.rate    optional: a function returning how fast time runs (1 normal, 2 twice as fast)
        opts.flow    optional: flow(t) → the time Play all goes on from (a step's reading hold is skipped, so Play all
                     runs straight through: Daniel, 4 Nov 2026, "the whole animation should flow … I can always press
@@ -91,13 +97,16 @@
       (used.bey ? '<span class="sp__lv sp__lv--bey"><b class="sp__lvt">Beyond</b> in neither syllabus</span>' : '')) : null;
 
     var T = 0, playing = false, raf = null, last = null, started = false, stopAt = null;
+    /* Reduce motion: the step whose still is drawn (-1: none, the time T itself), and Play all's timer */
+    var stillK = -1, slideT = null, allMode = false;
+    function stillT(i) { var s = opts.stills, v = typeof s === 'function' ? s(i) : s ? s[i] : null; return v == null ? segEnd(i) : v; }
     function stepAt(t) { var k = 0; for (var i = 0; i < STEPS.length; i++) if (t >= STEPS[i].t - 1e-6) k = i; return k; }
     function segEnd(i) { return opts.flow && opts.flow.endOf ? Math.min(i + 1 < STEPS.length ? STEPS[i + 1].t - .02 : END, opts.flow.endOf(i)) : i + 1 < STEPS.length ? STEPS[i + 1].t - .02 : END; }
     function atStepEnd() { return started && !playing && stopAt != null && T >= stopAt - 1e-3; }
     /* the animation is over once the last step's motion has run (a single step stops there; Play all reads its names) */
     function over(t) { return t >= segEnd(STEPS.length - 1) - 1e-3; }
     function paint(t) {
-      render(t);
+      if (stillK > -1) render(stillT(stillK), { step: stillK, from: STEPS[stillK].t, to: segEnd(stillK), prev: stillK ? stillT(stillK - 1) : null }); else render(t);
       var k = stepAt(t), done = over(t);
       /* whoever shows what belongs to a step (an animation's key) hears the step: api.onStep(k) */
       if (api && api.onStep) api.onStep(k);
@@ -129,9 +138,17 @@
         : '<span class="sp__ico" aria-hidden="true">▶</span> Resume';
       play.classList.toggle('is-playing', playing);
       play.classList.toggle('is-next', next);
-      all.hidden = still();
     }
-    function stop() { playing = false; if (raf) cancelAnimationFrame(raf); raf = null; }
+    function stop() { playing = false; if (raf) cancelAnimationFrame(raf); raf = null; if (slideT) { clearTimeout(slideT); slideT = null; } }
+    /* Play all with Reduce motion: each step's still in turn, held for its band's time; no motion inside a still */
+    function slides(i) {
+      stillK = i; T = segEnd(i); playing = true; paint(T);
+      slideT = setTimeout(function () {
+        slideT = null;
+        if (!bar.isConnected) { stop(); return; }
+        if (i + 1 < STEPS.length) slides(i + 1); else { playing = false; paint(T); }
+      }, Math.max(1500, (stepEnd(i) - STEPS[i].t) * 1000));
+    }
     function frame(ts) {
       if (!bar.isConnected) { stop(); return; }
       if (last == null) last = ts;
@@ -142,10 +159,12 @@
       paint(T);
       raf = requestAnimationFrame(frame);
     }
-    function run(from, to) {
-      stop(); started = true; stopAt = to;
+    function run(from, to, whole) {
+      stop(); started = true; stopAt = to; allMode = !!whole;
       if (opts.onStart) opts.onStart();
-      if (still()) { T = to; paint(T); return; }
+      /* Reduce motion: no movement, but the step's still (or, for Play all, every step's still in turn) */
+      if (still()) { if (whole) slides(stepAt(from)); else { T = to; stillK = stepAt(to); paint(T); } return; }
+      stillK = -1;
       T = from; playing = true; last = null; paint(T);
       raf = requestAnimationFrame(frame);
     }
@@ -154,11 +173,11 @@
       if (playing) { stop(); paint(T); return; }
       if (!started || over(T)) { goStep(0); return; }
       if (atStepEnd()) { goStep(stepAt(T) + 1); return; }
-      run(T, stopAt == null ? segEnd(stepAt(T)) : stopAt);
+      run(T, stopAt == null ? segEnd(stepAt(T)) : stopAt, allMode);
     });
     all.addEventListener('click', function () {
       var from = !started || over(T) ? 0 : atStepEnd() ? STEPS[stepAt(T) + 1].t : T;
-      run(from, END);
+      run(from, END, true);
     });
     /* the words go under the chips, and come back to wherever the widget put them */
     var nowHome = null, nowNext = null;
@@ -178,7 +197,7 @@
       bar: bar, list: list, now: now, legend: legend, paint: paint, stop: stop, isStill: still, compact: compact,
       playAll: function () { run(0, END); }, playing: function () { return playing; },
       time: function () { return T; },
-      seek: function (t) { stop(); started = t > 0; stopAt = null; T = Math.max(0, Math.min(END, t)); paint(T); return STEPS.map(function (s) { return s.t; }); },
+      seek: function (t) { stop(); stillK = -1; started = t > 0; stopAt = null; T = Math.max(0, Math.min(END, t)); paint(T); return STEPS.map(function (s) { return s.t; }); },
       onStep: null, steps: STEPS.length, flow: opts.flow || null, end: END
     };
     return api;
@@ -244,6 +263,14 @@
      jog. */
   function placeRows(it, top, bot, gap) {
     if (!it.some(function (x) { return x.off || (x.alts && x.alts.length); })) return null;
+    /* a still (Reduce motion) keeps every name: level rows when they all fit, else every name nudged apart, never one left
+       out (Daniel, 9 Nov 2026: "Nothing should disappear") */
+    if (it.some(function (x) { return x.all; })) {
+      var all = bestRows(it, top, bot, gap);
+      if (!all) return null;
+      levelRows(all.order, top, bot, gap, true);
+      return all.order.slice().sort(function (p, q) { return p.ly - q.ly; });
+    }
     var cur = it.slice();
     while (cur.length * 2 >= it.length) {
       var fit = bestRows(cur, top, bot, gap);
@@ -278,7 +305,7 @@
     ['L', 'R'].forEach(function (side) {
       var it = o.items.filter(function (x) { return x.side === side && !x.hidden; }).map(function (x) {
         var lines = wrap(x.text, o.width || 110);
-        return { x: x.x, y: x.y, ly: x.y, lines: lines, h: lines.length * lh, id: x.id, cls: x.cls || '', op: x.op == null ? 1 : x.op, alts: x.alts, off: x.off, opt: x.opt };
+        return { x: x.x, y: x.y, ly: x.y, lines: lines, h: lines.length * lh, id: x.id, cls: x.cls || '', op: x.op == null ? 1 : x.op, alts: x.alts, off: x.off, opt: x.opt, all: x.all };
       }).sort(function (a, b) { return a.y - b.y; });
       var i;
       var top = o.top == null ? -1e9 : o.top, bot = o.bottom == null ? 1e9 : o.bottom;
@@ -423,7 +450,7 @@
     out += pinBandSvg(o, 'T', r, order);
     ['L', 'R'].forEach(function (side) {
       var it = o.items.filter(function (x) { return x.side === side && !x.hidden; }).map(function (x) {
-        return { x: x.x, y: x.y, ly: x.y, h: 2 * r, id: x.id, text: x.text, cls: x.cls || '', op: x.op == null ? 1 : x.op, alts: x.alts, off: x.off, opt: x.opt };
+        return { x: x.x, y: x.y, ly: x.y, h: 2 * r, id: x.id, text: x.text, cls: x.cls || '', op: x.op == null ? 1 : x.op, alts: x.alts, off: x.off, opt: x.opt, all: x.all };
       }).sort(function (a, b) { return a.y - b.y; });
       var i, top = o.top == null ? -1e9 : o.top, bot = o.bottom == null ? 1e9 : o.bottom;
       var kept = placeRows(it, top, bot, gap);
@@ -467,5 +494,61 @@
   L.pinLabels = pinLabels;
   L.pinBand = pinBand;
   L.clamp01 = clamp01;
+  /* Reduce motion (Daniel, 9 Nov 2026: "Nothing should disappear"): a step's still names everything the moving step names.
+       still   the stepper's { step, from, to } (render's second argument with Reduce motion)
+       itemsAt itemsAt(t): the names drawn at the reader's time t, each { id, text, x, y, … } as the widget's labeller takes them
+       now     the names of the still itself, drawn at its own time `at`
+       memo    an object the widget keeps, and `key` what the names' places depend on (the layout), so a resize does not
+               sample the step again
+     A name that came and went during the step, and is not in the still, is added where it stood nearest the still's own
+     moment (its id made its own, so a widget's one-name-per-kind filter keeps it); a name that its own part changed during
+     the step ("weakened pathogen" → "destroyed": the same id) joins that part's label ("weakened pathogen, then destroyed"), and
+     so does the name of a part that became another (a still's name with `was: <its id>`: the egg cell, then the zygote).
+     A name already on the step's first frame came from the step before, whose still holds it (still.prev: that still's
+     moment). Every name of a still is marked `all`, so the labeller keeps them all. */
+  function stillItems(still, itemsAt, now, at, memo, key) {
+    if (!still) return now;
+    var k = still.step + '|' + still.from + '|' + (key || ''), add;
+    function nm(q) { return String(q.text); }
+    if (memo && memo.k === k) add = memo.v;
+    else {
+      var have = {}, carried = {}, near = {};
+      now.forEach(function (q) { have[nm(q)] = 1; });
+      if (still.prev != null) { var inPrev = {}; itemsAt(still.prev).forEach(function (q) { inPrev[nm(q)] = 1; });
+        itemsAt(still.from).forEach(function (q) { if (inPrev[nm(q)]) carried[nm(q)] = 1; }); }
+      for (var t = still.from; t <= still.to + 1e-9; t += .05) itemsAt(t).forEach(function (q) {
+        var n = nm(q); if (have[n] || carried[n]) return;
+        var d = Math.abs(t - at);
+        if (!near[n]) near[n] = { d: d, q: q, t0: t }; else if (d < near[n].d) { near[n].d = d; near[n].q = q; }
+      });
+      add = Object.keys(near).map(function (n) { return { q: near[n].q, t0: near[n].t0 }; });
+      if (memo) { memo.k = k; memo.v = add; }
+    }
+    /* a part whose name changed during the step (a pathogen, then destroyed) keeps ONE label in the still, with each of
+       its names in the order they came, so no name is crowded out by its own part's other name */
+    var out = now.map(function (q) { var o = {}; for (var p in q) o[p] = q[p]; return o; }), byId = {};
+    out.forEach(function (q) { if (!byId[q.id]) byId[q.id] = q; });
+    /* `was`: a name of the still that a part of the step became (the zygote was the egg cell) takes that part's name too */
+    var byWas = {}; out.forEach(function (q) { if (q.was) byWas[q.was] = q; });
+    var later = {};
+    add.forEach(function (a) {
+      var q = a.q; if (out.some(function (o) { return nm(o) === nm(q) || nm(o).indexOf(nm(q) + ', then ') === 0; })) return;
+      /* the same part: the same id, pointing at much the same place (a widget may give several parts one id) */
+      var same = byId[q.id];
+      if (same && Math.abs(same.x - q.x) + Math.abs(same.y - q.y) < 30) { (later[q.id] = later[q.id] || []).push(a); return; }
+      if (byWas[q.id]) { (later[byWas[q.id].id] = later[byWas[q.id].id] || []).push(a); return; }
+      var o = {}; for (var p in q) o[p] = q[p]; o.id = q.id + '~' + q.text; out.push(o); if (!byId[o.id]) byId[o.id] = o;
+    });
+    Object.keys(later).forEach(function (id) {
+      var q = byId[id], seq = later[id].sort(function (x, y) { return x.t0 - y.t0; });
+      var before = seq.filter(function (a) { return a.t0 < at; }).map(function (a) { return nm(a.q); });
+      var after = seq.filter(function (a) { return a.t0 >= at; }).map(function (a) { return nm(a.q); });
+      q.text = before.concat([nm(q)], after).join(', then ');
+    });
+    /* `all`: the labeller keeps every name of a still, never leaving one out for want of a row (labels, pinLabels) */
+    out.forEach(function (q) { q.all = true; });
+    return out;
+  }
   L.still = still;
+  L.stillItems = stillItems;
 })(window);

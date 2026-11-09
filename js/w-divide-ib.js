@@ -106,14 +106,18 @@
        the names new at its end (WKit.timeline) */
     var TL = K.timeline(M, 1.25, MOTION, 'IB ' + title, function (m) { var g = {}; render(m, 3, g); return labelsAt(m, 3, g).map(function (q) { return q.text; }); }),
         R = TL.R, clock = TL.clock;
-    function draw(tt) {
+    /* the names at a moment need that moment's drawing (render fills g) */
+    var itemsAt = K.itemsOf(function () { return lay; }, function (tt) { var m = clock(tt), g = {}; render(m, 3, g); return labelsAt(m, 3, g); }, true), memo = {};
+    function draw(tt, still) {
       var t = clock(tt), ph = 3, g = {};   /* the threads lie still, as at the IGCSE level (the audit, 6 Nov 2026) */
       model.innerHTML = '<g clip-path="url(#' + uid + ')">' + render(t, ph, g) + '</g>';
-      var items = labelsAt(t, ph, g).map(function (q) { var p = lay.to(q.x, q.y); return { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side }; });
+      STILL = !!still; var items = labelsAt(t, ph, g).map(function (q) { var p = lay.to(q.x, q.y); return { id: q.id, text: q.text, x: p[0], y: p[1], side: q.side }; }); STILL = false;
+      /* Reduce motion: the step's still also names what came and went during the step (CircLearn.stillItems) */
+      items = L.stillItems(still, itemsAt, items, tt, memo, narrow + '|' + lay.f);
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
       var pl = pills(t); S.pill('ph', pl[0], 'ok'); S.pill('n', pl[1], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: TL.end, render: draw, flow: TL.flow });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: TL.end, render: draw, flow: TL.flow, stills: K.stillsOf(STEPS, TL) });
     /* under the drawing the key, drawn, and the guide's statements in one line (Daniel, 4 Nov 2026: "this text is extremely
        long. It distracts from … the step-by-step"; 5 Nov: "Why don't you show them instead of writing about them?") */
     var box = K.mount(S, sp, 'dv', notes, function (Dw, nar) {
@@ -134,7 +138,7 @@
     { t: 37, h: 'Metaphase', p: 'The chromosomes are arranged on the **equator** of the spindle. Each centromere is held by microtubules from both poles. (D2.1.7)' },
     { t: 44, h: 'Anaphase', p: 'The centromeres divide. The microtubules shorten, and **motor proteins** at each centromere pull its chromatid along them: the **sister chromatids** move to **opposite poles**, centromere first. Each chromatid is now a chromosome. The cell becomes longer. (D2.1.6–D2.1.7)' },
     { t: 53, h: 'Telophase', p: 'At each pole a **nuclear membrane** forms again round the chromosomes, from vesicles. The chromosomes **uncoil** and become long, thin lines again, and a nucleolus forms. The spindle disappears. (D2.1.7)' },
-    { t: 60, h: 'Cytokinesis', p: 'A ring of **actin and myosin** pinches the cell membrane and divides the cytoplasm: two **genetically identical** daughter cells, each with 4 chromosomes and a share of the mitochondria. (D2.1.2)' }
+    { t: 60, still: 67.5, h: 'Cytokinesis', p: 'A ring of **actin and myosin** pinches the cell membrane and divides the cytoplasm: two **genetically identical** daughter cells, each with 4 chromosomes and a share of the mitochondria. (D2.1.2)' }
   ];
   var MM = [0, 7, 14, 20, 30, 37, 44, 53, 60, 70];
   /* the IGCSE level's geometry (js/w-divide.js MI): the same cell, nucleus, line across the middle, poles and new nuclei */
@@ -219,6 +223,9 @@
     }
     return out;
   }
+  /* STILL: drawing a step's still with Reduce motion (draw sets it round its own names only): the cytokinesis still keeps the
+     ring named on the ring while it pinches */
+  var STILL = false;
   function mitIBLabels(t, ph, g) {
     var k = stepOf(MM, t), it = [], T0 = g.T0, l0 = leftOf(thr(T0[0], ph));
     if (k === 0) it.push({ id: 'l', text: 'a chromosome: one chromatid, a single line', x: l0[0], y: l0[1], side: 'L' }, { id: 'cs', text: 'a centrosome (beyond IB): two centrioles', x: g.cB[0] + 9, y: g.cB[1], side: 'R' },
@@ -237,7 +244,7 @@
     if (k === 7 && t >= 59.6) it.push({ id: 'nm', text: 'a new nuclear membrane', x: D1.cx - D1.rx, y: D1.cy, side: 'L' }, { id: 'nl', text: 'the nucleolus (beyond IB)', x: D2.cx + 11, y: D2.cy + 2, side: 'R' });
     if (k === 8) {
       /* the ring is named only while it holds still, before it pinches the cell: 3.4 s, long enough to read in Play all */
-      if (t >= 61.2 && t < 64.6) it.push({ id: 'r', text: 'a ring of actin and myosin', x: 160 - g.cell.w - 3.6, y: g.cell.m, side: 'L' });
+      if ((t >= 61.2 && t < 64.6) || (STILL && t >= 61.2 && t < 69.4)) it.push({ id: 'r', text: 'a ring of actin and myosin', x: 160 - g.cell.w - 3.6, y: g.cell.m, side: 'L' });
       if (t >= 69.4) it.push({ id: 'cm', text: 'cell membrane', x: 160 + g.rx, y: g.top, side: 'R' }, { id: 'mi', text: 'a mitochondrion: each cell gets some', x: g.mito[0][0] - 7.5, y: g.mito[0][1], side: 'L' });
     }
     return it;
