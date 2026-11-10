@@ -567,7 +567,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .tr__fb{margin:8px 0}
 .tr__ok{color:var(--ok);font-weight:600;margin:4px 0} .tr__no{color:var(--bad);font-weight:600;margin:4px 0}
 .tr__new{margin-top:6px}
-.widget__note--ext{border-left:3px solid var(--purple);padding-left:8px;color:var(--purple)}
+.widget__note--ext{border-left:3px solid var(--ext);padding-left:8px;color:var(--ext)}
 @media (max-width:520px){
   .wx__row{grid-template-columns:1fr;gap:2px}
   .wx__lab{text-align:left}
@@ -584,9 +584,9 @@ p,li,dd,figcaption{text-wrap:pretty}
 .zm__fig,.pt__fig,.dv__fig{margin:0}
 .zm__svg,.pt__svg,.dv__svg{display:block;width:100%;height:auto}
 .thr--faint{stroke:var(--shade);opacity:.35}
-.dv__ext{font:inherit;font-size:12.5px;font-weight:600;border-radius:var(--r-pill);padding:3px 10px;border:1.5px solid var(--purple);background:var(--card);color:var(--purple);cursor:pointer}
-.dv__ext[aria-pressed="true"]{background:var(--purple);color:var(--on-ink)}
-.dv__ext[aria-pressed="true"] .sup--ext{color:var(--on-ink)}
+.dv__ext{font:inherit;font-size:12.5px;font-weight:600;border-radius:var(--r-pill);padding:3px 10px;border:1.5px solid var(--ext);background:var(--card);color:var(--ext);cursor:pointer}
+.dv__ext[aria-pressed="true"]{background:var(--ext);color:var(--ext-on)}
+.dv__ext[aria-pressed="true"] .sup--ext{color:var(--ext-on)}
 .sw--faint{background:var(--shade);opacity:.45}
 .sw--x{background:linear-gradient(60deg,transparent 42%,var(--mum) 42% 58%,transparent 58%),linear-gradient(-60deg,transparent 42%,var(--mum) 42% 58%,transparent 58%);border:none}
 /* the IGCSE · IB switch of the divisions */
@@ -595,8 +595,8 @@ p,li,dd,figcaption{text-wrap:pretty}
 .lvw__b[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
 .lvw__b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* IB in the IB blue of the practicals (Daniel, 4 Nov 2026: "Yes, IB blue"): the tag on the switch, and the IB level's notes */
-.lvw__b .sup--ext{background:var(--c103);color:var(--c104);border-color:var(--c105)}
-.widget__note--ib{border-left:3px solid var(--c104);padding-left:8px;color:var(--c104)}
+.lvw__b .sup--ext{background:var(--ext-tint);color:var(--ext);border-color:var(--ext-rule)}
+.widget__note--ib{border-left:3px solid var(--ext);padding-left:8px;color:var(--ext)}
 /* the cell's own structures, IB level */
 .cent{fill:var(--ink);opacity:.8} .cent__pcm{fill:var(--accent-tint);stroke:var(--accent);stroke-width:1}
 .mt path{fill:none;stroke:var(--grey);stroke-width:1.1;opacity:.75}
@@ -743,10 +743,10 @@ p,li,dd,figcaption{text-wrap:pretty}
 .sp__lv{display:block;margin-top:5px;padding:4px 9px 5px;border-radius:7px;border-left:3px solid var(--accent);background:var(--accent-tint)}
 .sp__lv:first-child{margin-top:0}
 .sp__lvt{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:var(--r-pill);margin-right:3px;vertical-align:1px;background:var(--accent);color:var(--card)}
-.sp__lv--ib,.sp__lv--ibhl{background:var(--c103);border-left-color:var(--c104)}
-.sp__lv--ib .sp__lvt,.sp__lv--ibhl .sp__lvt{background:var(--c104);color:var(--c103)}
-.sp__lv--bey{background:var(--c106);border-left-color:var(--c107)}
-.sp__lv--bey .sp__lvt{background:var(--c24);color:var(--card);font-style:italic}
+.sp__lv--ib,.sp__lv--ibhl{background:var(--ext-tint);border-left-color:var(--ext)}
+.sp__lv--ib .sp__lvt,.sp__lv--ibhl .sp__lvt{background:var(--ext);color:var(--ext-on)}
+.sp__lv--bey{background:var(--ext-tint);border-left-color:var(--ext)}
+.sp__lv--bey .sp__lvt{background:var(--ext);color:var(--ext-on);font-style:italic}
 .sp__legend{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;font-size:12.5px;line-height:1.35}
 .sp__legend .sp__lv{display:inline-block;margin:0;padding:3px 8px}
 
@@ -791,10 +791,10 @@ p,li,dd,figcaption{text-wrap:pretty}
 .aw .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* a step with no IGCSE line: its level on its button (w-common.js onlyLv) */
 .sp__only{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:0 6px;border-radius:var(--r-pill);vertical-align:1px;border:0;margin-left:2px}
-.sp__only.sp__lv--ib,.sp__only.sp__lv--ibhl{background:var(--c104);color:var(--c103)}
-.sp__only.sp__lv--bey{background:var(--c24);color:var(--card);font-style:italic}
-.sp__step--ib .sp__stepb,.sp__step--ibhl .sp__stepb{background:var(--c103)}
-.sp__step--bey .sp__stepb{background:var(--c106)}
+.sp__only.sp__lv--ib,.sp__only.sp__lv--ibhl{background:var(--ext);color:var(--ext-on)}
+.sp__only.sp__lv--bey{background:var(--ext);color:var(--ext-on);font-style:italic}
+.sp__step--ib .sp__stepb,.sp__step--ibhl .sp__stepb{background:var(--ext-tint)}
+.sp__step--bey .sp__stepb{background:var(--ext-tint)}
 
 /* how a diagram draws a chromosome, under the "A line or a cross?" film: two drawings side by side, each with its words
    (figure.js `diagram`, inh-scenes.js asDrawn) */
