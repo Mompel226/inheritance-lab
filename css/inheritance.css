@@ -13,8 +13,8 @@
   /* the inks of the Learn tab (js/terms.js): the T17 summary's own colours */
   --k-struct:#1B7A43; --k-proc:#B5530F; --k-subst:#B4285F;
   --on-photo-veil:rgba(14,20,27,.40);
-  /* the parts of a station (a block of What you need to know, and its button on the picture): blue and violet */
-  --pt1-ink:#1E5BB8; --pt1-tint:#EAF1FC; --pt1-edge:#B9D0F2; --pt2-ink:#7438B0; --pt2-tint:#F4EDFB; --pt2-edge:#D8C4F0;
+  /* the parts of a station (a block of What you need to know, and its button on the picture): blue and teal (violet until 11 Nov 2026, when violet came to mean extension; Daniel chose teal) */
+  --pt1-ink:#1E5BB8; --pt1-tint:#EAF1FC; --pt1-edge:#B9D0F2; --pt2-ink:#0F766E; --pt2-tint:#E6F4F1; --pt2-edge:#A8D8CF;
   --pt3-ink:#475569; --pt3-tint:#EEF2F6; --pt3-edge:#C8D2DD;
   /* the drawings: a chromosome from the mother and one from the father; the nucleus and the cell; a gene's band */
   --mum:#C2410C; --mum-2:#FDBA8C; --dad:#0E7490; --dad-2:#9EDBEA; --gene:#FACC15; --gene-ink:#3F2E00;
@@ -28,7 +28,7 @@
 :root:not([data-theme="light"]){
   --accent:#7FD99A; --accent-2:#5CC47D; --accent-tint:#14301D;
   --k-struct:#6EDB9A; --k-proc:#F5A35C; --k-subst:#F48FB4;
-  --pt1-ink:#8DB9FF; --pt1-tint:#14233A; --pt1-edge:#2C4C7A; --pt2-ink:#CFA9F7; --pt2-tint:#231A36; --pt2-edge:#4C3672;
+  --pt1-ink:#8DB9FF; --pt1-tint:#14233A; --pt1-edge:#2C4C7A; --pt2-ink:#7FD8C9; --pt2-tint:#12302C; --pt2-edge:#2D6A61;
   --pt3-ink:#B6C2D0; --pt3-tint:#1B232D; --pt3-edge:#3A4655;
   --mum:#FB923C; --mum-2:#7C2D12; --dad:#38BDF8; --dad-2:#0C4A6E; --gene:#FDE047; --gene-ink:#3F2E00;
   --cell-fill:#2A2620; --cell-edge:#A89C84; --nuc-fill:#2A2338; --nuc-edge:#A994CF; --cyto:#2A2620;
@@ -40,7 +40,7 @@
 :root[data-theme="dark"]{
   --accent:#7FD99A; --accent-2:#5CC47D; --accent-tint:#14301D;
   --k-struct:#6EDB9A; --k-proc:#F5A35C; --k-subst:#F48FB4;
-  --pt1-ink:#8DB9FF; --pt1-tint:#14233A; --pt1-edge:#2C4C7A; --pt2-ink:#CFA9F7; --pt2-tint:#231A36; --pt2-edge:#4C3672;
+  --pt1-ink:#8DB9FF; --pt1-tint:#14233A; --pt1-edge:#2C4C7A; --pt2-ink:#7FD8C9; --pt2-tint:#12302C; --pt2-edge:#2D6A61;
   --pt3-ink:#B6C2D0; --pt3-tint:#1B232D; --pt3-edge:#3A4655;
   --mum:#FB923C; --mum-2:#7C2D12; --dad:#38BDF8; --dad-2:#0C4A6E; --gene:#FDE047; --gene-ink:#3F2E00;
   --cell-fill:#2A2620; --cell-edge:#A89C84; --nuc-fill:#2A2338; --nuc-edge:#A994CF; --cyto:#2A2620;

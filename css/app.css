@@ -16,7 +16,8 @@
   --rail-h:64px;
   --accent:#0F6B57; --accent-2:#13856C; --accent-tint:#E3F2EC;
   --amber:#9A5B00; --amber-tint:#FBF1DF; --teal:#0F6E8C; --teal-tint:#E5F0F4;
-  --purple:#6B3FA0; --purple-tint:#F1EBF8; --red:#B03A2E; --red-tint:#FAECE9;
+  --purple:#3A5F8A; --purple-tint:#EAF0F7; --red:#B03A2E; --red-tint:#FAECE9;
+  /* --purple keeps its name, but since 11 Nov 2026 it holds the multiple-choice steel blue: violet means extension on every site (Daniel, 10 Nov 2026, "One violet"); he chose this colour on 11 Nov */
   --ext:#7243C0; --ext-tint:#EDE8FA; --ext-wash:#F7F4FD; --ext-rule:#C9BAEE; --ext-on:#FFFFFF;
   /* extension (Daniel, 10 Nov 2026, "One violet"): anything beyond what the reader's own course asks, IB content or beyond the syllabus, in ONE violet; a small word label says which (IB · D3.1.8, Beyond IB, beyond 0610). The summary notes' 7243C0 on EDE8FA; dark: the hub's B388FF, the same hue. Blue is IB only where IB is the reader's own level; grey is Supplement and cross-topic links. --ext-wash: a big box; --ext-tint: a tag or line. The extra pins' list rows double their class (.pins__item.pins__item--extra): the plain .pins__item rules further down painted them green before */
   --ink:#16212C; --grey:#56636F; --line:#C3CBD3; --muted:#56636F;
@@ -26,7 +27,7 @@
   --ok:#13856C; --ok-tint:#E3F2EC; --bad:#B03A2E; --bad-tint:#FBEDEA;
   --topic:#A21CAF;
   /* the inks of the Learn tab (js/terms.js): the parts of a cell, size and the microscope, how cells are organised */
-  --k-cell:#5B3FA0; --k-size:#0B6A80; --k-org:#9A4A12;
+  --k-cell:#A8325E; --k-size:#0B6A80; --k-org:#9A4A12;   /* cell words rose (violet until 11 Nov 2026): violet means extension on every site (Daniel, 10 Nov 2026, "One violet"); he chose this colour on 11 Nov */
   /* the header and the left column */
   --hdr-bg:#FFFFFF; --hdr-ink:#16212C; --hdr-soft:#56636F; --hdr-veil:rgba(22,33,44,.05); --hdr-line:#D9E0E6;
   --col-bg:#E9EDF1; --col-ink:#16212C; --col-soft:#56636F; --col-line:#CDD5DC; --col-card:#FFFFFF;
@@ -246,7 +247,7 @@
 :root:not([data-theme="light"]){
   --accent:#8FE3C8; --accent-2:#6FD4B4; --accent-tint:#173029;
   --amber:#F2B544; --amber-tint:#2E2614; --teal:#6CC3E0; --teal-tint:#132B33;
-  --purple:#C4A6F0; --purple-tint:#241B33; --red:#F08A7E; --red-tint:#3A1D1A;
+  --purple:#9CB8E0; --purple-tint:#1A2533; --red:#F08A7E; --red-tint:#3A1D1A;
   --ext:#B388FF; --ext-tint:#2A2142; --ext-wash:#211A33; --ext-rule:#5B4A8C; --ext-on:#1E1633;
   --ink:#E9EEF3; --grey:#9AA8B5; --line:#3A4654; --muted:#9AA8B5;
   --paper:#0E141B; --card:#1A232E; --card-2:#16202A; --edge:#2B3744; --edge-2:#24303C;
@@ -254,7 +255,7 @@
   --shadow-lg:0 2px 6px rgba(0,0,0,.40), 0 18px 42px rgba(0,0,0,.45);
   --ok:#6FD4B4; --ok-tint:#173029; --bad:#F08A7E; --bad-tint:#3A1D1A;
   --topic:#E879F9;
-  --k-cell:#C4A6F0; --k-size:#7FD0E6; --k-org:#F2B27A;
+  --k-cell:#F09ABA; --k-size:#7FD0E6; --k-org:#F2B27A;
   --hdr-bg:#0E141B; --hdr-ink:#E9EEF3; --hdr-soft:#9AA8B5; --hdr-veil:rgba(233,238,243,.06); --hdr-line:#2B3744;
   --col-bg:#141C25; --col-ink:#E9EEF3; --col-soft:#9AA8B5; --col-line:#2B3744; --col-card:#1D2733;
   --on-ink:#0E141B;
@@ -473,7 +474,7 @@
 :root[data-theme="dark"]{
   --accent:#8FE3C8; --accent-2:#6FD4B4; --accent-tint:#173029;
   --amber:#F2B544; --amber-tint:#2E2614; --teal:#6CC3E0; --teal-tint:#132B33;
-  --purple:#C4A6F0; --purple-tint:#241B33; --red:#F08A7E; --red-tint:#3A1D1A;
+  --purple:#9CB8E0; --purple-tint:#1A2533; --red:#F08A7E; --red-tint:#3A1D1A;
   --ext:#B388FF; --ext-tint:#2A2142; --ext-wash:#211A33; --ext-rule:#5B4A8C; --ext-on:#1E1633;
   --ink:#E9EEF3; --grey:#9AA8B5; --line:#3A4654; --muted:#9AA8B5;
   --paper:#0E141B; --card:#1A232E; --card-2:#16202A; --edge:#2B3744; --edge-2:#24303C;
@@ -481,7 +482,7 @@
   --shadow-lg:0 2px 6px rgba(0,0,0,.40), 0 18px 42px rgba(0,0,0,.45);
   --ok:#6FD4B4; --ok-tint:#173029; --bad:#F08A7E; --bad-tint:#3A1D1A;
   --topic:#E879F9;
-  --k-cell:#C4A6F0; --k-size:#7FD0E6; --k-org:#F2B27A;
+  --k-cell:#F09ABA; --k-size:#7FD0E6; --k-org:#F2B27A;
   --hdr-bg:#0E141B; --hdr-ink:#E9EEF3; --hdr-soft:#9AA8B5; --hdr-veil:rgba(233,238,243,.06); --hdr-line:#2B3744;
   --col-bg:#141C25; --col-ink:#E9EEF3; --col-soft:#9AA8B5; --col-line:#2B3744; --col-card:#1D2733;
   --on-ink:#0E141B;
