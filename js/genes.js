@@ -231,7 +231,7 @@
   var E = global.Engine; if (!E || !E.util) return;
   var U = E.util;
 
-  function card(a, idx, id) {
+  function card(a, idx, id, draft) {
     var g = a.genes || {}, kind = g.kind || 'dom', roles = g.roles || {};
     var c = U.shell(a, idx);
     var kn = c.querySelector('.act__kind'); if (kn) { kn.textContent = 'Write the alleles'; kn.dataset.k = 'genes'; }
@@ -282,6 +282,19 @@
       B.keys().forEach(function (k) { B.mark(k, null); });
       if (advBox) { advBox.remove(); advBox = null; }
     }, 'Not right yet: the boxes marked in red are wrong. Your letters are kept as you left them.');
+    /* kept through a reload (18 Nov 2026, engine.js keepable; an older engine.js has none): t: box -> its letters, each
+       {b: the letter, s: a raised letter or ''}; only single letters are drawn back */
+    if (U.keepable) U.keepable(c, function () {
+      var t = {};
+      B.keys().forEach(function (k) { var x = B.tokens(k); if (x.length) t[k] = x; });
+      return { t: t };
+    }, function (d) {
+      Object.keys(d.t || {}).forEach(function (k) {
+        if (!Array.isArray(d.t[k])) return;
+        B.set(k, d.t[k].filter(function (y) { return y && /^[A-Za-z]$/.test(y.b) && (!y.s || /^[A-Za-z]$/.test(y.s)); })
+          .slice(0, 12).map(function (y) { return { b: y.b, s: y.s || '' }; }));
+      });
+    }, draft);
     /* after a wrong check: the writing rule each wrong box breaks, in words that never name the answer */
     c.addEventListener('result', function (e) {
       if (!e.detail || e.detail.correct) return;
@@ -300,8 +313,8 @@
   }
 
   var render = E.render;
-  E.render = function (a, idx, id) {
-    if (a && a.type === 'blank' && a.genes) return card(a, idx, id);
-    return render(a, idx, id);
+  E.render = function (a, idx, id, draft) {                              /* draft: what the pupil had done (engine.js keepable) */
+    if (a && a.type === 'blank' && a.genes) return card(a, idx, id, draft);
+    return render(a, idx, id, draft);
   };
 })(window);
