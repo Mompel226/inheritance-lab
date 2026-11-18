@@ -41,8 +41,9 @@
      5 the copies separate: single rods   6 two new cells, the rods uncoiled into lines, each cell with the pair
    THE BIOLOGY, every frame: the two copies of a chromosome are the same colour, length and gene; threads never cross (each
    in its own territory); the chromosomes of a pair come from different parents; the number is right at every frame
-   (4 → 4 + 4; 4 → 2 + 2 → four cells of 2 → a zygote of 4). Stage names, chromatids, centromere and spindle are IB
-   (D2.1.6–D2.1.11): named once, in brackets, as the IB word.
+   (4 → 4 + 4; 4 → 2 + 2 → four cells of 2 → a zygote of 4). Stage names, centromere and spindle are IB
+   (D2.1.6–D2.1.11): named once, in brackets, as the IB word. Chromatids are named in the IGCSE steps beside "copies"
+   (Daniel, 18 Nov 2026: "state it in both ways"; 0610 schemes accept chromosomes / chromatids, s15/52, s15/62).
    ============================================================ */
 (function (global) {
   'use strict';
@@ -119,9 +120,9 @@
     { h: 'A working cell: lines', p: [
       ['ig', 'A body cell with **4 chromosomes**: 2 pairs, one of each pair from each parent. While the cell is working, each chromosome is **a single long, thin line** of DNA, folded in its own part of the nucleus. The yellow length is a **gene**.']] },
     { h: 'Copied exactly', p: [
-      ['ig', 'Before mitosis, **each chromosome is copied exactly**: this is the **exact replication** of the chromosomes. There are still 4 chromosomes, but each is now **two identical copies**, side by side, held together most firmly at **one point**.'],
+      ['ig', 'Before mitosis, **each chromosome is copied exactly**: this is the **exact replication** of the chromosomes. There are still 4 chromosomes, but each is now **two identical copies**, called **chromatids**, side by side, held together most firmly at **one point**.'],
       /* D2.1.5 */
-      ['ib', 'Each copy is a **chromatid**; the point that holds them is the **centromere**.']] },
+      ['ib', 'The point that holds the two chromatids is the **centromere**.']] },
     { h: 'Coiled: the cross', p: [
       ['ig', 'Each copy **coils**, again and again, until it is **short and thick**. Each chromosome is now the **X shape** you see in photographs: its two identical copies, joined.'],
       /* D2.1.6, D2.1.7 */
@@ -130,7 +131,7 @@
       /* D2.1.6, D2.1.7 */
       ['ib', 'The chromosomes are arranged **in a line across the middle** of the cell. **Fibres** (spindle microtubules; together, the spindle) from the two ends of the cell hold each chromosome at its joining point.']] },
     { h: 'The copies separate', p: [
-      ['ig', 'The **two copies of each chromosome separate**, to **opposite ends**. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of **every** chromosome: 4.'],
+      ['ig', 'The **two copies of each chromosome** (its **chromatids**) **separate**, to **opposite ends**. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of **every** chromosome: 4.'],
       ['ib', 'The fibres pull them, joining point first.']] },
     { h: 'Two new nuclei', p: [
       ['ig', '**Mitosis is nuclear division**: one nucleus becomes two.'],
@@ -498,7 +499,7 @@
     { h: 'A working cell: lines', p: [
       ['ig', 'While a cell is working, each chromosome is **a single long, thin line**: one molecule of DNA, folded in its own part of the nucleus. Here is **one pair**: the same chromosome from the **mother** (orange) and from the **father** (blue). The yellow length is a **gene**, at the same place on both.']] },
     { h: 'Copied: two lines', p: [
-      ['ig', 'Before the cell divides, each chromosome is **copied exactly**: the copy is made **along the whole line**. This exact copying is called **replication**. Now each chromosome is **two identical lines**, side by side, held together most firmly at **one point**.']] },
+      ['ig', 'Before the cell divides, each chromosome is **copied exactly**: the copy is made **along the whole line**. This exact copying is called **replication**. Now each chromosome is **two identical lines**, called **chromatids**, side by side, held together most firmly at **one point**.']] },
     { h: 'Coiled: a cross', p: [
       ['ig', 'Each copy **coils**, again and again, until it is **short and thick**. The two copies, still joined, now form a **cross**: this is still **one chromosome**.'],
       /* D2.1.7 */
@@ -507,7 +508,7 @@
       /* D2.1.6, D2.1.7 */
       ['ib', 'The two chromosomes are arranged **across the middle** of the cell. **Fibres** (spindle microtubules; together, the spindle) from its two ends hold each one at its joining point.']] },
     { h: 'The copies separate', p: [
-      ['ig', 'The **two copies** of each chromosome **separate**, to **opposite ends**. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of the mother’s chromosome and one of the father’s.'],
+      ['ig', 'The **two copies** of each chromosome (its **chromatids**) **separate**, to **opposite ends**. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of the mother’s chromosome and one of the father’s.'],
       ['ib', 'The fibres pull them apart.']] },
     { h: 'Two new cells: lines again', p: [
       ['ig', 'The rods **uncoil** into **long, thin lines** again. The cell divides: **two new cells**, each with the **same pair** as the first cell. This division is called **mitosis**: the two new cells are **genetically identical**. A cross is seen **only while a cell divides**.'],

@@ -383,7 +383,7 @@
   function loopAt(i, sd) { return LOOPS.filter(function (q) { return q.i === i && q.sd === sd; })[0]; }
   function labels10() {
     var l = loopGeo(loopAt(4, -1)).tip, g = loopGeo(loopAt(GENE10, 1)).tip, c = loopGeo(loopAt(-17, 1)).tip;
-    return [{ id: 'cop', text: 'one copy (IB: a chromatid)', x: c[0], y: c[1], side: 'T' },
+    return [{ id: 'cop', text: 'one copy (a chromatid)', x: c[0], y: c[1], side: 'T' },
             { id: 'loop', text: 'its DNA and proteins, folded into loops', x: l[0], y: l[1], side: 'L' },
             { id: 'abo', text: 'the ABO gene: a short length of one loop', x: g[0], y: g[1], side: 'R' },
             { id: 'end', text: 'the end of the long arm', x: CX + AX10[0] * (TIP - 6), y: CY + AX10[1] * (TIP - 6), side: 'B' },
