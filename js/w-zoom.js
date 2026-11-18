@@ -59,22 +59,22 @@
     { h: 'The DNA of the gene', p: [
       ['ig', 'Enlarged: part of the gene, between two balls of protein. The DNA is two strands twisted into a **double helix**, with **bases** between them. Bonds between the pairs of bases hold the two strands together, and the bases always pair in the same way: A with T, and C with G.']] },
     { h: 'Replication begins', p: [
-      ['ig', 'Before a cell divides, its DNA is copied exactly: this exact copying is called **replication**.'],
+      ['ig', 'Before a cell divides, its DNA is **replicated**: it is copied exactly. This exact copying is called **replication**.'],
       /* D1.1.2, D1.1.3 */
       ['ib', 'An enzyme, **helicase**, separates the two strands, and another, **DNA polymerase**, makes a new strand along each old one: each new base pairs with the base opposite it, A with T and C with G.']] },
     { h: 'Two identical molecules', p: [
-      ['ig', 'The whole chromosome is copied in this way: the chromosome is now two identical copies, and so is the gene (yellow).'],
+      ['ig', 'The whole chromosome is replicated in this way: the chromosome is now two identical copies, called **chromatids**, and the gene (yellow) is on both.'],
       /* D1.1.2 */
       ['ib', 'Each of the two molecules of DNA has one old strand and one new strand.']] },
     { h: 'Back in the nucleus', p: [
-      ['ig', 'Back in the nucleus: each chromosome is now two identical threads, side by side, held together most firmly at one point. The cell is ready to divide.'],
-      ['bey', 'The short gene is now too small to see. The yellow length on chromosome 9 is a different, longer gene, the **ABO gene** (about 20,000 base pairs), at the same place on both threads.']] },
+      ['ig', 'Back in the nucleus: each chromosome is now two identical chromatids, side by side, held together most firmly at one point. The cell is ready to divide.'],
+      ['bey', 'The short gene is now too small to see. The yellow length on chromosome 9 is a different, longer gene, the **ABO gene** (about 20,000 base pairs), at the same place on both chromatids.']] },
     { h: 'Coiling into a cross', p: [
-      ['ig', 'Each copy coils, again and again, until it is short and thick. The copies stay joined at one point, so the chromosome is now a cross. You see a cross only while a cell divides.']] },
-    { h: 'Inside one copy', p: [
-      ['bey', 'Enlarged: the end of the long arm of one copy. Its DNA and proteins are folded into thousands of loops. The ABO gene, lit yellow, is a short length of one loop: about 20,000 base pairs. The yellow band on a drawing of a chromosome marks its place, but is drawn much larger than the gene.']] },
+      ['ig', 'Each chromatid coils, again and again, until it is short and thick. The chromatids stay joined at one point, so the chromosome is now a cross. You see a cross only while a cell divides.']] },
+    { h: 'Inside one chromatid', p: [
+      ['bey', 'Enlarged: the end of the long arm of one chromatid. Its DNA and proteins are folded into thousands of loops. The ABO gene, lit yellow, is a short length of one loop: about 20,000 base pairs. The yellow band on a drawing of a chromosome marks its place, but is drawn much larger than the gene.']] },
     { h: 'A pair, and two alleles', p: [
-      ['ig', 'Back to the whole pair: chromosome 9 from the mother and, brought beside it, chromosome 9 from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one chromosome and Iᵒ on the other. The two copies of each chromosome carry the same allele.']] },
+      ['ig', 'Back to the whole pair: chromosome 9 from the mother and, brought beside it, chromosome 9 from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one chromosome and Iᵒ on the other. The two chromatids of each chromosome carry the same allele.']] },
     { h: 'Two alleles: different bases', p: [
       ['ig', 'Enlarged: the same part of the ABO gene on the two chromosomes (the bases along one strand). **Iᴬ** and **Iᵒ** have the same bases, except one: a G is missing in Iᵒ.'],
       /* D1.2.8, D1.2.11 */
@@ -84,7 +84,7 @@
       ['ig', 'Back to the pair. The alleles a person has are their **genotype**: this person’s genotype is IᴬIᵒ. The feature that can be observed is their **phenotype**: this person’s phenotype is blood group A, because Iᴬ is dominant to Iᵒ.']] }
   ];
   var M = [0, 7, 18, 30, 39, 49, 59, 69, 81, 92, 103, 114, 125, 133];
-  var SEE = ['a body cell', 'its nucleus', 'DNA round proteins', 'a gene', 'part of the gene: its DNA', 'the DNA being copied', 'two identical molecules', 'the copied chromosomes', 'the chromosomes coiling', 'part of one copy', 'one pair', 'the bases of two alleles', 'one pair'];
+  var SEE = ['a body cell', 'its nucleus', 'DNA round proteins', 'a gene', 'part of the gene: its DNA', 'the DNA being copied', 'two identical molecules', 'the replicated chromosomes', 'the chromosomes coiling', 'part of one chromatid', 'one pair', 'the bases of two alleles', 'one pair'];
   var NM8 = 'about 8 nm (0.000008 mm)', UM10 = 'about 10 µm (0.01 mm)';
   var SIZE = ['about 25 µm (0.025 mm)', UM10, 'about 70 nm (0.00007 mm)', 'about 230 nm (0.00023 mm)', NM8, NM8, NM8, UM10, UM10, 'about 0.6 µm (0.0006 mm)', 'about 4 µm (0.004 mm)', NM8, 'about 4 µm (0.004 mm)'];
   function op(o) { return o < .999 ? ' opacity="' + n1(Math.max(0, o) * 100) / 100 + '"' : ''; }
@@ -318,9 +318,9 @@
   function labels9(t) {
     if (coilK(t) < .99) return [];
     var rd = D.crossRod(TER[0], 0), f = D.crossRod(TER[1], 1), cen = rd.cen, abo = D.rodAt(rd, .9);
-    return [{ id: 'x', text: 'chromosome 9 from the mother: a cross of two identical copies', x: rd.top[0], y: rd.top[1], side: 'L' },
-            { id: 'cen', text: 'the copies, joined at one point', x: cen[0], y: cen[1] - TER[0].w * .42, side: 'T' },
-            { id: 'abo', text: 'the ABO gene, at the same place on both copies', x: abo[0] - TER[0].w * .45, y: abo[1], side: 'L' },
+    return [{ id: 'x', text: 'chromosome 9 from the mother: a cross of two identical chromatids', x: rd.top[0], y: rd.top[1], side: 'L' },
+            { id: 'cen', text: 'the chromatids, joined at one point', x: cen[0], y: cen[1] - TER[0].w * .42, side: 'T' },
+            { id: 'abo', text: 'the ABO gene, at the same place on both chromatids', x: abo[0] - TER[0].w * .45, y: abo[1], side: 'L' },
             { id: 'f9', text: 'chromosome 9 from the father, a cross too', x: f.bot[0], y: f.bot[1], side: 'R' }];
   }
 
@@ -383,7 +383,7 @@
   function loopAt(i, sd) { return LOOPS.filter(function (q) { return q.i === i && q.sd === sd; })[0]; }
   function labels10() {
     var l = loopGeo(loopAt(4, -1)).tip, g = loopGeo(loopAt(GENE10, 1)).tip, c = loopGeo(loopAt(-17, 1)).tip;
-    return [{ id: 'cop', text: 'one copy (a chromatid)', x: c[0], y: c[1], side: 'T' },
+    return [{ id: 'cop', text: 'one chromatid (one copy)', x: c[0], y: c[1], side: 'T' },
             { id: 'loop', text: 'its DNA and proteins, folded into loops', x: l[0], y: l[1], side: 'L' },
             { id: 'abo', text: 'the ABO gene: a short length of one loop', x: g[0], y: g[1], side: 'R' },
             { id: 'end', text: 'the end of the long arm', x: CX + AX10[0] * (TIP - 6), y: CY + AX10[1] * (TIP - 6), side: 'B' },
@@ -417,10 +417,10 @@
   function labels11(t) {
     if (seg(loc(10, t), TZ + .4, TZ + 2.6) < .99) return [];
     var a = upArm(96, 0, .92), bm = band(96, 0), f = upArm(dadX(t), 1, .92), bf = band(dadX(t), 1);
-    return [{ id: 'm', text: 'chromosome 9 from the mother: two identical copies', x: a[0], y: a[1], side: 'L' },
-            { id: 'a', text: 'Iᴬ: the allele for blood group A, on both copies', x: bm[0] - 11, y: bm[1], side: 'L' },
+    return [{ id: 'm', text: 'chromosome 9 from the mother: two identical chromatids', x: a[0], y: a[1], side: 'L' },
+            { id: 'a', text: 'Iᴬ: the allele for blood group A, on both chromatids', x: bm[0] - 11, y: bm[1], side: 'L' },
             { id: 'f', text: 'chromosome 9 from the father', x: f[0], y: f[1], side: 'R' },
-            { id: 'o', text: 'Iᵒ: the allele for blood group O, on both copies', x: bf[0] + 11, y: bf[1], side: 'R' }];
+            { id: 'o', text: 'Iᵒ: the allele for blood group O, on both chromatids', x: bf[0] + 11, y: bf[1], side: 'R' }];
   }
 
   /* ---------- step 12: two alleles, their bases (Daniel, 5 Nov 2026: "show a close-up look of the gene, and then show where
@@ -560,7 +560,7 @@
   }
 
   function zoom(spec) {
-    var S = K.shell(spec, 'zm', 'From a cell to a gene', 'A body cell; its nucleus; one chromosome enlarged, its DNA wound round proteins; the DNA itself and its bases; a gene; the DNA replicated; the copied chromosomes coiling into crosses; one copy enlarged; the pair the gene is on, with its two alleles; the bases of the two alleles, one base missing in one; genotype and phenotype.',
+    var S = K.shell(spec, 'zm', 'From a cell to a gene', 'A body cell; its nucleus; one chromosome enlarged, its DNA wound round proteins; the DNA itself and its bases; a gene; the DNA replicated; the replicated chromosomes coiling into crosses; one chromatid enlarged; the pair the gene is on, with its two alleles; the bases of the two alleles, one base missing in one; genotype and phenotype.',
       [['see', 'You see:'], ['size', 'Across the picture:']]);
     var svg = S.svg, NSV = K.NS, uid = 'zm' + Math.random().toString(36).slice(2, 7);
     var defs = document.createElementNS(NSV, 'defs'), cp = document.createElementNS(NSV, 'clipPath'), cr = document.createElementNS(NSV, 'rect');

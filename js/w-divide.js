@@ -42,8 +42,9 @@
    THE BIOLOGY, every frame: the two copies of a chromosome are the same colour, length and gene; threads never cross (each
    in its own territory); the chromosomes of a pair come from different parents; the number is right at every frame
    (4 → 4 + 4; 4 → 2 + 2 → four cells of 2 → a zygote of 4). Stage names, centromere and spindle are IB
-   (D2.1.6–D2.1.11): named once, in brackets, as the IB word. Chromatids are named in the IGCSE steps beside "copies"
-   (Daniel, 18 Nov 2026: "state it in both ways"; 0610 schemes accept chromosomes / chromatids, s15/52, s15/62).
+   (D2.1.6–D2.1.11): named once, in brackets, as the IB word. "Replicated" and "chromatids" are the words in every step and
+   label, with "copied" / "copies" beside them at the first mention (Daniel, 18 Nov 2026: "state it in both ways", then
+   "use replicated and chromatids everywhere"; 0610 schemes accept chromosomes / chromatids, s15/52, s15/62).
    ============================================================ */
 (function (global) {
   'use strict';
@@ -119,19 +120,19 @@
   var MI_STEPS = [
     { h: 'A working cell: lines', p: [
       ['ig', 'A body cell with **4 chromosomes**: 2 pairs, one of each pair from each parent. While the cell is working, each chromosome is **a single long, thin line** of DNA, folded in its own part of the nucleus. The yellow length is a **gene**.']] },
-    { h: 'Copied exactly', p: [
-      ['ig', 'Before mitosis, **each chromosome is copied exactly**: this is the **exact replication** of the chromosomes. There are still 4 chromosomes, but each is now **two identical copies**, called **chromatids**, side by side, held together most firmly at **one point**.'],
+    { h: 'Replicated exactly', p: [
+      ['ig', 'Before mitosis, **each chromosome is replicated** (copied exactly): this is the **exact replication** of the chromosomes. There are still 4 chromosomes, but each is now **two identical copies**, called **chromatids**, side by side, held together most firmly at **one point**.'],
       /* D2.1.5 */
       ['ib', 'The point that holds the two chromatids is the **centromere**.']] },
     { h: 'Coiled: the cross', p: [
-      ['ig', 'Each copy **coils**, again and again, until it is **short and thick**. Each chromosome is now the **X shape** you see in photographs: its two identical copies, joined.'],
+      ['ig', 'Each chromatid **coils**, again and again, until it is **short and thick**. Each chromosome is now the **X shape** you see in photographs: its two identical chromatids, joined.'],
       /* D2.1.6, D2.1.7 */
       ['ib', 'Then the **nuclear membrane** (the membrane round the nucleus) breaks into pieces.']] },
     { h: 'Across the middle', p: [
       /* D2.1.6, D2.1.7 */
       ['ib', 'The chromosomes are arranged **in a line across the middle** of the cell. **Fibres** (spindle microtubules; together, the spindle) from the two ends of the cell hold each chromosome at its joining point.']] },
-    { h: 'The copies separate', p: [
-      ['ig', 'The **two copies of each chromosome** (its **chromatids**) **separate**, to **opposite ends**. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of **every** chromosome: 4.'],
+    { h: 'The chromatids separate', p: [
+      ['ig', 'The **two chromatids of each chromosome** (its two copies) **separate**, to **opposite ends**. Each chromatid is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of **every** chromosome: 4.'],
       ['ib', 'The fibres pull them, joining point first.']] },
     { h: 'Two new nuclei', p: [
       ['ig', '**Mitosis is nuclear division**: one nucleus becomes two.'],
@@ -189,12 +190,12 @@
     if (t < 13) {
       if (!rest(t, 12.4)) return [];
       var c3 = thr(T0[3], ph)[Math.round(D.CROSS.cen * 299)], l0 = leftOf(thr(T0[0], ph));
-      return [{ id: 'cp', text: 'two identical copies, side by side', x: l0[0], y: l0[1], side: 'L' }];
+      return [{ id: 'cp', text: 'two identical chromatids, side by side', x: l0[0], y: l0[1], side: 'L' }];
     }
     if (t < 22) {
       if (!rest(t, 21.6)) return [];
       var xl = plain(T0[0], 'L'), pa = (.8 + 4) * 2 * Math.PI / 18;
-      return [{ id: 'x', text: 'one chromosome: a cross of two identical copies', x: xl[0], y: xl[1], side: 'L' },
+      return [{ id: 'x', text: 'one chromosome: a cross of two identical chromatids', x: xl[0], y: xl[1], side: 'L' },
               { id: 'pc', text: 'the nuclear membrane, in pieces', x: NU.cx + NU.rx * 1.08 * Math.cos(pa - 2 * Math.PI / 18 * 4), y: NU.cy + NU.ry * 1.08 * Math.sin(pa - 2 * Math.PI / 18 * 4), side: 'R' }];
     }
     if (t < 30) {
@@ -207,7 +208,7 @@
     if (t < 37) {
       if (!rest(t, 36)) return [];
       var u = g.v[3][0], d = g.v[3][1];
-      return [{ id: 'up', text: 'one copy of each chromosome: a single rod', x: u.top[0], y: u.top[1], side: 'R' }, { id: 'dn', text: 'the other copy of each', x: d.top[0], y: d.top[1], side: 'R' }];
+      return [{ id: 'up', text: 'one chromatid of each chromosome: a single rod', x: u.top[0], y: u.top[1], side: 'R' }, { id: 'dn', text: 'the other chromatid of each', x: d.top[0], y: d.top[1], side: 'R' }];
     }
     if (t < 45) {
       if (!rest(t, 44.4)) return [];
@@ -219,8 +220,8 @@
   /* each read-out changes when its event happens (half-way through its motion), not when the step begins */
   function byTime(T, A, B, t) { var k = 0; for (var i = 1; i < T.length; i++) if (t >= T[i]) k = i; return [A[k], B[k]]; }
   function mitPills(t) {
-    return byTime([0, 9.4, 33.2, 38.9, 48.2], ['4', '4, each two copies', '4 at each end', '4 in each new nucleus', '4 in each daughter cell'],
-                  ['46', '46, each two copies', '46 at each end', '46 in each new nucleus', '46 in each daughter cell'], t);
+    return byTime([0, 9.4, 33.2, 38.9, 48.2], ['4', '4, each two chromatids', '4 at each end', '4 in each new nucleus', '4 in each daughter cell'],
+                  ['46', '46, each two chromatids', '46 at each end', '46 in each new nucleus', '46 in each daughter cell'], t);
   }
   /* under an animation only its key, drawn, each name only in the steps (from 0) whose picture shows its part; the
      read-outs above already say 4 of 46 (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much
@@ -231,7 +232,7 @@
      already learned the different colors … minimize the key to show the new things"; tools/keys.mjs). So mitosis has no
      key, and meiosis keys only the egg cell's chromosomes */
   function mitosis(spec) {
-    return widget(spec, 'dv', 'Mitosis, step by step', 'A body cell with four chromosomes copies them, they coil into crosses, fibres pull the copies apart, and two daughter cells each receive the same four.',
+    return widget(spec, 'dv', 'Mitosis, step by step', 'A body cell with four chromosomes replicates them, they coil into crosses, fibres pull the chromatids apart, and two daughter cells each receive the same four.',
       MI_STEPS, MI_M, MI.W, MI.H, mitRender, mitLabels, mitPills, []);
   }
   /* the IGCSE · IB switch (Daniel, 4 Nov 2026), as the Immunity Lab's first meeting: one level shown at a time; the IB one
@@ -273,12 +274,12 @@
   var ME_STEPS = [
     { h: 'A cell that makes gametes', p: [
       ['ig', 'A cell in a **testis** or an **ovary**, with **4 chromosomes**: 2 pairs, one of each pair from each parent. Its nucleus is **diploid**: it has two sets of chromosomes, one set from each parent. Each chromosome is a long, thin line.']] },
-    { h: 'Copied', p: [
+    { h: 'Replicated', p: [
       /* D2.1.5 */
-      ['ib', 'Each chromosome is **copied exactly**, along its whole length: two identical copies (**sister chromatids**), side by side, held together most firmly at **one point** (the **centromere**).']] },
+      ['ib', 'Each chromosome is **replicated** (copied exactly), along its whole length: two identical copies (**sister chromatids**), side by side, held together most firmly at **one point** (the **centromere**).']] },
     { h: 'Short and thick, in pairs', p: [
       /* D2.1.6, D2.1.9 */
-      ['ib', 'The copies **coil** until each chromosome is a short, thick **cross**. Inside the nucleus, the two chromosomes of **each pair** (**homologous chromosomes**) lie **side by side**, gene beside gene (a **bivalent**).']] },
+      ['ib', 'The chromatids **coil** until each chromosome is a short, thick **cross**. Inside the nucleus, the two chromosomes of **each pair** (**homologous chromosomes**) lie **side by side**, gene beside gene (a **bivalent**).']] },
     { h: 'The pairs across the middle', p: [
       /* D2.1.9, D2.1.11 */
       ['ib', 'The **nuclear membrane** (the membrane round the nucleus) breaks into pieces. The pairs are arranged **across the middle** of the cell. **Fibres** (spindle microtubules) from one end hold one chromosome of each pair; fibres from the other end hold the other chromosome. Which chromosome of a pair faces which end is **chance** (**random orientation**).']] },
@@ -286,10 +287,10 @@
       ['ig', 'Each new cell has **one chromosome of each pair**: 2. The number is **halved**, from diploid to haploid: meiosis is a **reduction division**.'],
       /* D2.1.9 */
       ['ib', 'The fibres pull the two chromosomes of each pair to opposite ends, and the cell divides: the first division of meiosis.']] },
-    { h: 'Second division: the copies separate', p: [
+    { h: 'Second division: the chromatids separate', p: [
       ['ig', 'Meiosis gives **4 cells**, each with 2 chromosomes.'],
       /* D2.1.9 */
-      ['ib', 'Each cell divides again. This time the **two copies** of each chromosome separate, as in mitosis.']] },
+      ['ib', 'Each cell divides again. This time the **two chromatids** of each chromosome separate, as in mitosis.']] },
     { h: 'Four haploid cells', p: [
       ['ig', 'Four **haploid** cells: each nucleus has a single set of chromosomes, **one chromosome of each pair**. Here they are of two kinds; with 23 pairs a person makes millions of kinds: the gametes are **genetically different**.'],
       /* D3.1.14 (HL) */
@@ -447,7 +448,7 @@
     var T0 = g.T0, NU = ME.NU;
     if (t < 6) { var l0 = leftOf(thr(T0[0], ph));
       return [{ id: 'ch', text: 'one chromosome: a long, thin line', x: l0[0], y: l0[1], side: 'L' }, { id: 'nu', text: 'a diploid nucleus: 2 pairs', x: NU.cx + NU.rx * Math.cos(-.5), y: NU.cy + NU.ry * Math.sin(-.5), side: 'R' }]; }
-    if (t < 13) { if (!rest(t, 12.4)) return []; var l1 = leftOf(thr(T0[0], ph)); return [{ id: 'cp', text: 'each chromosome: two identical copies', x: l1[0], y: l1[1], side: 'L' }]; }
+    if (t < 13) { if (!rest(t, 12.4)) return []; var l1 = leftOf(thr(T0[0], ph)); return [{ id: 'cp', text: 'each chromosome: two identical chromatids', x: l1[0], y: l1[1], side: 'L' }]; }
     if (t < 23) { if (!rest(t, 22.6)) return [];
       var pa = plain(g.x[0], 'L'), pb = plain(g.x[3], 'R');
       return [{ id: 'pa', text: 'a pair, side by side', x: pa[0], y: pa[1], side: 'L' }, { id: 'pb', text: 'the other pair', x: pb[0], y: pb[1], side: 'R' }]; }
@@ -474,8 +475,8 @@
   }
   function meiPills(t) {
     return byTime([0, 9.4, 20.6, 33.9, 38, 46.3, 53, 68.6],
-      ['4, 2 pairs (diploid)', '4, each two copies', '4, as 2 pairs side by side', '2 moving to each end', '2 in each of 2 cells (haploid)', '2 in each of 4 cells', '2 in each gamete (haploid)', 'the zygote: 4, 2 pairs (diploid)'],
-      ['46: 23 pairs', '46, each two copies', '23 pairs side by side', '23 moving to each end', '23 in each cell', '23 in each cell', '23 in each gamete', '23 + 23 = 46'], t);
+      ['4, 2 pairs (diploid)', '4, each two chromatids', '4, as 2 pairs side by side', '2 moving to each end', '2 in each of 2 cells (haploid)', '2 in each of 4 cells', '2 in each gamete (haploid)', 'the zygote: 4, 2 pairs (diploid)'],
+      ['46: 23 pairs', '46, each two chromatids', '23 pairs side by side', '23 moving to each end', '23 in each cell', '23 in each cell', '23 in each gamete', '23 + 23 = 46'], t);
   }
   function meiosis(spec) {
     return widget(spec, 'dv', 'Meiosis, step by step', 'A cell with two pairs of chromosomes divides twice to give four haploid cells with one chromosome of each pair; then a sperm cell and an egg cell fuse.',
@@ -498,17 +499,17 @@
   var LC_STEPS = [
     { h: 'A working cell: lines', p: [
       ['ig', 'While a cell is working, each chromosome is **a single long, thin line**: one molecule of DNA, folded in its own part of the nucleus. Here is **one pair**: the same chromosome from the **mother** (orange) and from the **father** (blue). The yellow length is a **gene**, at the same place on both.']] },
-    { h: 'Copied: two lines', p: [
-      ['ig', 'Before the cell divides, each chromosome is **copied exactly**: the copy is made **along the whole line**. This exact copying is called **replication**. Now each chromosome is **two identical lines**, called **chromatids**, side by side, held together most firmly at **one point**.']] },
+    { h: 'Replicated: two lines', p: [
+      ['ig', 'Before the cell divides, each chromosome is **replicated**: it is copied exactly, **along the whole line**. This exact copying is called **replication**. Now each chromosome is **two identical lines**, called **chromatids**, side by side, held together most firmly at **one point**.']] },
     { h: 'Coiled: a cross', p: [
-      ['ig', 'Each copy **coils**, again and again, until it is **short and thick**. The two copies, still joined, now form a **cross**: this is still **one chromosome**.'],
+      ['ig', 'Each chromatid **coils**, again and again, until it is **short and thick**. The two chromatids, still joined, now form a **cross**: this is still **one chromosome**.'],
       /* D2.1.7 */
       ['ib', 'Then the **nuclear membrane** (the membrane round the nucleus) breaks into pieces.']] },
     { h: 'Across the middle', p: [
       /* D2.1.6, D2.1.7 */
       ['ib', 'The two chromosomes are arranged **across the middle** of the cell. **Fibres** (spindle microtubules; together, the spindle) from its two ends hold each one at its joining point.']] },
-    { h: 'The copies separate', p: [
-      ['ig', 'The **two copies** of each chromosome (its **chromatids**) **separate**, to **opposite ends**. Each copy is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of the mother’s chromosome and one of the father’s.'],
+    { h: 'The chromatids separate', p: [
+      ['ig', 'The **two chromatids** of each chromosome (its two copies) **separate**, to **opposite ends**. Each chromatid is now a chromosome of its own: **a single rod**, not a cross. Each end receives one copy of the mother’s chromosome and one of the father’s.'],
       ['ib', 'The fibres pull them apart.']] },
     { h: 'Two new cells: lines again', p: [
       ['ig', 'The rods **uncoil** into **long, thin lines** again. The cell divides: **two new cells**, each with the **same pair** as the first cell. This division is called **mitosis**: the two new cells are **genetically identical**. A cross is seen **only while a cell divides**.'],
@@ -561,7 +562,7 @@
       return [{ id: 'cp', text: 'two identical lines, side by side', x: l[0], y: l[1], side: 'L' }]; }
     if (t < 23) { if (!rest(t, 22.6)) return [];
       var xl = plain(T0[0], 'L'), bd = D.rodAt(D.crossRod(T0[1], 1), .78);
-      return [{ id: 'x', text: 'one chromosome: two copies, a cross', x: xl[0], y: xl[1], side: 'L' }, { id: 'b', text: 'the gene, on both copies', x: bd[0], y: bd[1], side: sideOf(bd) }]; }
+      return [{ id: 'x', text: 'one chromosome: two chromatids, a cross', x: xl[0], y: xl[1], side: 'L' }, { id: 'b', text: 'the gene, on both chromatids', x: bd[0], y: bd[1], side: sideOf(bd) }]; }
     if (t < 31) { if (!rest(t, 30.4)) return [];
       var e0 = plain(g.x[0], 'L'), e1 = plain(g.x[1], 'R');
       return [{ id: 'mm', text: 'the mother’s chromosome', x: e0[0], y: e0[1], side: 'L' }, { id: 'ff', text: 'the father’s chromosome', x: e1[0], y: e1[1], side: 'R' }]; }
@@ -573,12 +574,12 @@
     return [{ id: 'c1', text: 'a new cell: the mother’s chromosome, a line again', x: o1[0], y: o1[1], side: 'R' }, { id: 'c2', text: 'the father’s chromosome, a line again', x: o2[0], y: o2[1], side: 'R' }];
   }
   function lcPills(t) {
-    var a = byTime([0, 9.7, 17.4, 34.2, 43], ['a single line: 1 copy of its DNA', 'two identical lines, joined', 'a cross: two copies', 'a single rod: 1 copy', 'a single line again'], [], t)[0];
-    var b = byTime([0, 6.4, 14.4, 23, 47], ['working', 'preparing to divide', 'dividing: the copies coil', 'dividing', 'two new working cells'], [], t)[0];
+    var a = byTime([0, 9.7, 17.4, 34.2, 43], ['a single line: 1 copy of its DNA', 'two identical lines, joined', 'a cross: two chromatids', 'a single rod: 1 copy', 'a single line again'], [], t)[0];
+    var b = byTime([0, 6.4, 14.4, 23, 47], ['working', 'preparing to divide', 'dividing: the chromatids coil', 'dividing', 'two new working cells'], [], t)[0];
     return [a, b];
   }
   function linecross(spec) {
-    return widget(spec, 'dv', 'A line or a cross?', 'One pair of chromosomes, the mother’s and the father’s: long thin lines in a working cell; each copied, then coiled into a cross; the copies separate as single rods; two new cells, each with the pair as lines.',
+    return widget(spec, 'dv', 'A line or a cross?', 'One pair of chromosomes, the mother’s and the father’s: long thin lines in a working cell; each replicated, then coiled into a cross; the chromatids separate as single rods; two new cells, each with the pair as lines.',
       LC_STEPS, LC_M, LC.W, LC.H, lcRender, lcLabels, lcPills, [
         { key: [['mum', 'from the mother'], ['dad', 'the same chromosome from the father'], ['gene', 'a gene'], ['fibre', 'fibres', [3, 4]],
                 ['vesicle', 'pieces of the nuclear membrane', [2, 3, 4]]] }, ['One pair of the 46 is drawn.']
