@@ -78,7 +78,7 @@
     var raised = t.filter(function (x) { return x.s; }).length;
     var xy = t.filter(function (x) { return /^[XYxy]$/.test(x.b); }).length;
     if (kind === 'dom') {
-      if (raised) return 'This gene has a <b>dominant</b> and a <b>recessive</b> allele: write each allele as <b>one letter</b>, with <b>no raised letter</b>. Raised letters are for codominant genes and for genes on the X chromosome.';
+      if (raised) return 'This gene has a <b>dominant</b> and a <b>recessive</b> allele: write each allele as <b>one letter</b>, with <b>no raised letter</b>. Raised letters are for codominant alleles and for genes on the X chromosome.';
       if (xy) return 'This gene is not on a sex chromosome: write the alleles alone, with no X or Y.';
       var L = t.map(function (x) { return x.b.toLowerCase(); });
       if (L.some(function (c) { return c !== L[0]; })) return 'Use <b>one letter</b> for the gene: the <b>capital</b> for the dominant allele and <b>the same letter, small</b>, for the recessive allele.';
@@ -86,7 +86,7 @@
     }
     if (kind === 'codom' || kind === 'abo') {
       if (!raised) return 'The alleles of this gene are <b>codominant</b>: each allele is written as a <b>raised letter</b> on the gene’s capital letter. Letters with nothing raised, or a capital and a small letter, would mean a dominant and a recessive allele.';
-      if (raised < n) return 'Every allele of a codominant gene is a <b>raised letter</b> on the gene’s capital letter: one of your letters stands on the line with nothing raised on it.';
+      if (raised < n) return 'Each codominant allele is a <b>raised letter</b> on the gene’s capital letter: one of your letters stands on the line with nothing raised on it.';
       if (n > 1 && t.every(function (x) { return x.s === t[0].s; }) && t.some(function (x) { return x.b !== t[0].b; }))
         return 'The two letters are swapped: the letter <b>on the line</b> is the gene’s capital letter, the same in both alleles, and the <b>raised</b> letter names each allele.';
       if (t.some(function (x) { return x.b !== x.b.toUpperCase(); })) return 'The letter <b>on the line</b> names the gene, and it is a <b>capital</b>. The raised letter names the allele.';
