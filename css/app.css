@@ -310,7 +310,7 @@
   --c48:rgba(56,143,86,0.00);
   --c49:rgba(0,0,0,0.50);
   --c50:#1E272F;
-  --c51:rgba(255,255,255,0.63);
+  --c51:var(--card);
   --c52:rgba(0,0,0,0.36);
   --c53:#263029;
   --c54:#2C3844;
@@ -537,7 +537,7 @@
   --c48:rgba(56,143,86,0.00);
   --c49:rgba(0,0,0,0.50);
   --c50:#1E272F;
-  --c51:rgba(255,255,255,0.63);
+  --c51:var(--card);
   --c52:rgba(0,0,0,0.36);
   --c53:#263029;
   --c54:#2C3844;
@@ -1278,6 +1278,7 @@ h1,h2,h3,h4{margin:0;font-weight:700;line-height:1.25}
 .gloss__find{width:100%;margin:14px 0 6px;padding:10px 13px;font-size:15px;font-family:inherit;
              border:1px solid var(--edge);border-radius:var(--r);background:var(--card-2);color:inherit}
 .gloss__find:focus{outline:2px solid var(--accent);outline-offset:1px;background:var(--card)}
+.gloss__find::placeholder{color:var(--grey);opacity:1}   /* 20 Nov 2026: the browser's own grey (#757575) read 3.6:1 on the dark version's box (tools/panel-contrast.mjs) */
 .gloss__count{margin:0 0 4px;font-size:13px;color:var(--c34)}
 .gloss__grp{margin-top:18px}
 .gloss__h{color:var(--accent);font-size:13px;letter-spacing:.06em;text-transform:uppercase;
@@ -1294,6 +1295,7 @@ h1,h2,h3,h4{margin:0;font-weight:700;line-height:1.25}
 .gloss__got:hover,.gloss__got:focus-visible{color:var(--accent);border-color:var(--accent);border-style:solid}
 .gloss__got.is-known{color:var(--accent);border-style:solid;border-color:var(--c89);background:var(--c90)}
 .gloss__known{margin:0 0 6px;font-size:12.5px;color:var(--c34)}
+.tourcard__link{background-color:var(--edge-2);color:var(--ink)}   /* 20 Nov 2026: the save window's "not you?" and "Clear this computer" had no rule here, so the browser's own button showed grey words on dark grey in the dark version */
 .gloss__known button{font:inherit;font-size:12.5px;color:var(--accent);background:none;border:none;
                      text-decoration:underline;cursor:pointer;padding:0}
 .gloss__see{font:inherit;font-size:12.5px;color:var(--accent);background:var(--card-2);
