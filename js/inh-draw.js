@@ -579,7 +579,44 @@
     return { svg: svg, wrapAt: wrapAt, linker: linker };
   }
 
-  global.InhDraw = { chromo: chromo, vee: vee, bandAt: bandAt, cell: cell, nucleus: nucleus, helix: helix, allele: allele, person: person, threads: threads, threadStart: threadStart, n1: n1, esc: esc,
+  /* ---------- the IB name of the phase, at the top left of a division's picture (Daniel, 22 Nov 2026: "even though they're
+     looking at the IGCSE, if they look at it in purple, the names … it will indirectly make them learn it … it's just the
+     names"). In a band of its own above the drawing, so it can never cover a part, a name or a button: the one extension
+     violet, with its IB mark. names: the phase now; with Reduce motion, every phase that begins in the step's one still,
+     in order (a row more where they do not fit). ---------- */
+  var PT = { fs: 1, lh: 1.3, pad: .22, chip: 1.86, gap: .42, right: .6 }, ptCtx = null;
+  function ptWidth(s, px) {
+    try {
+      ptCtx = ptCtx || document.createElement('canvas').getContext('2d');
+      ptCtx.font = '600 ' + px + 'px ' + (getComputedStyle(document.body).fontFamily || 'sans-serif');
+      return ptCtx.measureText(s).width;
+    } catch (e) { return s.length * px * .6; }
+  }
+  function phaseRows(names, f, maxW) {
+    var fs = f * PT.fs, room = maxW - fs * (PT.pad + PT.chip + PT.gap + PT.right), rows = [], cur = '';
+    names.forEach(function (n, i) {
+      var piece = n + (i < names.length - 1 ? ' →' : ''), tr = cur ? cur + ' ' + piece : piece;
+      if (cur && ptWidth(tr, fs) > room) { rows.push(cur); cur = piece; } else cur = tr;
+    });
+    if (cur) rows.push(cur);
+    return rows;
+  }
+  function phaseBand(f, rows) { var fs = f * PT.fs; return (rows || 1) * fs * PT.lh + fs * 2 * PT.pad + f * .44; }
+  function phaseTag(x, y, f, names, maxW) {
+    if (!names || !names.length) return '';
+    var fs = f * PT.fs, rows = phaseRows(names, f, maxW), lh = fs * PT.lh, pad = fs * PT.pad, chipW = fs * PT.chip, chipH = fs * 1.14;
+    var tx = x + pad + chipW + fs * PT.gap, w = 0;
+    rows.forEach(function (r) { w = Math.max(w, ptWidth(r, fs)); });
+    var W = Math.min(maxW, tx - x + w + fs * PT.right), H = rows.length * lh + 2 * pad, cy = y + pad + lh / 2;
+    return '<g class="phtag"><rect class="phtag__bg" x="' + n1(x) + '" y="' + n1(y) + '" width="' + n1(W) + '" height="' + n1(H) + '" rx="' + n1(fs * .5) + '"/>' +
+      '<rect class="phtag__chip" x="' + n1(x + pad) + '" y="' + n1(cy - chipH / 2) + '" width="' + n1(chipW) + '" height="' + n1(chipH) + '" rx="' + n1(fs * .3) + '"/>' +
+      '<text class="phtag__ib" x="' + n1(x + pad + chipW / 2) + '" y="' + n1(cy + fs * .34) + '" text-anchor="middle" style="font-size:' + n1(fs) + 'px">IB</text>' +
+      '<text class="phtag__n" style="font-size:' + n1(fs) + 'px">' + rows.map(function (r, j) {
+        return '<tspan x="' + n1(tx) + '" y="' + n1(cy + j * lh + fs * .34) + '">' + esc(r) + '</tspan>';
+      }).join('') + '</text></g>';
+  }
+
+  global.InhDraw = { phaseTag: phaseTag, phaseBand: phaseBand, phaseRows: phaseRows, chromo: chromo, vee: vee, bandAt: bandAt, cell: cell, nucleus: nucleus, helix: helix, allele: allele, person: person, threads: threads, threadStart: threadStart, n1: n1, esc: esc,
     poly: poly, smooth: smooth, resample: resample, normals: normals, shift: shift, territory: territory, territoryMid: territoryMid, CROSS: CROSS,
     crossRod: crossRod, straightRod: straightRod, mixRod: mixRod, rodAt: rodAt, veeRod: veeRod, FOUR: FOUR, TWO: TWO, terr: terr, tmix: tmix, at: at, veePair: veePair, coiled: coiled, uncoil: uncoil, nuclei: nuclei, envelope: envelope, opening: opening, gather: gather, fibres: fibres, pinch: pinch, mix: mix, rot: rot, duplex: duplex, ribbon: ribbon, beads: beads, NUC: NUC, SEQ: SEQ, PAIR: PAIR };
 })(window);

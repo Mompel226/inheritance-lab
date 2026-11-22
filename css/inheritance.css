@@ -587,6 +587,12 @@ p,li,dd,figcaption{text-wrap:pretty}
 .dv__ext{font:inherit;font-size:12.5px;font-weight:600;border-radius:var(--r-pill);padding:3px 10px;border:1.5px solid var(--ext);background:var(--card);color:var(--ext);cursor:pointer}
 .dv__ext[aria-pressed="true"]{background:var(--ext);color:var(--ext-on)}
 .dv__ext[aria-pressed="true"] .sup--ext{color:var(--ext-on)}
+/* the IB name of the phase, at the top left of a division's picture (InhDraw.phaseTag): the one extension violet */
+.phtag{pointer-events:none}
+.phtag__bg{fill:var(--ext-tint);stroke:var(--ext-rule);stroke-width:1;vector-effect:non-scaling-stroke}
+.phtag__chip{fill:var(--ext)}
+.phtag .phtag__ib{fill:var(--ext-on);font-weight:700;letter-spacing:.04em}
+.phtag .phtag__n{fill:var(--ext);font-weight:600}
 .sw--faint{background:var(--shade);opacity:.45}
 .sw--x{background:linear-gradient(60deg,transparent 42%,var(--mum) 42% 58%,transparent 58%),linear-gradient(-60deg,transparent 42%,var(--mum) 42% 58%,transparent 58%);border:none}
 /* the IGCSE · IB switch of the divisions */

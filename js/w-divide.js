@@ -41,8 +41,9 @@
      5 the copies separate: single rods   6 two new cells, the rods uncoiled into lines, each cell with the pair
    THE BIOLOGY, every frame: the two copies of a chromosome are the same colour, length and gene; threads never cross (each
    in its own territory); the chromosomes of a pair come from different parents; the number is right at every frame
-   (4 → 4 + 4; 4 → 2 + 2 → four cells of 2 → a zygote of 4). Stage names, centromere and spindle are IB
-   (D2.1.6–D2.1.11): named once, in brackets, as the IB word. "Replicated" and "chromatids" are the words in every step and
+   (4 → 4 + 4; 4 → 2 + 2 → four cells of 2 → a zygote of 4). Centromere and spindle are IB
+   (D2.1.6–D2.1.11): named once, in brackets, as the IB word. The names of the phases stand in their own violet IB tag at the
+   picture's top left, and nowhere in the IGCSE steps' words (PHASES below). "Replicated" and "chromatids" are the words in every step and
    label, with "copied" / "copies" beside them at the first mention (Daniel, 18 Nov 2026: "state it in both ways", then
    "use replicated and chromatids everywhere"; 0610 schemes accept chromosomes / chromatids, s15/52, s15/62).
    ============================================================ */
@@ -72,8 +73,29 @@
   function unc(T, ph, u, V, s) { return D.uncoil(T, ph, u, (s || SZ).wd, V, { band: T.band, cen: false }); }
   /* each step's real motion, in model seconds (written by tools/flow-still.mjs --write; checked by it) */
   var MOTION = {"A line or a cross?":[0,7.05,8.65,7.45,6.05,11.65],"Mitosis, step by step":[0,6.45,8.65,6.65,6.05,7.45,6.05],"Meiosis, step by step":[0,6.45,9.65,7.45,8.65,8.85,7.45,16.25]};
+  /* ============================================================ the IB names of the phases ============================================================
+     Each name starts at the moment its phase begins ON THE PICTURE, in the model's seconds: prophase when the chromatids
+     begin to coil, metaphase when the chromosomes have arrived on the middle line, anaphase when the chromatids (in meiosis
+     I, the pairs) begin to separate, telophase when the fibres go and the new nuclei form, cytokinesis when the cell begins
+     to pinch. The words are the IB view's (js/w-divide-ib.js). Interphase is the cell's life between divisions, never a
+     stage of mitosis: the tag says only its name. Fertilisation (null) is no phase: no name. */
+  var PHASES = {
+    mitosis: [[0, 'Interphase'], [13.4, 'Prophase'], [26.4, 'Metaphase'], [30.4, 'Anaphase'], [37.2, 'Telophase'], [45.4, 'Cytokinesis']],
+    linecross: [[0, 'Interphase'], [14.4, 'Prophase'], [27.4, 'Metaphase'], [31.4, 'Anaphase'], [38.2, 'Telophase'], [44.4, 'Cytokinesis']],
+    meiosis: [[0, 'Interphase'], [13.4, 'Prophase I'], [28, 'Metaphase I'], [31.4, 'Anaphase I'], [36.4, 'Telophase I'], [40.4, 'Prophase II'],
+              [43.2, 'Metaphase II'], [45, 'Anaphase II'], [49.4, 'Telophase II'], [57, null]]
+  };
+  function phaseAt(P, t) { var n = null; for (var i = 0; i < P.length; i++) if (t >= P[i][0]) n = P[i][1]; return n; }
+  /* Reduce motion shows one still a step, and nothing may be lost: the still names every phase that begins in its step, or
+     the phase it is in */
+  function phasesOfStep(P, M, i, t) {
+    var a = P.filter(function (q) { return q[0] >= M[i] && q[0] < M[i + 1] && q[1]; }).map(function (q) { return q[1]; });
+    if (a.length) return a;
+    var n = phaseAt(P, t);
+    return n ? [n] : [];
+  }
   /* ============================================================ a step widget ============================================================ */
-  function widget(spec, cls, title, aria, STEPS, M, W, H, render, labelsAt, pills, notes, pillNames) {
+  function widget(spec, cls, title, aria, STEPS, M, W, H, render, labelsAt, pills, notes, pillNames, phases) {
     var S = K.shell(spec, cls, title, aria, pillNames || [['n', 'Chromosomes:'], ['hu', 'In a human:']]);
     var svg = S.svg, NSV = K.NS, uid = 'dv' + Math.random().toString(36).slice(2, 7);
     /* the drawing is clipped to its own window: a cell coming in from the side never shows in the names' margins */
@@ -82,12 +104,30 @@
     var bg = document.createElementNS(NSV, 'rect'); bg.setAttribute('class', 'zm__bg'); svg.appendChild(bg);
     var model = document.createElementNS(NSV, 'g'); svg.appendChild(model);
     var gLab = document.createElementNS(NSV, 'g'); svg.appendChild(gLab);
-    var lay = null, narrow = false, key = K.pinKey(S);
+    var gPh = document.createElementNS(NSV, 'g'); svg.appendChild(gPh);
+    var lay = null, narrow = false, key = K.pinKey(S), phKey = '';
     /* the motion runs 1.25 times faster than written (the kit's 1.6 made the membrane and fibres too quick to follow); each
        step: its motion, then the reading of the names new at its end (WKit.timeline) */
     var TL = K.timeline(M, 1.25, MOTION, title, function (m) { return labelsAt(m, 3).map(function (q) { return q.text; }); }),
         R = TL.R, clock = TL.clock;
     var itemsAt = K.itemsOf(function () { return lay; }, function (tt) { return labelsAt(clock(tt), 3); }, true), memo = {};
+    /* a band above the drawing for the phase's name, as tall as the longest still needs at this width, so nothing moves
+       when the name changes */
+    function phaseRoom() {
+      var v = lay.vb, w = v.w - lay.f * .7, rows = 1;
+      for (var i = 0; i < M.length - 1; i++) rows = Math.max(rows, D.phaseRows(phasesOfStep(phases, M, i, M[i]), lay.f, w).length);
+      var band = D.phaseBand(lay.f, rows);
+      svg.setAttribute('viewBox', n1(v.x) + ' ' + n1(v.y - band) + ' ' + n1(v.w) + ' ' + n1(v.h + band));
+      bg.setAttribute('y', n1(v.y - band)); bg.setAttribute('height', n1(v.h + band));
+      lay.phX = v.x + lay.f * .35; lay.phY = v.y - band + lay.f * .22; lay.phW = w;
+    }
+    function phaseDraw(t, still) {
+      var k = 0; for (var i = 0; i < M.length - 1; i++) if (t >= M[i]) k = i;
+      if (still && still.step != null) k = still.step;
+      var ns = still ? phasesOfStep(phases, M, k, t) : [phaseAt(phases, t)].filter(Boolean);
+      var was = ns.join('|') + '|' + lay.phX + '|' + lay.phY + '|' + lay.f;
+      if (was !== phKey) { phKey = was; gPh.innerHTML = D.phaseTag(lay.phX, lay.phY, lay.f, ns, lay.phW); }
+    }
     function draw(tt, still) {
       /* the threads lie still: they wriggled under their names (the audit, 6 Nov 2026; standard 13) */
       var t = clock(tt), ph = 3;
@@ -97,11 +137,13 @@
       items = L.stillItems(still, itemsAt, items, tt, memo, narrow + '|' + lay.f);
       gLab.innerHTML = K.names(wrapIn(lay), items, narrow, key, null, 6);
       var pl = pills(t); S.pill('n', pl[0], 'ok'); S.pill('hu', pl[1], 'ok');
+      if (phases) phaseDraw(t, still);
     }
     var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: TL.end, render: draw, flow: TL.flow });
     return K.mount(S, sp, cls, notes, function (Dw, nar) {
       narrow = nar; var m = K.margins(nar, 15, 15, 90, 90);
       lay = K.frameOf(svg, bg, model, cr, { x0: 0, x1: W, y0: 0, y1: H }, false, Dw, m[0], m[1], m[2], m[3], 14.5);
+      if (phases) phaseRoom();
     });
   }
   /* names only once the step's motion has ended: never on a part moving across the picture */
@@ -233,7 +275,7 @@
      key, and meiosis keys only the egg cell's chromosomes */
   function mitosis(spec) {
     return widget(spec, 'dv', 'Mitosis, step by step', 'A body cell with four chromosomes replicates them, they coil into crosses, fibres pull the chromatids apart, and two daughter cells each receive the same four.',
-      MI_STEPS, MI_M, MI.W, MI.H, mitRender, mitLabels, mitPills, []);
+      MI_STEPS, MI_M, MI.W, MI.H, mitRender, mitLabels, mitPills, [], null, PHASES.mitosis);
   }
   /* the IGCSE · IB switch (Daniel, 4 Nov 2026), as the Immunity Lab's first meeting: one level shown at a time; the IB one
      is built the first time it is asked for (js/w-divide-ib.js) */
@@ -486,7 +528,7 @@
            cell and the egg cell on */
         { key: [['mum', 'from this person’s mother', [0, 1, 2, 3, 4, 5, 6]], ['dad', 'from this person’s father', [0, 1, 2, 3, 4, 5, 6]],
                 ['dad', 'in the sperm cell: from the father', [7]], ['mum', 'in the egg cell: from the mother', [7]]] }
-      ]);
+      ], null, PHASES.meiosis);
   }
   L.add('meiosis', function (spec) { return levels(spec, meiosis, global.InhDivideIB.meiosis, 'Meiosis'); });
 
@@ -583,10 +625,10 @@
       LC_STEPS, LC_M, LC.W, LC.H, lcRender, lcLabels, lcPills, [
         { key: [['mum', 'from the mother'], ['dad', 'the same chromosome from the father'], ['gene', 'a gene'], ['fibre', 'fibres', [3, 4]],
                 ['vesicle', 'pieces of the nuclear membrane', [2, 3, 4]]] }, ['One pair of the 46 is drawn.']
-      ], [['n', 'Each chromosome:'], ['hu', 'The cell:']]);
+      ], [['n', 'Each chromosome:'], ['hu', 'The cell:']], PHASES.linecross);
   }
   L.add('linecross', linecross);
 
   /* the films of the mitosis and meiosis stations' pictures draw these same frames (js/inh-films.js) */
-  global.InhDivide = { SZ: SZ, MI: MI, ME: ME, LC: LC, LZ: LZ, PAIR: PAIR, mitRender: mitRender, meiRender: meiRender, lcRender: lcRender, terr: terr, chrom: chrom, thr: thr, leftOf: leftOf, rightOf: rightOf, ends: ends, nuc: nuc };
+  global.InhDivide = { PHASES: PHASES, phaseAt: phaseAt, SZ: SZ, MI: MI, ME: ME, LC: LC, LZ: LZ, PAIR: PAIR, mitRender: mitRender, meiRender: meiRender, lcRender: lcRender, terr: terr, chrom: chrom, thr: thr, leftOf: leftOf, rightOf: rightOf, ends: ends, nuc: nuc };
 })(window);

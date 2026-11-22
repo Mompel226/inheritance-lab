@@ -33,6 +33,8 @@
       var fr = o.frame(s, a.ph == null ? 0 : a.ph);
       a.img.innerHTML = '<g class="film" data-film="' + o.name + '">' + fr.svg + '</g>';
       o.cur = { s: s, pts: fr.pts };
+      /* the IB name of the phase at this moment (js/w-divide.js PHASES; the figure view draws it) */
+      if (o.phaseAt && a.phase) { var pn = o.phaseAt(s); if (pn !== a.phn) { a.phn = pn; a.phase(pn); } }
       var key = JSON.stringify(fr.pts);
       if (key !== a.key) { a.key = key; if (a.redraw) a.redraw(); }
     }
@@ -123,6 +125,15 @@
       }
       return { svg: svg, pts: pts };
     };
+    /* the phase on the picture: the model's own while it plays; on the way back the next cell's interphase (a cell growing
+       at once, a cell sliding in once it fills more of the picture than the one leaving) */
+    if (o.phases) o.phaseAt = function (s) {
+      var end = o.m1 - .01;
+      if (s < A) return V.phaseAt(o.phases, o.m0 * s / A);
+      if (s < B) return V.phaseAt(o.phases, Math.min(o.m0 + (s - A) * o.pace, end));
+      if (s < C) return V.phaseAt(o.phases, end);
+      return V.phaseAt(o.phases, o.grow || ease((s - C) / back) >= .5 ? 0 : end);
+    };
     return o;
   }
   function pt(p, side) { return [n1(p[0]), n1(p[1]), side]; }
@@ -131,7 +142,7 @@
   /* the mitosis picture: one cell divides into two; the top one then grows into the next cell, as cells do between
      divisions, and the other leaves the picture */
   Films.add('mitosis', filmOf({
-    W: MI.W, H: MI.H, m0: 2, m1: 52, pace: 1.25, back: 3.5,
+    W: MI.W, H: MI.H, m0: 2, m1: 52, pace: 1.25, back: 3.5, phases: V.PHASES.mitosis,
     render: function (t, ph) { return mitRender(t, ph); },
     first: function (ph) { var l = leftOf(thr(terr(FOUR, MI.NU)[0], ph)); return { parent: pt([26, 240], 'L'), chromosome: pt(l, 'L') }; },
     last: function () { return { daughter: pt([288, 128], 'R'), daughter2: pt([288, 352], 'R') }; },
@@ -150,7 +161,7 @@
   }));
   /* the meiosis picture: one cell gives four gametes; then the first cell again */
   Films.add('meiosis', filmOf({
-    W: ME.W, H: ME.H, m0: 2, m1: 57, pace: 1.25, back: 2.4,
+    W: ME.W, H: ME.H, m0: 2, m1: 57, pace: 1.25, back: 2.4, phases: V.PHASES.meiosis,
     render: function (t, ph) { return meiRender(t, ph); },
     first: function () { return { parent: pt([26, 250], 'L') }; },
     last: function () { return { gamete: pt([294, 134], 'R'), gamete2: pt([294, 366], 'R') }; },
@@ -188,6 +199,14 @@
       },
       wiggle: function () { return 3; }
     });
+    o.phaseAt = function (s) {
+      for (var i = 0; i < S.length; i++) {
+        var q = S[i], k = q[1] ? Math.min(1, (s - q[0]) / q[1]) : 1;
+        if (s >= q[0] + q[1] && i + 1 < S.length) continue;
+        if (q[2] === 'back') return V.phaseAt(V.PHASES.linecross, ease(k) < .5 ? 49.99 : 0);
+        return V.phaseAt(V.PHASES.linecross, lerp(q[3], q[4], k));
+      }
+    };
     var A = S[0][0] + S[0][1] / 2, B = S[2][0] + S[2][1] / 2, C = S[4][0] + S[4][1] / 2;
     o.still = C; o.hold = { line: A, cross: B, lines: C, lines2: C };
     o.allPts = Object.assign({}, pts(0, 0), pts(2, 0), pts(4, 0));

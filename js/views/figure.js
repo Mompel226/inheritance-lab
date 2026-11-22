@@ -102,10 +102,10 @@
       else img = el('image', { href: 'assets/photos/' + (m.svg || m.img), x: 0, y: 0, width: m.iw || m.w, height: m.ih || m.h, preserveAspectRatio: 'none',
         'clip-path': 'url(#' + uid + 'c' + k + ')' }, svg);
       var veil = el('rect', { x: m.x0 || 0, y: m.y0 || 0, width: m.w, height: m.h, class: 'cellv__veil', mask: 'url(#' + uid + 'm' + k + ')' }, svg);
-      var labG = el('g', {}, svg);
+      var labG = el('g', {}, svg), phaseG = el('g', {}, svg);
       svg.style.display = k === 0 ? '' : 'none';
       stage.appendChild(svg);
-      return { spec: m, cur: m, narrowSpec: m.narrow ? Object.assign({}, m, m.narrow) : null, btn: b, svg: svg, labG: labG, hole: hole, veil: veil,
+      return { spec: m, cur: m, narrowSpec: m.narrow ? Object.assign({}, m, m.narrow) : null, btn: b, svg: svg, labG: labG, phaseG: phaseG, hole: hole, veil: veil,
         img: img, clipR: clipR, mask: mask, maskR: mask.firstChild, blur: f.firstChild, font: 0 };
     });
     /* the arrangement of this picture for the stage's width; swapped in place when it changes */
@@ -204,7 +204,15 @@
         return { id: p, x: m.pts[p][0], y: m.pts[p][1], text: labelOf(m, p), mid: (m.mids || {})[p], opt: !!BEYOND[p] };
       });
     }
-    function headU(m, f) { return (m.heads || []).some(function (hd) { return hd.y == null; }) ? f * 1.7 : 0; }   /* room above, for headings above the picture */
+    /* a film of a division keeps a band above its drawing for the IB name of the phase (InhDraw.phaseTag) */
+    function phased(m) { return !!(m.film && m.film.phaseAt && global.InhDraw); }
+    function headPx(m, PX) { return m.heads ? PX * 1.7 : phased(m) ? global.InhDraw.phaseBand(PX, 1) : 0; }
+    function phaseDraw(M) {
+      var m = M.cur, vb = (M.svg.getAttribute('viewBox') || '').split(' ').map(Number), f = M.font || 14;
+      if (!phased(m) || !M.phaseName || vb.length !== 4) { M.phaseG.innerHTML = ''; return; }
+      M.phaseG.innerHTML = global.InhDraw.phaseTag(vb[0] + f * .35, vb[1] + f * .22, f, [M.phaseName], vb[2] - f * .7);
+    }
+    function headU(m, f) { return phased(m) ? global.InhDraw.phaseBand(f, 1) : (m.heads || []).some(function (hd) { return hd.y == null; }) ? f * 1.7 : 0; }   /* room above, for headings above the picture */
     /* the pins' key goes beside the picture or under it (one or two columns), whichever leaves the picture larger;
        a long name wraps ("capsule" / "(beyond 0610)"). Everything is about 13 px on screen. */
     function wrapWords(text, n) {
@@ -233,7 +241,7 @@
       var one = keys.map(function (p) { return [labelOf(m, p)]; }), itemW1 = PX * (1.64 + 0.6 * one.reduce(function (n, ls) { return Math.max(n, ls[0].length); }, 0));
       function widest(L) { return PX * (1.64 + 0.6 * L.reduce(function (n, ls) { return Math.max(n, ls.reduce(function (k, l) { return Math.max(k, l.length); }, 0)); }, 0)); }
       var best = null, hB = colH(lines);
-      var phH = (r.height - (m.heads ? PX * 1.7 : 0) - bandPx) / (m.h + 20), room = r.width - sidesPx - PX - phH * (m.w + sidesU), bls = one;
+      var phH = (r.height - headPx(m, PX) - bandPx) / (m.h + 20), room = r.width - sidesPx - PX - phH * (m.w + sidesU), bls = one;
       if (room < itemW1) { var nch = Math.max(KW, Math.floor((room / PX - 1.64) / 0.6)); bls = keys.map(function (p) { return wrapWords(labelOf(m, p), nch); }); }
       var biw = widest(bls), bh = colH(bls);
       if (bh <= r.height - 10) {
@@ -248,7 +256,7 @@
           /* the key is drawn in pin order, not in this order: size it for the tallest names sharing one column */
           var per = Math.ceil(ls.length / cols);
           var hh = colH(ls.slice().sort(function (x, y) { return y.length - x.length; }).slice(0, per));
-          var pp = Math.min((r.width - sidesPx) / (m.w + sidesU), (r.height - hh - PX - (m.heads ? PX * 1.7 : 0) - bandPx) / (m.h + 20));
+          var pp = Math.min((r.width - sidesPx) / (m.w + sidesU), (r.height - hh - PX - headPx(m, PX) - bandPx) / (m.h + 20));
           /* the key's columns share the picture's width, not the stage's: when the picture is limited by the height, its frame is
              narrower than the stage, and two columns of long names would overlap (5 Nov 2026, the meiosis picture at 320 px) */
           var fp = PX / pp, vwPx = (m.w + (nl ? 16 + 1.44 * fp : 10) + (nr ? 16 + 1.44 * fp : 10)) * pp;
@@ -262,7 +270,8 @@
       var hT = nbT * (1.44 * f + 8 / best.p), hB = nbB * (1.44 * f + 8 / best.p);
       var hu = headU(m, f), vw = m.w + colL + colR, vh = m.h + 20 + hu + hT + hB;
       /* a key beside the picture may be taller than it: the frame grows to hold the key, or its last names are cut off */
-      if (best.where === 'beside') { vw += (best.iw + PX) / best.p; vh = Math.max(vh, best.h / best.p + 20 + hu + hT); } else vh += (best.h + PX) / best.p;
+      /* (a film's band for the phase's name stands over the picture only: a key beside it may rise past the band, so the band never shrinks the key's words) */
+      if (best.where === 'beside') { vw += (best.iw + PX) / best.p; vh = Math.max(vh, best.h / best.p + 20 + (phased(m) ? 0 : hu) + hT); } else vh += (best.h + PX) / best.p;
       M.pins = { f: f, colL: colL, colR: colR, where: best.where, cols: best.cols, lines: best.ls, keys: keys, hU: best.h / best.p, vw: vw, hB: hB };
       /* a top band's discs sit just under the frame's top edge, a bottom band's just under the picture */
       M.band = { T: y0 - 10 - hu - hT + 2 + 1.44 * f, B: y0 + m.h + 10 + 2, L: x0 - colL + 2, R: x0 + m.w + colR - 2 };
@@ -360,6 +369,7 @@
         M.veil.style.fill = m.veil ? 'rgba(14,20,27,' + m.veil + ')' : '';
         M.veil.classList.add('is-on');
       } else M.veil.classList.remove('is-on');
+      phaseDraw(M);
     }
     function show(k, why) {
       cur = k;
@@ -398,7 +408,8 @@
       if (M.spec.film) M.spec.film.attach({ img: M.img,
         shown: function () { return modes[cur] === M && M.svg.isConnected && M.svg.getBoundingClientRect().width > 0; },
         redraw: function () { if (modes[cur] === M) draw(M); },
-        lit: function () { return lit; } });
+        lit: function () { return lit; },
+        phase: function (n) { M.phaseName = n; if (modes[cur] === M) phaseDraw(M); } });
     });
     show(0, null);
     return api;
