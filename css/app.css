@@ -1426,6 +1426,15 @@ picture{display:block;line-height:0}
 .tip:hover::after,.tip:hover::before,.tip:focus-visible::after,.tip:focus-visible::before,.tip.is-open::after,.tip.is-open::before{opacity:1;transform:none}
 .tip:focus{outline:none}
 .tip:focus-visible{box-shadow:0 0 0 2px var(--accent)}
+/* in the glossary a level tag can sit near the right edge, and its tooltip then opened past the side of the box on a phone,
+   losing its first words, for most tags (23 Nov 2026, as the Plants Lab's): there the tooltip takes no room until it opens,
+   then opens under the word line, never wider than the line, padding included */
+#glossList .gloss__row dt{position:relative}
+#glossList .tip{position:static}
+#glossList .tip::after{display:none;left:0;right:auto;width:max-content;max-width:min(300px,100%);box-sizing:border-box}
+#glossList .tip:hover::after,#glossList .tip:focus-visible::after,#glossList .tip.is-open::after{display:block}
+#glossList .tip.is-open::after{pointer-events:auto}   /* a press on the open note closes it, and never reaches an answer button under it */
+#glossList .tip::before{display:none}
 
 /* ---------- the Learn tab's widgets ---------- */
 .widget{margin:14px 0 6px;border:1px solid var(--edge);border-radius:var(--r-lg);background:var(--card-2);padding:14px 16px 14px;box-shadow:var(--shadow)}

@@ -198,6 +198,19 @@
     return ul;
   }
   function note(n) { return n.key ? keyOf(n.key) : h('p', 'widget__note' + (n[1] ? ' ' + n[1] : ''), n[0]); }
+  /* a title in capitals must not change a genotype: CSS capitals made "if the round plant is Rr" read "IS RR", above the Rr
+     cross (the picture inspection, 23 Nov 2026). Each genotype in a title keeps its own letters */
+  function keepCase(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('.widget__h,.stg__title'), function (e) {
+      Array.prototype.slice.call(e.childNodes).forEach(function (n) {
+        if (n.nodeType !== 3 || !/\b(?:RR|Rr|rr)\b/.test(n.nodeValue)) return;
+        var s = document.createElement('span');
+        s.innerHTML = L.esc(n.nodeValue).replace(/\b(RR|Rr|rr)\b/g, '<span class="keepcase">$1</span>');
+        while (s.firstChild) e.insertBefore(s.firstChild, n);
+        e.removeChild(n);
+      });
+    });
+  }
   function mount(S, sp, cls, notes, setLayout) {
     S.box.appendChild(sp.bar);
     var wrap = h('div', cls + '__wrap');
@@ -205,7 +218,7 @@
        (Daniel, 26 Sep: "any animations move them to the left and then the text and the buttons on the right") */
     var pack = h('div', cls + '__pack');
     var packT = h('p', 'stg__title', L.esc(S.title)); packT.hidden = true;
-    pack.appendChild(packT); pack.appendChild(S.fig);
+    pack.appendChild(packT); pack.appendChild(S.fig); keepCase(pack); keepCase(S.box);
     var left = h('div', cls + '__left'); left.appendChild(S.read); left.appendChild(pack);
     /* under the drawing, inside its figure (so it goes with it into the picture's column): the key, showing only what
        this step's picture shows, and any short line; nothing under the steps (Daniel, 5 Nov 2026: "put the keys on the
@@ -280,6 +293,6 @@
 
 
   global.WKit = { pinKey: pinKey, names: names, margins: margins, n1: n1, seg: seg, ease: ease, clamp01: clamp01, lerp: lerp, len: len, rng: rng, fitType: fitType,
-                  timeline: timeline, readerSteps: readerSteps, stillsOf: stillsOf, itemsOf: itemsOf, namesWait: namesWait, frameOf: frameOf, drawLabels: drawLabels, shell: shell,
+                  timeline: timeline, readerSteps: readerSteps, stillsOf: stillsOf, itemsOf: itemsOf, namesWait: namesWait, frameOf: frameOf, drawLabels: drawLabels, shell: shell, keepCase: keepCase,
                   mount: mount, NS: NS };
 })(window);

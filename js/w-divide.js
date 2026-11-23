@@ -29,7 +29,8 @@
      3 coiled into crosses; inside the whole nucleus the two of each pair lie side by side (as at the IB level)
      4 the membrane breaks; the pairs across the middle, held by fibres (which faces which end: chance)
      5 first division: the pairs separate, the cell divides: 2 cells of 2, one of each pair (haploid)
-     6 second division: the copies separate: 4 cells of 2   7 four haploid cells, their chromosomes threads again; two
+     6 second division: the copies separate, inside each of the 2 cells   7 the new nuclei form, each cell finishes dividing:
+       four haploid cells, their chromosomes threads again; two
        kinds (in a testis all four become sperm cells; in an ovary one becomes an egg cell)
      8 fertilisation: one becomes a sperm cell and enters a much larger egg cell of another person (its chromosomes solid
        grey); the nuclei fuse: a zygote of 4, each pair one from each parent (diploid)
@@ -76,14 +77,13 @@
   /* ============================================================ the IB names of the phases ============================================================
      Each name starts at the moment its phase begins ON THE PICTURE, in the model's seconds: prophase when the chromatids
      begin to coil, metaphase when the chromosomes have arrived on the middle line, anaphase when the chromatids (in meiosis
-     I, the pairs) begin to separate, telophase when the fibres go and the new nuclei form, cytokinesis when the cell begins
-     to pinch. The words are the IB view's (js/w-divide-ib.js). Interphase is the cell's life between divisions, never a
+     I, the pairs) begin to separate, telophase when the fibres go and the new nuclei form, cytokinesis when the cell begins to pinch. The words are the IB view's (js/w-divide-ib.js). Interphase is the cell's life between divisions, never a
      stage of mitosis: the tag says only its name. Fertilisation (null) is no phase: no name. */
   var PHASES = {
     mitosis: [[0, 'Interphase'], [13.4, 'Prophase'], [26.4, 'Metaphase'], [30.4, 'Anaphase'], [37.2, 'Telophase'], [45.4, 'Cytokinesis']],
     linecross: [[0, 'Interphase'], [14.4, 'Prophase'], [27.4, 'Metaphase'], [31.4, 'Anaphase'], [38.2, 'Telophase'], [44.4, 'Cytokinesis']],
     meiosis: [[0, 'Interphase'], [13.4, 'Prophase I'], [28, 'Metaphase I'], [31.4, 'Anaphase I'], [36.4, 'Telophase I'], [40.4, 'Prophase II'],
-              [43.2, 'Metaphase II'], [45, 'Anaphase II'], [49.4, 'Telophase II'], [57, null]]
+              [43.2, 'Metaphase II'], [45, 'Anaphase II'], [49, 'Telophase II'], [57, null]]
   };
   function phaseAt(P, t) { var n = null; for (var i = 0; i < P.length; i++) if (t >= P[i][0]) n = P[i][1]; return n; }
   /* Reduce motion shows one still a step, and nothing may be lost: the still names every phase that begins in its step, or
@@ -330,9 +330,9 @@
       /* D2.1.9 */
       ['ib', 'The fibres pull the two chromosomes of each pair to opposite ends, and the cell divides: the first division of meiosis.']] },
     { h: 'Second division: the chromatids separate', p: [
-      ['ig', 'Meiosis gives **4 cells**, each with 2 chromosomes.'],
+      ['ig', 'Each of the 2 cells divides again, so meiosis gives **4 cells**, each with 2 chromosomes.'],
       /* D2.1.9 */
-      ['ib', 'Each cell divides again. This time the **two chromatids** of each chromosome separate, as in mitosis.']] },
+      ['ib', 'This time the **two chromatids** of each chromosome separate, as in mitosis.']] },
     { h: 'Four haploid cells', p: [
       ['ig', 'Four **haploid** cells: each nucleus has a single set of chromosomes, **one chromosome of each pair**. Here they are of two kinds; with 23 pairs a person makes millions of kinds: the gametes are **genetically different**.'],
       /* D3.1.14 (HL) */
@@ -351,7 +351,7 @@
   function meiRender(t, ph, g) {
     g = g || {};
     var out = '', body = '', NU = ME.NU;
-    var a1 = ease(seg(t, 31.4, 36.4)), c1 = ease(seg(t, 36.4, 39.6)), c2 = ease(seg(t, 46.8, 48.8)), fe = t >= 57;
+    var a1 = ease(seg(t, 31.4, 36.4)), c1 = ease(seg(t, 36.4, 39.6)), c2 = ease(seg(t, 51.6, 54.4)), fe = t >= 57;
     var T0 = terr(FOUR, NU), cp = ease(seg(t, 6.4, 12.4)), co = ease(seg(t, 13.4, 18.2)), pr = ease(seg(t, 18.6, 22.6)), mv = ease(seg(t, 25, 28));
     var r2 = ease(seg(t, 40.4, 43.2)), a2 = ease(seg(t, 45, 48.6));   /* the second division's copies: 3.6 s apart, not 2.6 (the audit, 6 Nov 2026) */
     var nf = seg(t, 49.4, 52), nA = seg(t, 49.4, 50.2), un = seg(t, 51.2, 56.4);
@@ -393,6 +393,9 @@
         g.G.push({ i: i, V: V, Tg: Tg });
       });
     }
+    /* telophase I: a nuclear membrane forms from pieces round each set (as at the IB level); it breaks again in prophase II */
+    var tf = seg(t, 38.4, 39.6), tA = seg(t, 38.4, 39), tb = seg(t, 40.4, 41.6), tO = 1 - seg(t, 41.6, 42.4);
+    if (tA > .02 && tO > .02 && !fe) ME.YC.forEach(function (yC) { out += D.opening(160, yC, 108, 58, 18, Math.max(1 - tf, tb), tA * tO); });
     /* the gametes' nuclei, from pieces */
     if (nA > .02 && !fe) ME.YC.forEach(function (yC) { [0, 1].forEach(function (j) { var d = gnuc(j, yC); out += D.opening(d.cx, d.cy, d.rx, d.ry, 12, 1 - nf, nA); }); });
     /* fibres, once the chromosomes are in their places: meiosis I from the top and bottom ends to each chromosome's joining
@@ -400,7 +403,8 @@
     var f1 = seg(t, 28.2, 28.8) * (1 - seg(t, 36.6, 37.6)), g1 = ease(seg(t, 28.2, 30.4));
     if (f1 > .02) out += D.fibres(ME.PT, top.map(function (p) { return mix(ME.PT, p, g1); }), f1) + D.fibres(ME.PB, bot.map(function (p) { return mix(ME.PB, p, g1); }), f1);
     g.fib = top[1] ? mix(ME.PT, top[1], .45 * g1) : null;
-    var f2 = seg(t, 43.2, 43.8) * (1 - seg(t, 46.8, 48)), g2 = ease(seg(t, 43.2, 44.8));
+    /* the fibres hold each chromatid until it has arrived (48.6) and go as the nuclei form: they had gone at 48, with the chromatids still moving */
+    var f2 = seg(t, 43.2, 43.8) * (1 - seg(t, 49, 50)), g2 = ease(seg(t, 43.2, 44.8));
     if (f2 > .02) ME.YC.forEach(function (yC, j) {
       var pl = [44, yC], pr2 = [276, yC];
       out += D.fibres(pl, side[j * 2].map(function (p) { return mix(pl, p, g2); }), f2) + D.fibres(pr2, side[j * 2 + 1].map(function (p) { return mix(pr2, p, g2); }), f2);
@@ -501,7 +505,7 @@
     if (t < 40) { if (!rest(t, 39.6)) return [];
       return [{ id: 'c1', text: 'a new cell: 2\u00a0chromosomes, one of each pair', x: 288, y: 134, side: 'R' }, { id: 'c2', text: 'a new cell: 2\u00a0chromosomes, one of each pair', x: 288, y: 366, side: 'R' }]; }
     if (t < 49) { if (!rest(t, 48.8)) return [];
-      return [{ id: 'q1', text: 'a cell: 2\u00a0chromosomes, single rods', x: 294, y: 134, side: 'R' }, { id: 'q2', text: 'a cell: 2\u00a0chromosomes', x: 294, y: 366, side: 'R' }]; }
+      return [{ id: 'q1', text: 'a cell: 2 single rods at each end', x: 288, y: 134, side: 'R' }, { id: 'q2', text: 'the other cell: 2 at each end', x: 288, y: 366, side: 'R' }]; }
     if (t < 57) { if (!rest(t, 56.4)) return [];
       return [{ id: 'g0', text: 'a haploid cell', x: 26, y: 134, side: 'L' }, { id: 'g1', text: 'a cell: one of each pair', x: 294, y: 134, side: 'R' }, { id: 'g2', text: 'a cell of the other kind', x: 294, y: 366, side: 'R' }]; }
     /* the sperm cell and the egg cell, named while they rest; the zygote at the end */
@@ -516,9 +520,9 @@
             { id: 'f', text: '2 from its mother: one of each pair', x: bm.x0, y: (bm.y0 + bm.y1) / 2, side: 'L', alts: [[bm.x0, bm.y1 - 8], [bm.x0, bm.y0 + (bm.y1 - bm.y0) * .7]] }];
   }
   function meiPills(t) {
-    return byTime([0, 9.4, 20.6, 33.9, 38, 46.3, 53, 68.6],
-      ['4, 2 pairs (diploid)', '4, each two chromatids', '4, as 2 pairs side by side', '2 moving to each end', '2 in each of 2 cells (haploid)', '2 in each of 4 cells', '2 in each gamete (haploid)', 'the zygote: 4, 2 pairs (diploid)'],
-      ['46: 23 pairs', '46, each two chromatids', '23 pairs side by side', '23 moving to each end', '23 in each cell', '23 in each cell', '23 in each gamete', '23 + 23 = 46'], t);
+    return byTime([0, 9.4, 20.6, 33.9, 38, 46.3, 54.4, 68.6],
+      ['4, 2 pairs (diploid)', '4, each two chromatids', '4, as 2 pairs side by side', '2 moving to each end', '2 in each of 2 cells (haploid)', '2 moving to each end of each cell', '2 in each gamete (haploid)', 'the zygote: 4, 2 pairs (diploid)'],
+      ['46: 23 pairs', '46, each two chromatids', '23 pairs side by side', '23 moving to each end', '23 in each cell', '23 moving to each end', '23 in each gamete', '23 + 23 = 46'], t);
   }
   function meiosis(spec) {
     return widget(spec, 'dv', 'Meiosis, step by step', 'A cell with two pairs of chromosomes divides twice to give four haploid cells with one chromosome of each pair; then a sperm cell and an egg cell fuse.',
@@ -612,8 +616,8 @@
       var u = g.v[0][0], d = g.v[1][1];
       return [{ id: 'r1', text: 'a single rod, not a cross', x: u.top[0], y: u.top[1], side: 'L' }, { id: 'r2', text: 'a single rod', x: d.top[0], y: d.top[1], side: 'R' }]; }
     if (!rest(t, 49.6)) return [];
-    var o1 = rightOf(thr(g.T1[0], ph)), o2 = rightOf(thr(g.T2[1], ph));
-    return [{ id: 'c1', text: 'a new cell: the mother’s chromosome, a line again', x: o1[0], y: o1[1], side: 'R' }, { id: 'c2', text: 'the father’s chromosome, a line again', x: o2[0], y: o2[1], side: 'R' }];
+    /* each name on its CELL: a name on one colour read as if that cell had only the mother's or the father's chromosome */
+    return [{ id: 'c1', text: 'a new cell: the same pair, each a line again', x: 278, y: 124, side: 'R' }, { id: 'c2', text: 'a new cell: the same pair, each a line again', x: 278, y: 348, side: 'R' }];
   }
   function lcPills(t) {
     var a = byTime([0, 9.7, 17.4, 34.2, 43], ['a single line: 1 copy of its DNA', 'two identical lines, joined', 'a cross: two chromatids', 'a single rod: 1 copy', 'a single line again'], [], t)[0];

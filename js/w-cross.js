@@ -109,7 +109,7 @@
     var AT_SUM = 3.6, AT_END = AT_SUM + 1.2 * SUM.length + .3;
     var M = [0, 6, 12, 19, 29.8, 39.3, 48.8, 48.8 + AT_END + 1.4];
     var box = h('div', 'widget wx');
-    box.appendChild(L.head(c.title, 'A genetic diagram, line by line', 'Press play'));
+    box.appendChild(L.head(c.title, 'A genetic diagram, line by line', 'Press play')); K.keepCase(box);
     var read = h('div', 'wx__read');
     var fig = h('figure', 'wx__fig');
     var d = h('div', 'wx__d');

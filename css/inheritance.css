@@ -116,6 +116,7 @@
 .sim .widget{margin-top:0;border:none;box-shadow:none;background:transparent;padding:0}
 .platecol.is-sim .said{display:none}
 .stg__park{display:none}
+.keepcase{text-transform:none}
 .stg__title{margin:2px 0 0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 .stg__title[hidden]{display:none}
 
@@ -521,7 +522,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 
 /* ============================================================ crosses (js/w-cross.js) ============================================================ */
 .wx__d{display:flex;flex-direction:column;gap:10px;padding:12px;background:var(--col-card);border:1px solid var(--edge);border-radius:14px}
-.wx__row{display:grid;grid-template-columns:minmax(92px,30%) 1fr;align-items:center;gap:10px}
+.wx__row{display:grid;grid-template-columns:minmax(92px,30%) 1fr;align-items:center;gap:16px}
 .wx__lab{font-size:13px;color:var(--grey);text-align:right;line-height:1.25}
 .wx__cells{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;justify-items:center;gap:6px;font-size:16px}
 .wx__c{text-align:center} .wx__g{font-size:20px;font-weight:700}
@@ -545,6 +546,8 @@ p,li,dd,figcaption{text-wrap:pretty}
 .wx__mk{position:relative;isolation:isolate}
 .wx__mk::before{content:'';position:absolute;inset:-4px -8px;border-radius:9px;background:var(--accent-tint);box-shadow:0 0 0 2px var(--accent);opacity:var(--wxb,0);z-index:-1;pointer-events:none}
 .wx__sq td .wx__mk::before{inset:-2px 7px}
+/* a long phenotype: its lit box stays in its own column, clear of the row's name and of the × (the picture inspection, 23 Nov 2026) */
+.wx__cells>.wx__c.wx__mk{margin-inline:8px}
 .wx__from{padding:0 0 2px}
 .wx__ft{display:inline-block;font-size:13px;font-weight:400;color:var(--grey);line-height:1.2}
 .wx__from--side{max-width:76px;vertical-align:bottom;text-align:center}
@@ -569,7 +572,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .tr__new{margin-top:6px}
 .widget__note--ext{border-left:3px solid var(--ext);padding-left:8px;color:var(--ext)}
 @media (max-width:520px){
-  .wx__row{grid-template-columns:1fr;gap:2px}
+  .wx__row{grid-template-columns:1fr;gap:9px}   /* the row's lit name and its lit boxes stand one above the other: 9 px keeps them apart */
   .wx__lab{text-align:left}
   .wx__sq td{width:auto;min-width:96px;height:64px}
   .gt{min-width:54px;font-size:19px}
@@ -631,9 +634,9 @@ p,li,dd,figcaption{text-wrap:pretty}
    Every colour keyed under the picture (station `uses`), in the bright and the dark version */
 :root{ --stem-fill:#FCEFC7; --stem-edge:#A16207; --rbc:#D64545; --rbc-edge:#9B2C2C; --rbc-2:#F2A5A0; --wbc:#EEF2F7; --wbc-edge:#64748B;
   --old-fill:#D9D4CB; --old-edge:#8A8578; --leaf:#4C9A45; --leaf-edge:#2E6B2A; --root:#8A6A3D; --coat:#8FA3B8 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --stem-fill:#3A3020; --stem-edge:#E0B45A; --rbc:#E2635E; --rbc-edge:#F3A19C; --rbc-2:#8E3532;
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --stem-fill:#3A3020; --stem-edge:#E0B45A; --rbc:#E2635E; --rbc-edge:#F3A19C; --rbc-2:#F6B8B3;
   --wbc:#2B3440; --wbc-edge:#A9B6C6; --old-fill:#3A3732; --old-edge:#8E877A; --leaf:#5FB357; --leaf-edge:#A3D99B; --root:#C9A574; --coat:#7F93A8 } }
-:root[data-theme="dark"]{ --stem-fill:#3A3020; --stem-edge:#E0B45A; --rbc:#E2635E; --rbc-edge:#F3A19C; --rbc-2:#8E3532;
+:root[data-theme="dark"]{ --stem-fill:#3A3020; --stem-edge:#E0B45A; --rbc:#E2635E; --rbc-edge:#F3A19C; --rbc-2:#F6B8B3;
   --wbc:#2B3440; --wbc-edge:#A9B6C6; --old-fill:#3A3732; --old-edge:#8E877A; --leaf:#5FB357; --leaf-edge:#A3D99B; --root:#C9A574; --coat:#7F93A8 }
 .coat{fill:none;stroke:var(--coat);stroke-width:5;stroke-opacity:.55}
 .cellb.cellb--stem{fill:var(--stem-fill);stroke:var(--stem-edge)}
@@ -735,6 +738,9 @@ p,li,dd,figcaption{text-wrap:pretty}
 .brk{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round}
 .gd__ratio{font-weight:700}
 .mrna.exg__mrna{stroke-width:3}
+.figkey__sw.sw--rib{background:var(--rib)}
+.figkey__sw.sw--go{background:repeating-linear-gradient(90deg,var(--aa2) 0 4px,transparent 4px 7px);height:3px;align-self:center}
+.exg__go{fill:none;stroke:var(--aa2);stroke-width:2.2;stroke-dasharray:5 4} .exg__tip{fill:var(--aa2)}
 .exg__ves{fill:var(--card);stroke:var(--shade);stroke-width:1.2}
 .exg__memp{fill:var(--aa2);stroke:rgba(0,0,0,.35);stroke-width:1}
 .exg__chan{stroke:var(--card);stroke-width:2.4;stroke-linecap:round}

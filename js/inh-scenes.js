@@ -161,7 +161,8 @@
 
   /* 4 · the same genes in every cell; a cell expresses only some (5 Nov 2026, the final audit: drawn as a cell): the same
      cell and nucleus three times, with the same five genes on one chromosome (drawn on one to save space), every gene
-     yellow. An expressed gene sends its copy, mRNA, out through a pore to where its protein works: amylase in vesicles,
+     yellow. An expressed gene sends its copy, mRNA, out through a pore to a ribosome in the cytoplasm, and the ribosome's protein
+     moves to where it works (mRNA never goes there itself; the picture inspection, 23 Nov 2026): amylase in vesicles,
      secreted from the cell; the glucose carrier in the cell membrane; the receptor in the membrane at a synapse; the
      enzyme of respiration in a mitochondrion, in every cell. The haemoglobin gene is in all three and expressed in none. */
   var GENES = ['amylase', 'carrier', 'receptor', 'haemo', 'resp'];
@@ -177,11 +178,14 @@
       pts[g] = [82, gy, 'L'];
       spots[g] = [96, gy, 20, 19];
       if (!lit) return;
-      /* its mRNA: from the gene, out through a pore in the nuclear membrane, to where its protein works */
+      /* its mRNA: from the gene, out through a pore in the nuclear membrane, to a ribosome; the protein goes on from there */
       var nx = edge(gy, NX, NY, NRX, NRY), cx = edge(gy, CX, CY, RX, RY);
       out += '<rect class="pore" x="' + n1(nx - 5) + '" y="' + (gy - 7) + '" width="10" height="14" rx="3"/>';
-      var tx = g === 'resp' ? 236 : g === 'amylase' ? cx - 52 : cx - 24;
-      out += '<path class="mrna exg__mrna" d="M114 ' + gy + ' C' + n1(nx - 20) + ' ' + (gy - 8) + ' ' + n1(nx + 20) + ' ' + (gy + 8) + ' ' + n1(tx) + ' ' + gy + '"/>';
+      var tx = g === 'resp' ? 238 : g === 'amylase' ? cx - 48 : cx - 11;
+      var rx = nx + 30;
+      out += '<path class="mrna exg__mrna" d="M114 ' + gy + ' C' + n1(nx - 20) + ' ' + (gy - 8) + ' ' + n1(nx + 14) + ' ' + (gy + 6) + ' ' + n1(rx + 10) + ' ' + gy + '"/>';
+      out += '<g class="rib exg__rib"><ellipse cx="' + n1(rx) + '" cy="' + (gy - 7) + '" rx="13" ry="6.5"/><ellipse cx="' + n1(rx) + '" cy="' + (gy + 7) + '" rx="10" ry="5"/></g>';
+      out += '<path class="exg__go" d="M' + n1(rx + 16) + ' ' + gy + ' L' + n1(tx - 5) + ' ' + gy + '"/><path class="exg__tip" d="M' + n1(tx - 6) + ' ' + (gy - 4.5) + ' L' + n1(tx + 1) + ' ' + gy + ' L' + n1(tx - 6) + ' ' + (gy + 4.5) + ' Z"/>';
       if (g === 'amylase') {
         [[cx - 36, gy - 4], [cx - 14, gy - 12]].forEach(function (v) { out += '<circle class="exg__ves" cx="' + n1(v[0]) + '" cy="' + n1(v[1]) + '" r="10"/>' +
           '<circle class="exg__prot" cx="' + n1(v[0] - 3) + '" cy="' + n1(v[1] - 2) + '" r="3"/><circle class="exg__prot" cx="' + n1(v[0] + 4) + '" cy="' + n1(v[1] + 3) + '" r="3"/>'; });
@@ -324,13 +328,13 @@
   function xy() {
     var out = '';
     var X1 = { x: 64, y: 150, len: 190, w: 28, who: 'mum', bands: [.12] }, X2 = { x: 104, y: 150, len: 190, w: 28, who: 'dad', bands: [.12] };
-    var X3 = { x: 236, y: 150, len: 190, w: 28, who: 'mum', bands: [.12] }, Y = { x: 276, y: 192, len: 106, w: 28, who: 'dad', cls: 'chr--y' };
+    var X3 = { x: 236, y: 150, len: 190, w: 28, who: 'mum', bands: [.12] }, Y = { x: 276, y: 210, len: 70, w: 28, who: 'dad', cls: 'chr--y' };   /* the Y: about 0.37 of the X (57 and 156 million base pairs) */
     out += D.chromo(X1) + D.chromo(X2) + D.chromo(X3) + D.chromo(Y) + bracket(X1.x - 14, X2.x + 14, 254, true) + bracket(X3.x - 14, Y.x + 14, 254, true);
     var g1 = D.bandAt(X1, .12), g3 = D.bandAt(X3, .12);
     return { w: 340, h: 262, svg: out,
       pts: { female: [(X1.x + X2.x) / 2, 253.5, 'B'], male: [(X3.x + Y.x) / 2, 253.5, 'B'], xgene: [g1[0] - 14, g1[1], 'L'], ygene: [Y.x + 14, Y.y, 'R'], xgene2: [g3[0] + 14, g3[1], 'R'] },
       alts: {},
-      spots: { female: [84, 150, 38, 98], male: [256, 150, 38, 98], xgene: [g1[0], g1[1], 18, 12], xgene2: [g3[0], g3[1], 18, 12], ygene: [Y.x, Y.y, 17, 55] } };
+      spots: { female: [84, 150, 38, 98], male: [256, 150, 38, 98], xgene: [g1[0], g1[1], 18, 12], xgene2: [g3[0], g3[1], 18, 12], ygene: [Y.x, Y.y, 17, 37] } };
   }
 
   /* 14 · three ways to write alleles: in each column two alleles, then genotypes (5 Nov 2026, the final audit: Iᵒ had stood
