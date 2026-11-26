@@ -15,7 +15,7 @@ by **Dr Daniel Mompel Riera**
 
 </div>
 
-![The Inheritance Lab: mitosis in detail, the nuclear membrane breaking into vesicles as the spindle forms, beside the steps](docs/img/screen.jpg)
+![The Inheritance Lab: from the nucleus to a chromosome, its DNA and a gene, beside the station Chromosomes, genes and alleles](docs/img/screen.jpg)
 
 ---
 
