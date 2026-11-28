@@ -91,7 +91,7 @@
       c.gene.kind === 'xy' ? { t: 6, h: 'The parents’ sex chromosomes', p: 'Under each phenotype, its **genotype**: its **sex chromosomes**, XX for a woman and XY for a man.' }
         : c.gene.kind === 'sex' ? { t: 6, h: 'The parents’ genotypes', p: 'Under each phenotype, its **genotype**: the allele on each X chromosome. The Y carries none.' }
         : { t: 6, h: 'The parents’ genotypes', p: 'Under each phenotype, its **genotype**: two alleles, one on each chromosome of the pair.' },
-      c.gene.kind === 'xy' ? { t: 12, h: 'The gametes', p: 'Each **gamete** carries **one** sex chromosome: every egg cell an X; a sperm cell an X or a Y. Each gamete in its own circle.' }
+      c.gene.kind === 'xy' ? { t: 12, h: 'The gametes', p: [['ig', 'Each **gamete** carries **one** sex chromosome: every egg cell an X; a sperm cell an X or a Y.', 'card'], ['ig', 'Each gamete in its own circle.']] }
         : c.gene.kind === 'sex' ? { t: 12, h: 'The gametes', p: 'Each **gamete** carries **one** sex chromosome: an X with its allele, or the Y with none. Each gamete in its own circle.' }
         : { t: 12, h: 'The gametes', p: 'Each **gamete** carries **one** allele: the two alleles of a parent go into different gametes. Each gamete in its own circle.' },
       { t: 19, h: 'The Punnett square', p: 'A **Punnett square** is a grid that shows every way the gametes can fuse at fertilisation. Along the top: the gametes of ' + who[1] + side[1] + '. Down the side: the gametes of ' + who[0] + side[0] + '.' },
@@ -202,7 +202,9 @@
         g.style.color = on ? 'var(--accent)' : ''; g.style.borderColor = on ? 'var(--accent)' : '';
       });
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS, R), end: TL.end, render: draw, flow: TL.flow });
+    /* every line of a worked cross is the IGCSE method, and says so, as every animation's lines do (Daniel, 8 Nov 2026: "exactly
+       what is IGCSE and what is IB"); a sentence of What you need to know may stand in a step (one place per idea, 27 Nov 2026) */
+    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s) { return typeof s.p === 'string' ? Object.assign({}, s, { p: [['ig', s.p]] }) : s; }), R, spec.cards), end: TL.end, render: draw, flow: TL.flow });
     var S = { box: box, read: read, fig: fig, title: c.title, spec: spec };
     return K.mount(S, sp, 'wx', [], function () {});
   }

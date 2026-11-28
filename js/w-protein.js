@@ -67,51 +67,61 @@
     { h: 'The gene, in the nucleus', p: [
       ['ig', 'Enlarged: the nucleus. Each **chromosome** is made of **DNA**: a long, very thin thread. The gene for this protein (yellow; not the ABO gene) is one short length of one thread.']] },
     { h: 'A gene: thousands of base pairs', p: [
-      ['ig', 'Enlarged again: the gene. A **gene** is a length of DNA that codes for a protein.'],
+      ['ig', 'Enlarged again: the gene. A **gene** is a length of DNA that codes for a protein.'], ['ig', '', 'card'],
       ['bey', 'A gene is usually thousands of base pairs long: this one has about 3,000. The next pictures show only its start.'],
       /* A1.2.13 (HL) */
-      ['ibhl', 'All along the DNA, the gene too, it is wound round small balls of protein (histones).']] },
+      ['ib', 'The DNA is wound round small balls of protein, **histones**. Along a gene that is being transcribed there are fewer, and none at its start.']] },
     { h: 'An enzyme at the start of the gene', p: [
       ['ig', 'Enlarged again: the start of the gene. DNA is **two strands**, coiled together into a **double helix**. The bases pair: **A with T**, and **C with G**.'],
       /* D1.2.1 */
-      ['ib', 'An enzyme, **RNA polymerase**, attaches here. It separates the two strands for a short length.']] },
+      ['ib', 'An enzyme, **RNA polymerase**, binds here. It separates the two strands for a short length by breaking the **hydrogen bonds** between their bases.'],
+      /* D1.2.13 (HL) */
+      ['ibhl', 'This start of the gene is the **promoter**. Proteins called **transcription factors** bind to it first; then RNA polymerase can bind.']] },
     { h: 'mRNA, a copy of the gene', p: [
-      ['ig', '**Messenger RNA (mRNA)**, a **copy of the gene**, is made in the nucleus.'],
+      ['ig', '**Messenger RNA (mRNA)**, a **copy of the gene**, is made in the nucleus.', 'card'],
       /* D1.2.1, D1.2.2, A1.2.7 */
-      ['ib', 'The enzyme, **RNA polymerase**, makes it (**transcription**). Free RNA nucleotides arrive, one at a time. The base of each pairs with a base on one strand of the DNA (the template strand): C with G, G with C, T with A. RNA has the base **U** instead of T, so U pairs with A. Behind the enzyme, the two strands of DNA join again.']] },
+      ['ib', 'The enzyme, **RNA polymerase**, makes it (**transcription**). Free RNA nucleotides arrive, one at a time. Each forms **hydrogen bonds** with its **complementary** base on one strand of the DNA, the **template strand**: C in the DNA with G in the RNA, G with C, T with A, and **A in the DNA with U in the RNA**, because RNA has the base U instead of T. Behind the enzyme, the two strands of DNA join again.'],
+      /* D1.2.12 (HL) */
+      ['ibhl', 'RNA polymerase adds each nucleotide to the **3′ end** of the growing RNA, so the RNA is made in the **5′ to 3′** direction.']] },
     { h: 'A copy of the whole gene', p: [
-      ['ig', 'The mRNA is a **copy of the whole gene**. The **gene stays in the nucleus**.'],
-      ['ib', 'RNA polymerase moves along the whole gene, and the mRNA grows until it is thousands of bases long. Then the mRNA and the enzyme separate from the DNA.']] },
+      ['ig', 'The mRNA is a **copy of the whole gene**.'], ['ig', 'The **gene stays in the nucleus**.', 'card'],
+      ['ib', 'RNA polymerase moves along the whole gene, and the mRNA grows until it is thousands of bases long. Then the mRNA and the enzyme separate from the DNA. The DNA is not changed: the same template can be transcribed again and again for the life of the cell. Not all genes in a cell are expressed at one time: transcription, the first stage of **gene expression**, is a key stage at which a cell starts or stops the expression of a gene.'],
+      /* D1.2.15 (HL) */
+      ['ibhl', 'Before it leaves the nucleus, this first RNA (pre-mRNA) is modified, which is not drawn here: the **introns** are removed, the **exons** are spliced together, and a **5′ cap** and a **3′ poly-A tail** are added.']] },
     { h: 'To the cytoplasm', p: [
       ['ig', 'The **mRNA moves from the nucleus to the cytoplasm**.'],
       /* B2.2.6 (HL) */
-      ['ibhl', 'It moves to a **pore** in the nuclear membrane (the membrane round the nucleus).']] },
+      ['ib', 'The mRNA moves to a **pore** in the nuclear membrane (the membrane round the nucleus).']] },
     { h: 'Through a pore', p: [
       ['ig', 'The mRNA moves into the **cytoplasm**.'],
       /* B2.2.6 (HL) */
-      ['ibhl', 'Enlarged: a pore. The nuclear membrane is two membranes (the nuclear envelope), with pores in it. The mRNA passes through a pore, one end first.']] },
+      ['ib', 'Enlarged: a pore. The nuclear membrane is two membranes (the nuclear envelope), with pores in it. The mRNA passes through a pore, one end first.'],
+      /* B2.2.6 (HL) */
+      ['ibhl', 'The pores are needed because the mRNA is made in the nucleus, but must reach the ribosomes in the cytoplasm.']] },
     { h: 'A ribosome forms on the mRNA', p: [
       ['ig', 'In the cytoplasm, the mRNA **passes through ribosomes**. Here the first one forms, at its start.'],
       /* D1.2.6 */
       ['ib', 'A ribosome has two parts, a **small subunit** and a **large subunit**, each made of RNA and protein. The mRNA binds to the small subunit.'],
       /* D1.2.17 (HL) */
-      ['ibhl', 'The small subunit attaches at the start of the mRNA, already carrying the first amino acid on a **tRNA**. It moves along the mRNA to the **start codon**, AUG. Then the large subunit joins it.']] },
+      ['ibhl', 'The small subunit attaches at the **5′ end** of the mRNA, already carrying the first amino acid on a **tRNA** (the initiator tRNA). It moves along the mRNA to the **start codon**, AUG. Then the large subunit joins it.']] },
     { h: 'Inside a ribosome', p: [
       /* A2.1.6 (HL) */
-      ['ibhl', 'Seen through: a ribosome is mostly **RNA** (rRNA), with some proteins on its surface. The ribosome’s RNA, not a protein, **joins the amino acids** together. So RNA can **carry a code** and also **do a job**, like an enzyme. This is why many scientists think that the **first genetic material** of life was RNA.']] },
+      ['ibhl', 'Inside, a ribosome is mostly **RNA** (rRNA), with some proteins on its surface. Its RNA is a **ribozyme**: it **catalyses** the formation of the peptide bonds. Because RNA can store information, be replicated and catalyse reactions, many scientists think that it was the **first genetic material** of life.']] },
     { h: 'A small RNA brings an amino acid', p: [
-      ['ig', 'The **sequence of bases** in the mRNA decides which amino acid comes next.'],
+      ['ig', 'The **sequence of bases** in the mRNA decides which amino acid comes next.', 'card'],
       /* D1.2.6–D1.2.9 */
-      ['ib', 'Each small RNA, a **tRNA**, brings one **amino acid**. Its three bases (the **anticodon**) pair with three bases of the mRNA (a **codon**). One codon codes for one amino acid: here GCU codes for **alanine** (the key gives each one).']] },
+      ['ib', 'Each small RNA, a **tRNA**, brings one **amino acid**. Three bases of the tRNA (its **anticodon**) pair with three bases of the mRNA (a **codon**). One codon codes for one amino acid: here GCU codes for **alanine** (the key gives each one). The code is a **triplet** because 4 bases read in pairs give only 16 codes, too few for 20 amino acids; read in threes they give 64. So most amino acids have more than one codon: the code is **degenerate**. Almost every organism uses the same code: the code is **universal**.']] },
     { h: 'Joining the amino acids', p: [
-      ['ig', 'The **mRNA passes through the ribosome**, and the **ribosome assembles amino acids** into a protein. The **sequence of bases** in the mRNA decides the **sequence of amino acids**.'],
+      ['ig', 'The **mRNA passes through the ribosome**, and the **ribosome assembles amino acids** into a protein. The **sequence of bases** in the mRNA decides the **sequence of amino acids**.', 'card'],
       /* D1.2.10 */
-      ['ib', 'The new amino acid is joined to the chain by a **peptide bond**. Then the ribosome moves three bases along the mRNA. The empty tRNA leaves, and the next one arrives with its amino acid.']] },
+      ['ib', 'Two tRNAs are in the ribosome at the same time, side by side. The new amino acid is joined to the growing chain by a **peptide bond**. Then the ribosome moves **one codon** (three bases) along the mRNA; the empty tRNA leaves, and the next one arrives with its amino acid.'],
+      /* D1.2.17 (HL) */
+      ['ibhl', 'The ribosome has three sites for tRNA: **A**, where a tRNA arrives with its amino acid; **P**, where the tRNA holds the growing chain; and **E**, where the empty tRNA leaves.']] },
     { h: 'The chain grows', p: [
       ['ig', 'One amino acid at a time, the chain grows. A **protein** is a chain of **amino acids**.'],
       ['bey', 'A ribosome adds about 5 amino acids each second. A real protein has hundreds of amino acids; the one drawn here has only 20, of four kinds: methionine, alanine, serine and glycine.']] },
     { h: 'The chain folds into its shape', p: [
-      ['ig', 'The chain folds into the **3D shape** of the protein: it turns once here, so you can see it is not flat. **Different sequences of amino acids** give **different shapes** to protein molecules.'],
+      ['ig', 'The chain folds into the **3D shape** of the protein: it turns once here, so you can see it is not flat.'], ['ig', '**Different sequences of amino acids** give **different shapes** to protein molecules.', 'card'],
       /* D1.2.8, D1.2.9 (the code's stop codons) */
       ['ib', 'At the end of the code, a **stop codon**, no tRNA fits. The chain is released, and the two subunits separate.']] }
   ];
@@ -1168,7 +1178,7 @@
       gLab.innerHTML = names(lay, items, narrow, key);
       S.pill('see', SEE[sc.k], 'ok'); S.pill('where', WHERE[sc.k], 'ok'); S.pill('size', SIZE[sc.k], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: TL.end, render: draw, flow: TL.flow });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R, spec.cards), end: TL.end, render: draw, flow: TL.flow });
     S.box.__end = TL.end;
     /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
        "Why don't you show them instead of writing about them?") */

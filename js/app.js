@@ -429,6 +429,10 @@
     WIDGET_CTX.station = st.id;      /* a widget that keeps state needs a name that survives a repaint */
     var M = window.Terms ? window.Terms.mark : esc;
     var widgets = (st.learn && st.learn.interact) || [];
+    /* one place per idea (Daniel, 27 Nov 2026): the sentences that stand in a film's steps, and the films waiting for them */
+    var merged = [], held = [];
+    function sentences(t) { return String(t).replace(/([.!?])\s+(?=[A-Z_])/g, '$1\u0001').split('\u0001'); }
+    function filmHolder(w) { var ph = document.createElement('li'); ph.__film = w; held.push(ph); return ph; }
 
     var card = document.createElement('div');
     card.className = 'card';
@@ -468,6 +472,20 @@
           wrap.innerHTML = '<div class="exam-part__h">' + esc(part) + '</div>'; wrap.appendChild(list); card.appendChild(wrap);
         }
         else card.appendChild(list);
+      }
+      /* a sentence that only repeated a step of its station's animation (`inFilm`, `step`: one step, or one for each
+         sentence) stands in that step, marked as a card's words are (Terms.teach: its key word's ↓), and is no card of its
+         own (Daniel, 27 Nov 2026: "the different stages are actually what you click"); a film anchored to it still stands here */
+      if (!offK && typeof b === 'object' && b.inFilm) {
+        var at = [].concat(b.step), parts = Array.isArray(b.step) ? sentences(b.text) : [b.text];
+        if (window.Terms && Terms.freshCard) Terms.freshCard();
+        parts.forEach(function (t, j) {
+          if (window.Terms && Terms.teach) Terms.teach(true);
+          merged.push({ film: b.inFilm, cross: b.inCross || null, step: at[j], html: M(t), head: b.title && j === 0 ? b.head : null, replace: !!b.replace, group: b.group || null });
+          if (window.Terms && Terms.teach) Terms.teach(false);
+        });
+        widgets.filter(function (w) { return w.film && (w.before === i || w.after === i); }).forEach(function (w) { list.appendChild(filmHolder(w)); });
+        return;
       }
       var li = document.createElement('li');
       var txt = typeof b === 'string' ? b : b.text;
@@ -579,11 +597,11 @@
       if (typeof b === 'object' && b.head) makeCard(li, b.head);
       /* a film marked to come first stands before its sentence (the protein: Daniel, 8 Nov 2026, "I don't mind having it
          first … So that the students actually kind of watch it") */
-      if (!offK) widgets.filter(function (w) { return w.film && w.before === i; }).forEach(function (w) { list.appendChild(filmCard(w)); });
+      if (!offK) widgets.filter(function (w) { return w.film && w.before === i; }).forEach(function (w) { list.appendChild(filmHolder(w)); });
       if (offK) offAt[offK].push({ k: typeof b === 'object' && b.near != null ? b.near + 0.5 : i, li: li });
       else list.appendChild(li);
       /* a film after its sentence, in a card of its own */
-      if (!offK) widgets.filter(function (w) { return w.film && w.after === i; }).forEach(function (w) { list.appendChild(filmCard(w)); });
+      if (!offK) widgets.filter(function (w) { return w.film && w.after === i; }).forEach(function (w) { list.appendChild(filmHolder(w)); });
       /* the thing to press, drag or count sits under the sentence it belongs to */
       widgets.filter(function (w) { return !w.film && w.after === i; }).forEach(function (w) {
         var el = window.Learn.widget(w, WIDGET_CTX);
@@ -598,6 +616,18 @@
         else into.appendChild(el);
       });
     });
+    /* each film, with the sentences that stand in its steps; a part of the picture whose sentence now stands in a film opens
+       that film's card. A block of sentences left empty goes */
+    held.forEach(function (ph) {
+      var w = ph.__film, mine = merged.filter(function (c) { return c.film === w.type && (!c.cross || c.cross === w.cross); }), gs = [];
+      var li = filmCard(mine.length ? Object.assign({}, w, { cards: mine }) : w);
+      li.setAttribute('data-filmcard', w.type + (w.cross ? ':' + w.cross : ''));   /* never data-film: js/inh-films.js draws its frames into every [data-film] of its name */
+      mine.forEach(function (c) { [].concat(c.group || []).forEach(function (g) { if (gs.indexOf(g) < 0) gs.push(g); }); });
+      if (gs.length) li.setAttribute('data-group', gs.join(' '));
+      ph.parentNode.replaceChild(li, ph);
+    });
+    Array.prototype.forEach.call(card.querySelectorAll('.exam-part'), function (x) { if (!x.querySelector('li')) x.remove(); });
+    Array.prototype.forEach.call(card.querySelectorAll('ul.exam-list'), function (x) { if (!x.children.length && x.parentNode === card) x.remove(); });
     widgets.filter(function (w) { return w.after == null && w.before == null; }).forEach(function (w) {
       var el = window.Learn.widget(w, WIDGET_CTX);
       if (el && w.anchor && el.setAttribute) el.setAttribute('data-anchor', w.anchor);

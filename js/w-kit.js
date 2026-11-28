@@ -109,7 +109,33 @@
       });
     };
   }
-  function readerSteps(steps, R) { return steps.map(function (s, i) { var o = {}; for (var k in s) o[k] = s[k]; o.t = R[i]; return o; }); }
+  /* One place per idea (Daniel, 27 Nov 2026: "you're just kind of merging everything within the animation button"): a
+     sentence of What you need to know that only repeated a step stands IN that step, not in a card of its own. js/app.js
+     passes them as spec.cards, { step, html, head, replace }: its words, marked as the card's were (underlines, glossary,
+     the key word's ↓), are an IGCSE line of the step. They stand where the step's own line flagged 'card' stood (a flagged
+     line that is empty only keeps their place, and is gone when no sentence comes), else first; `replace` puts them in
+     place of the step's own words; `head` gives the step the card's heading */
+  function readerSteps(steps, R, cards) {
+    return steps.map(function (s, i) {
+      var o = {}; for (var k in s) o[k] = s[k]; o.t = R[i];
+      var mine = (cards || []).filter(function (c) { return c.step === i; }), p = o.p;
+      if (Array.isArray(p)) p = p.filter(function (q) { return !(q[2] === 'card' && !q[1] && !mine.length); });
+      if (mine.length) {
+        var lines = mine.map(function (c) { return ['ig', c.html, 'html']; });
+        if (mine.some(function (c) { return c.replace; })) p = lines;
+        else {
+          if (!Array.isArray(p)) p = p ? [['ig', p]] : [];
+          var at = -1;
+          p.forEach(function (q, j) { if (at < 0 && q[2] === 'card') at = j; });
+          p = p.filter(function (q, j) { return q[2] !== 'card' || j === at; });
+          if (at >= 0) Array.prototype.splice.apply(p, [at, 1].concat(lines)); else p = lines.concat(p);
+        }
+        mine.forEach(function (c) { if (c.head) o.h = c.head; });
+      }
+      o.p = p;
+      return o;
+    });
+  }
 
   /* px: the size the names are drawn at on screen (13 by default; this lab's animations ask for 14.5) */
   function frameOf(svg, bg, model, clipRect, win, tall, D, cL, cR, mL0, mR0, px) {

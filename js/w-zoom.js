@@ -51,21 +51,28 @@
       ['ig', 'In a working cell each chromosome is a long, very thin thread of **DNA**, folded many times in its own part of the nucleus. Chromosomes are in pairs: 23 pairs in a human body cell. One of each pair came from the mother, and one from the father. Two pairs are coloured here; not all 46 are drawn.']] },
     { h: 'Wound round proteins', p: [
       /* A1.2.13 (HL), D2.1.6 */
-      ['ibhl', 'Enlarged: the thread is DNA wound round small balls of protein (**histones**), almost twice round each, like thread round beads (a **nucleosome**). Close up, DNA is drawn grey.'],
+      /* A2.2.6 */
+      ['ib', 'These small proteins are **histones**: in a eukaryote cell, the chromosomes are made of DNA bound to histones.'],
+      ['ibhl', 'Enlarged: the DNA is wound almost twice round a core of **eight histone proteins**: one **nucleosome**. One more histone, on the **linker DNA** between two nucleosomes, holds the DNA in place. Close up, DNA is drawn grey.'],
       ['bey', 'This is the first step in packing about 2 metres of DNA into one nucleus.']] },
     { h: 'A gene', p: [
-      ['ig', 'Seen from a little further away: a **gene** is a length of DNA that codes for a protein. One chromosome carries many genes.'],
+      ['ig', 'Seen from a little further away: a **gene** is a length of DNA that codes for a protein. One chromosome carries many genes.', 'card'],
       ['bey', 'This gene, lit in yellow, is a short one: about 1,400 base pairs, wound round 7 balls of protein. It is not the ABO gene shown later. Genes differ in length: most are longer, thousands of base pairs.']] },
     { h: 'The DNA of the gene', p: [
-      ['ig', 'Enlarged: part of the gene, between two balls of protein. The DNA is two strands twisted into a **double helix**, with **bases** between them. Bonds between the pairs of bases hold the two strands together, and the bases always pair in the same way: A with T, and C with G.']] },
+      ['ig', 'Enlarged: part of the gene, between two balls of protein. The DNA is two strands twisted into a **double helix**, with **bases** between them. Bonds between the pairs of bases hold the two strands together, and the bases always pair in the same way: A with T, and C with G.'],
+      /* A1.2.6, A1.2.12 (HL) */
+      ['ib', 'The two strands are **antiparallel**: they run in opposite directions. **Hydrogen bonds** between **complementary** bases join them.'],
+      ['ibhl', 'Each pair is one **purine** (A or G) with one **pyrimidine** (T or C), so every pair has the same length, and the helix has the same shape whatever its base sequence.']] },
     { h: 'Replication begins', p: [
       ['ig', 'Before a cell divides, its DNA is **replicated**: it is copied exactly. This exact copying is called **replication**.'],
       /* D1.1.2, D1.1.3 */
-      ['ib', 'An enzyme, **helicase**, separates the two strands, and another, **DNA polymerase**, makes a new strand along each old one: each new base pairs with the base opposite it, A with T and C with G.']] },
+      ['ib', 'An enzyme, **helicase**, unwinds the double helix and breaks the **hydrogen bonds** between the bases, so the two strands separate. Another, **DNA polymerase**, joins free DNA nucleotides into a new strand along each old one: each new base is **complementary** to the base opposite it, A with T and C with G.'],
+      /* D1.1.6, D1.1.7 (HL) */
+      ['ibhl', 'DNA polymerase adds each nucleotide only to the **3′ end** of a new strand. So one new strand, the **leading strand**, is made **continuously**, and the other, the **lagging strand**, **discontinuously**, in short **Okazaki fragments**. The picture draws both in one piece.']] },
     { h: 'Two identical molecules', p: [
       ['ig', 'The whole chromosome is replicated in this way: the chromosome is now two identical copies, called **chromatids**, and the gene (yellow) is on both.'],
       /* D1.1.2 */
-      ['ib', 'Each of the two molecules of DNA has one old strand and one new strand.']] },
+      ['ib', 'Each of the two molecules of DNA has one old strand and one new strand: replication is **semi-conservative**. Because each new strand is built by complementary base pairing, both molecules have the **same base sequence** as the first: an exact copy.']] },
     { h: 'Back in the nucleus', p: [
       ['ig', 'Back in the nucleus: each chromosome is now two identical chromatids, side by side, held together most firmly at one point. The cell is ready to divide.'],
       ['bey', 'The short gene is now too small to see. The yellow length on chromosome 9 is a different, longer gene, the **ABO gene** (about 20,000 base pairs), at the same place on both chromatids.']] },
@@ -78,7 +85,7 @@
     { h: 'Two alleles: different bases', p: [
       ['ig', 'Enlarged: the same part of the ABO gene on the two chromosomes (the bases along one strand). **Iᴬ** and **Iᵒ** have the same bases, except one: a G is missing in Iᵒ.'],
       /* D1.2.8, D1.2.11 */
-      ['ib', 'The bases are read in threes, so after the gap every three is different, and the protein of Iᵒ does not work.'],
+      ['ib', 'The bases are read in threes (in the mRNA, **codons**). The **deletion** of one base shifts the reading frame (a **frameshift**), so the amino acids after it change, and a stop codon soon ends the chain: the protein of Iᵒ is short and does not work. This **mutation** changes the structure of a protein.'],
       ['bey', '**Iᴮ** differs from Iᴬ in 7 bases: its protein works a little differently, which gives blood group B.']] },
     { h: 'Genotype and phenotype', p: [
       ['ig', 'Back to the pair. The alleles a person has are their **genotype**: this person’s genotype is IᴬIᵒ. The feature that can be observed is their **phenotype**: this person’s phenotype is blood group A, because Iᴬ is dominant to Iᵒ.']] }
@@ -579,7 +586,7 @@
       gLab.innerHTML = names(lay, items, narrow, key);
       S.pill('see', SEE[sc.k], 'ok'); S.pill('size', SIZE[sc.k], 'ok');
     }
-    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R), end: TL.end, render: draw, flow: TL.flow });
+    var sp = L.stepper({ steps: K.readerSteps(STEPS.map(function (s, i) { return { t: M[i], h: s.h, p: s.p }; }), R, spec.cards), end: TL.end, render: draw, flow: TL.flow });
     /* under it only the key, drawn (Daniel, 5 Nov 2026: "I hate when you actually, below steps, provide so much text";
        "Why don't you show them instead of writing about them?") */
     return K.mount(S, sp, 'zm', [
