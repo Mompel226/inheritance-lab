@@ -26,7 +26,7 @@
 }
 @media (prefers-color-scheme: dark){
 :root:not([data-theme="light"]){
-  --accent:#7FD99A; --accent-2:#5CC47D; --accent-tint:#14301D;
+  --accent:#B8E986; --accent-2:#5CC47D; --accent-tint:#14301D;
   --k-struct:#6EDB9A; --k-proc:#F5A35C; --k-subst:#F48FB4;
   --pt1-ink:#8DB9FF; --pt1-tint:#14233A; --pt1-edge:#2C4C7A; --pt2-ink:#7FD8C9; --pt2-tint:#12302C; --pt2-edge:#2D6A61;
   --pt3-ink:#B6C2D0; --pt3-tint:#1B232D; --pt3-edge:#3A4655;
@@ -38,7 +38,7 @@
 }
 }
 :root[data-theme="dark"]{
-  --accent:#7FD99A; --accent-2:#5CC47D; --accent-tint:#14301D;
+  --accent:#B8E986; --accent-2:#5CC47D; --accent-tint:#14301D;
   --k-struct:#6EDB9A; --k-proc:#F5A35C; --k-subst:#F48FB4;
   --pt1-ink:#8DB9FF; --pt1-tint:#14233A; --pt1-edge:#2C4C7A; --pt2-ink:#7FD8C9; --pt2-tint:#12302C; --pt2-edge:#2D6A61;
   --pt3-ink:#B6C2D0; --pt3-tint:#1B232D; --pt3-edge:#3A4655;
@@ -168,21 +168,21 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
    purple, "because purple is the color that you use for IB extensions … not any other color used for color coding, but
    still easy to see"). --anim: ink in a bright page, near white in a dark one; it is also the player's Play button, step
    bar and current step, so nothing in an animation is purple. The widget's own title is the card's heading. */
-:root{--anim:#1B2430;--anim-ink:#FFFFFF;--anim-soft:#C9D2DC}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--anim:#E6EBF1;--anim-ink:#121820;--anim-soft:#3B4756}}
-:root[data-theme="dark"]{--anim:#E6EBF1;--anim-ink:#121820;--anim-soft:#3B4756}
-.xcard--film .xcard__h{background:var(--anim);border-color:var(--anim);color:var(--anim-ink)}
+:root{--anim:#1B2430;--anim-ink:#FFFFFF;--anim-soft:#C9D2DC;--anim-scr:var(--anim);--anim-scr-ink:var(--anim-ink);--anim-scr-soft:var(--anim-soft);--anim-edge:var(--anim)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--anim:#E6EBF1;--anim-ink:#121820;--anim-soft:#3B4756;--anim-scr:#06090D;--anim-scr-ink:#F2F5F7;--anim-scr-soft:#A9B6C2;--anim-edge:#4E5D6C}}
+:root[data-theme="dark"]{--anim:#E6EBF1;--anim-ink:#121820;--anim-soft:#3B4756;--anim-scr:#06090D;--anim-scr-ink:#F2F5F7;--anim-scr-soft:#A9B6C2;--anim-edge:#4E5D6C}
+.xcard--film .xcard__h{background:var(--anim-scr);border-color:var(--anim-edge);color:var(--anim-scr-ink)}
 .xcard--film .xcard__h:hover{filter:brightness(1.12)}
-.xcard--film.is-open .xcard__h{background:var(--anim);color:var(--anim-ink)}
-.xcard--film .xcard__h:focus-visible{outline-color:var(--anim)}
-.xcard--film .xcard__a{border-color:var(--anim-ink)}
-.xcard--film .xcard__b{border-color:var(--anim)}
-.xcard__play{flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--anim-ink);color:var(--anim);font-size:11px;padding-left:2px}
-.xcard__kind{display:block;font-size:12.5px;font-weight:600;color:var(--anim-soft);margin-top:1px}
+.xcard--film.is-open .xcard__h{background:var(--anim-scr);color:var(--anim-scr-ink)}
+.xcard--film .xcard__h:focus-visible{outline-color:var(--anim-edge)}
+.xcard--film .xcard__a{border-color:var(--anim-scr-ink)}
+.xcard--film .xcard__b{border-color:var(--anim-edge)}
+.xcard__play{flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--anim-scr-ink);color:var(--anim-scr);font-size:11px;padding-left:2px}
+.xcard__kind{display:block;font-size:12.5px;font-weight:600;color:var(--anim-scr-soft);margin-top:1px}
 .xcard--film .xcard__b > .widget > .widget__h,.xcard--film .xcard__b > .widget > .widget__ask,
 .xcard--film .lvw__bar + .widget > .widget__h,.xcard--film .lvw__bar + .widget > .widget__ask{display:none}
-.exam-part[class*="exam-part--"] .xcard--film .xcard__h,.exam-part[class*="exam-part--"] .xcard--film .xcard__h:hover,.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{background:var(--anim);border-color:var(--anim);color:var(--anim-ink)}
-.exam-part[class*="exam-part--"] .xcard--film .xcard__b{border-color:var(--anim)}
+.exam-part[class*="exam-part--"] .xcard--film .xcard__h,.exam-part[class*="exam-part--"] .xcard--film .xcard__h:hover,.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{background:var(--anim-scr);border-color:var(--anim-edge);color:var(--anim-scr-ink)}
+.exam-part[class*="exam-part--"] .xcard--film .xcard__b{border-color:var(--anim-edge)}
 /* the player in the animation colour: Play, the step bar, the step on screen and its words' panel */
 .sp__bar{--sp:var(--anim)}
 .sp__play{color:var(--anim-ink)}
@@ -252,6 +252,8 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 /* "Check yourself": a yellow highlighter under red-brown words, the same in both versions (a highlighter does not
    change in the dark); the box keeps the theme's own ground */
 :root{ --gold-ink:#8A2A1E; --gold-mark:#FFE36B; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --gold-ink:#FFD98A; --gold-mark:rgba(255,217,138,0.14); } }
+:root[data-theme="dark"]{ --gold-ink:#FFD98A; --gold-mark:rgba(255,217,138,0.14); }
 .golden__h,.exam-alert__h{color:var(--gold-ink);background:linear-gradient(180deg,transparent 14%,var(--gold-mark) 14%,var(--gold-mark) 92%,transparent 92%)}
 .golden p + p{margin-top:8px}
 
@@ -331,7 +333,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .exam-part[class*="exam-part--"] .xcard.is-open .xcard__h{background:var(--pt-tint);color:var(--pt-ink)}
 /* an animation's card keeps its own header when open: the rule above, coming later, painted it the part's tint and left its
    "Animation · 13 steps" at 1.35 to 1 (tools/panel-contrast.mjs, 28 Nov 2026) */
-.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{background:var(--anim);border-color:var(--anim);color:var(--anim-ink)}
+.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{background:var(--anim-scr);border-color:var(--anim-edge);color:var(--anim-scr-ink)}
 .exam-part[class*="exam-part--"] .xcard__b{border-color:var(--pt-ink)}
 .exam-part[class*="exam-part--"] .xcard__h:focus-visible{outline-color:var(--pt-ink)}
 
