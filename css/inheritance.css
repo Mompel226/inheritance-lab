@@ -482,6 +482,10 @@ p,li,dd,figcaption{text-wrap:pretty}
 .pd--m{background:var(--card);border:2px solid var(--ink);border-radius:2px}
 .pd--f{background:var(--card);border:2px solid var(--ink);border-radius:50%}
 .pd--has{background:var(--shade);border:2px solid var(--ink);border-radius:2px}
+/* a genotype the method has found (views/pedigree.js steps), beside the person's number, and its sample in the key */
+.pd__g{fill:var(--accent);font-family:var(--font);font-weight:700}
+.figkey__sw.pd--g{width:auto;height:auto;border:0;background:none;border-radius:0;font-style:normal;font-weight:700;color:var(--accent);line-height:1}
+.figkey__sw.pd--g::before{content:'Ww'}
 
 /* ============================================================ writing alleles (js/genes.js) ============================================================ */
 /* a box of alleles: an inline block, never a flex box, which would undo the raise of a superscript */

@@ -97,6 +97,9 @@
   }
 
   function focus(part) { if (current && current.focus) current.focus(part); }
+  /* every part an open card names (null: the card closed), for a picture that marks them all (views/pedigree.js); focus
+     still gets the first, as every picture does */
+  function group(ids) { if (current && current.group) current.group(ids); }
   function unfocus() { focus(null); }
   function home() { focus(null); }
 
@@ -119,7 +122,7 @@
     return { G: G };
   }
 
-  global.Plate = { init: init, showStation: showStation, focus: focus, unfocus: unfocus, home: home,
+  global.Plate = { init: init, showStation: showStation, focus: focus, group: group, unfocus: unfocus, home: home,
                    showSim: showSim, stageSim: stageSim, showBench: showBench, draw: draw,
                    current: function () { return current; }, esc: esc };
 })(window);

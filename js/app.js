@@ -1150,6 +1150,9 @@
          (PlateFold.auto); not when it was opened by a press on the picture, which the reader is looking at */
       if (window.PlateFold && window.PlateFold.auto && (!on || !fromPicture)) window.PlateFold.auto(!!on && !!(li.classList.contains('xcard--film') || body.querySelector('.widget, .photo, .media, figure.sph, video, .lp')));
       if (!fromPicture && window.Plate) window.Plate.focus(on ? (li.getAttribute('data-group') || '').split(' ')[0] || null : null);
+      /* and every part it names, for a picture that marks them all (the pedigree's persons, 28 Nov 2026: before, a card about
+         persons 4, 6, 7 and 8 ringed only person 4) */
+      if (window.Plate && window.Plate.group) window.Plate.group(on && li.getAttribute('data-group') ? li.getAttribute('data-group').split(' ') : null);
     };
     btn.addEventListener('click', function () {
       var on = !li.classList.contains('is-open');
