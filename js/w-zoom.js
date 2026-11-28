@@ -54,10 +54,10 @@
       /* A2.2.6 */
       ['ib', 'These small proteins are **histones**: in a eukaryote cell, the chromosomes are made of DNA bound to histones.'],
       ['ibhl', 'Enlarged: the DNA is wound almost twice round a core of **eight histone proteins**: one **nucleosome**. One more histone, on the **linker DNA** between two nucleosomes, holds the DNA in place. Close up, DNA is drawn grey.'],
-      ['bey', 'This is the first step in packing about 2 metres of DNA into one nucleus.']] },
+      ['bey', 'This is the **first step** in packing about **2 metres of DNA** into one nucleus.']] },
     { h: 'A gene', p: [
       ['ig', 'Seen from a little further away: a **gene** is a length of DNA that codes for a protein. One chromosome carries many genes.', 'card'],
-      ['bey', 'This gene, lit in yellow, is a short one: about 1,400 base pairs, wound round 7 balls of protein. It is not the ABO gene shown later. Genes differ in length: most are longer, thousands of base pairs.']] },
+      ['bey', 'This gene, lit in yellow, is a short one: about **1,400 base pairs**, wound round **7 balls of protein**. It is not the ABO gene shown later. Genes differ in length: most are longer, thousands of base pairs.']] },
     { h: 'The DNA of the gene', p: [
       ['ig', 'Enlarged: part of the gene, between two balls of protein. The DNA is two strands twisted into a **double helix**, with **bases** between them. Bonds between the pairs of bases hold the two strands together, and the bases always pair in the same way: A with T, and C with G.'],
       /* A1.2.6, A1.2.12 (HL) */
@@ -79,7 +79,7 @@
     { h: 'Coiling into a cross', p: [
       ['ig', 'Each chromatid coils, again and again, until it is short and thick. The chromatids stay joined at one point, so the chromosome is now a cross. You see a cross only while a cell divides.']] },
     { h: 'Inside one chromatid', p: [
-      ['bey', 'Enlarged: the end of the long arm of one chromatid. Its DNA and proteins are folded into thousands of loops. The ABO gene, lit yellow, is a short length of one loop: about 20,000 base pairs. The yellow band on a drawing of a chromosome marks its place, but is drawn much larger than the gene.']] },
+      ['bey', 'Enlarged: the end of the long arm of one chromatid. Its DNA and proteins are folded into **thousands of loops**. The ABO gene, lit yellow, is a short length of one loop: about **20,000 base pairs**. The yellow band on a drawing of a chromosome marks its place, but is drawn much larger than the gene.']] },
     { h: 'A pair, and two alleles', p: [
       ['ig', 'Back to the whole pair: chromosome 9 from the mother and, brought beside it, chromosome 9 from the father. The yellow band marks the place of the **ABO gene**, the same on both. In Iᴬ, the capital **I** stands for the ABO gene, and the small raised letter (ᴬ, ᴮ or ᵒ) shows the **allele**. This person has Iᴬ on one chromosome and Iᵒ on the other. The two chromatids of each chromosome carry the same allele.']] },
     { h: 'Two alleles: different bases', p: [

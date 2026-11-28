@@ -344,7 +344,7 @@
       ['ig', 'One of these cells becomes a **sperm cell**, and an **egg cell** comes from another person. From here the colours show the parents of the new organism: **blue**, the chromosomes from its **father** (in the sperm cell); **orange**, those from its **mother** (in the egg cell).'], ['ig', '', 'card'],
       ['ig', 'Here the zygote has 4 chromosomes again, 2 pairs.'],
       /* D3.1.6 */
-      ['ib', 'This is why a sexual life cycle needs meiosis: without the halving, the chromosome number would double at every fertilisation. In humans, the membrane of the sperm cell fuses with the membrane of the egg cell, and the sperm nucleus enters; its tail and mitochondria are destroyed. The sperm nucleus becomes larger, the membranes of the two nuclei dissolve, and all the chromosomes take part in one mitosis, which gives two diploid nuclei.']] }
+      ['ib', 'This is why a **sexual life cycle** needs meiosis: without the **halving**, the chromosome number would **double at every fertilisation**. In humans, the membrane of the sperm cell fuses with the membrane of the egg cell, and the sperm nucleus enters; its tail and mitochondria are destroyed. The sperm nucleus becomes larger, the membranes of the two nuclei dissolve, and all the chromosomes take part in **one mitosis**, which gives **two diploid nuclei**.']] }
   ];
   var ME_M = [0, 6, 13, 23, 31, 40, 49, 57, 74];
   /* the gametes' nuclei: copy 0 to the left cell, copy 1 to the right */
@@ -564,7 +564,7 @@
     { h: 'Two new cells: lines again', p: [
       ['ig', 'The rods **uncoil**.'], ['ig', '', 'card'],
       ['ig', 'The cell divides: **two new cells**, each with the **same pair** as the first cell. This division is called **mitosis**: the two new cells are **genetically identical**. A cross is seen **only while a cell divides**.'],
-      ['ib', 'A new nuclear membrane forms round the chromosomes at each end.']] }
+      ['ib', 'A new **nuclear membrane** forms round the chromosomes **at each end**.']] }
   ];
   var LC_M = [0, 6, 14, 23, 31, 38, 50];
   function lcRender(t, ph, g) {

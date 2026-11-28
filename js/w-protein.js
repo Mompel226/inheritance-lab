@@ -68,7 +68,7 @@
       ['ig', 'Enlarged: the nucleus. Each **chromosome** is made of **DNA**: a long, very thin thread. The gene for this protein (yellow; not the ABO gene) is one short length of one thread.']] },
     { h: 'A gene: thousands of base pairs', p: [
       ['ig', 'Enlarged again: the gene. A **gene** is a length of DNA that codes for a protein.'], ['ig', '', 'card'],
-      ['bey', 'A gene is usually thousands of base pairs long: this one has about 3,000. The next pictures show only its start.'],
+      ['bey', 'A gene is usually **thousands of base pairs** long: this one has **about 3,000**. The next pictures show only its start.'],
       /* A1.2.13 (HL) */
       ['ib', 'The DNA is wound round small balls of protein, **histones**. Along a gene that is being transcribed there are fewer, and none at its start.']] },
     { h: 'An enzyme at the start of the gene', p: [
@@ -95,9 +95,9 @@
     { h: 'Through a pore', p: [
       ['ig', 'The mRNA moves into the **cytoplasm**.'],
       /* B2.2.6 (HL) */
-      ['ib', 'Enlarged: a pore. The nuclear membrane is two membranes (the nuclear envelope), with pores in it. The mRNA passes through a pore, one end first.'],
+      ['ib', 'Enlarged: a pore. The nuclear membrane is **two membranes** (the **nuclear envelope**), with **pores** in it. The mRNA passes through a pore, one end first.'],
       /* B2.2.6 (HL) */
-      ['ibhl', 'The pores are needed because the mRNA is made in the nucleus, but must reach the ribosomes in the cytoplasm.']] },
+      ['ibhl', 'The pores are needed because the mRNA is **made in the nucleus**, but must reach the **ribosomes in the cytoplasm**.']] },
     { h: 'A ribosome forms on the mRNA', p: [
       ['ig', 'In the cytoplasm, the mRNA **passes through ribosomes**. Here the first one forms, at its start.'],
       /* D1.2.6 */
@@ -119,7 +119,7 @@
       ['ibhl', 'The ribosome has three sites for tRNA: **A**, where a tRNA arrives with its amino acid; **P**, where the tRNA holds the growing chain; and **E**, where the empty tRNA leaves.']] },
     { h: 'The chain grows', p: [
       ['ig', 'One amino acid at a time, the chain grows. A **protein** is a chain of **amino acids**.'],
-      ['bey', 'A ribosome adds about 5 amino acids each second. A real protein has hundreds of amino acids; the one drawn here has only 20, of four kinds: methionine, alanine, serine and glycine.']] },
+      ['bey', 'A ribosome adds about **5 amino acids each second**. A real protein has **hundreds of amino acids**; the one drawn here has only 20, of four kinds: methionine, alanine, serine and glycine.']] },
     { h: 'The chain folds into its shape', p: [
       ['ig', 'The chain folds into the **3D shape** of the protein: it turns once here, so you can see it is not flat.'], ['ig', '**Different sequences of amino acids** give **different shapes** to protein molecules.', 'card'],
       /* D1.2.8, D1.2.9 (the code's stop codons) */

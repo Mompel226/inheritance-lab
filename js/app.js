@@ -427,7 +427,10 @@
   function paintLearn(pane, st) {
     if (window.Terms) window.Terms.setStation(st.id);
     WIDGET_CTX.station = st.id;      /* a widget that keeps state needs a name that survives a repaint */
-    var M = window.Terms ? window.Terms.mark : esc;
+    /* **word** is an IB or exam key term, in bold, in cards and Going further too (Daniel, 28 Nov 2026: "a bolding word or
+       keywords guide with the reading"; the steps' own rule, w-common.js stepText); the rest is marked as before */
+    var M0 = window.Terms ? window.Terms.mark : esc;
+    var M = function (t) { return String(t == null ? '' : t).split(/\*\*([^*]+)\*\*/).map(function (seg, i) { return i % 2 ? '<b class="sp__kw">' + esc(seg) + '</b>' : M0(seg); }).join(''); };
     var widgets = (st.learn && st.learn.interact) || [];
     /* one place per idea (Daniel, 27 Nov 2026): the sentences that stand in a film's steps, and the films waiting for them */
     var merged = [], held = [];
