@@ -3,7 +3,7 @@
    column's own pixel width, so each person's number is always as large as the page's words (new-lab.md §7: words inside
    a scaled drawing shrink with it). Press a person and their card opens; open a card and its persons are ringed.
    The key (male, female, shaded) is HTML under the drawing.
-   spec: { kind: 'pedigree', parts: ['p1', …], key: [[swatch class, words], …], say }
+   spec: { kind: 'pedigree', parts: ['p1', …], key: [[swatch class, words], …], say, note }
    ============================================================ */
 (function (global) {
   'use strict';
@@ -45,7 +45,7 @@
     if (global.ResizeObserver) new global.ResizeObserver(draw).observe(stage);
     draw();
     var api = {
-      el: root, say: spec.say || '', credit: '',
+      el: root, say: spec.say || '', note: spec.note || '', credit: '',
       labels: (function () { var o = {}; (spec.parts || []).forEach(function (p) { o[p] = 'person ' + p.slice(1); }); return o; })(),
       focus: function (part) {
         lit = {};

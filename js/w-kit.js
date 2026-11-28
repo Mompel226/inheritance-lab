@@ -278,8 +278,25 @@
       var ww = wrap.getBoundingClientRect().width; if (!ww) return;
       wrap.classList.toggle(cls + '--side', ww >= 980);
       var D = S.fig.getBoundingClientRect().width, narrow = ww < 440;
-      if (!D || (Math.abs(D - lastD) < 2 && narrow === lastN)) return;
+      if (!D || (Math.abs(D - lastD) < 2 && narrow === lastN)) { if (D) room(); return; }   /* the column's height may have changed */
       lastD = D; lastN = narrow; setLayout(D, narrow); sp.paint(sp.time()); sizeKey();
+      room();
+    }
+    /* standing in the column, the drawing is never taller than the column: a drawing sized by the column's width alone grew past
+       its foot once the column became as wide as this lab's pictures can use (28 Nov 2026: the Immunity Lab's, and the Inheritance Lab's the same day, where the protein film's key fell under the station row at 1280 x 680). Its frame narrows until it fits,
+       and the names are laid out again for the new width (fit, through the observer), so none is drawn smaller than its size */
+    function room() {
+      var col = S.box.classList.contains(cls + '--staged') ? pack.parentNode : null;
+      if (!col || !col.clientHeight) { if (S.fig.style.maxWidth) { S.fig.style.maxWidth = ''; S.fig.style.marginLeft = S.fig.style.marginRight = ''; } return; }
+      var svg = S.svg || S.fig.querySelector('svg');   /* a cross (js/w-cross.js) draws its own svgs in the figure */
+      if (!svg) return;
+      var cs = global.getComputedStyle(col), r = svg.getBoundingClientRect(), f = S.fig.getBoundingClientRect();
+      if (!r.height || !r.width) return;
+      var avail = col.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (packT.hidden ? 0 : packT.getBoundingClientRect().height + 6);
+      var under = f.height - r.height, full = pack.getBoundingClientRect().width;
+      var want = Math.min(full, Math.floor(r.width * (avail - under - 4) / r.height));
+      var now = S.fig.style.maxWidth ? parseFloat(S.fig.style.maxWidth) : full;
+      if (Math.abs(want - now) > 2) { S.fig.style.maxWidth = want >= full ? '' : want + 'px'; S.fig.style.marginLeft = S.fig.style.marginRight = want >= full ? '' : 'auto'; }
     }
     setLayout(700, false);
     var ro = global.ResizeObserver ? new ResizeObserver(function () { if (!S.box.isConnected) { ro.disconnect(); return; } fit(); }) : null;

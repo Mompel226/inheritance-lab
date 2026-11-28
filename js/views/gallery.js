@@ -8,7 +8,7 @@
    a station has more than one; a mode may group its photographs under headings (`bands`: "By direct contact",
    "Indirectly").
 
-   spec: { kind:'gallery', parts:[…], modes:[{ id, name, cols, say, bands:[{ t, ids }],
+   spec: { kind:'gallery', parts:[…], modes:[{ id, name, cols, say, note, bands:[{ t, ids }],
            tiles:[{ id, img, name, sub, sup, pos, credit, alt }] }] }
    `img` is a base in assets/photos (its -900 and -1400, JPEG and WebP: the build checks); `pos` the part of the
    photograph to keep when it is cropped to its tile (CSS object-position).
@@ -65,7 +65,7 @@
       Object.keys(tileOf).forEach(function (id) {
         var T = tileOf[id]; T.el.classList.toggle('is-lit', lit === id); T.el.classList.toggle('is-dim', !!lit && lit !== id && tileOf[lit] && tileOf[lit].k === T.k);
       });
-      api.say = modes[cur].spec.say;
+      api.say = modes[cur].spec.say; api.note = modes[cur].spec.note;
       api.credits = modes[cur].spec.tiles.filter(function (t) { return t.credit; }).map(function (t) { return [t.name + (t.sub ? ' (' + t.sub + ')' : ''), t.credit]; });
       ctx.caption();
     }

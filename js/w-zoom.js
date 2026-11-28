@@ -541,8 +541,13 @@
   /* the frame: WKit.frameOf's margins for the names beside the drawing, and a band above and below it for the names that
      stand over or under their part, each with one upright line (sides 'T' and 'B' of CircLearn.labels; the protein
      animation's frame, 5 Nov 2026) */
+  /* each margin holds 18 characters of a name in a small frame, rising to 19 in a frame 900 px wide: the widest line,
+     "chromosome 9 from", is 10 fonts wide at weight 500, and 18 cut it by 2 px at the picture's edge at 1728 x 1000; 19 in a
+     small frame made the font a larger share of it, and the top band's "an enzyme separates the strands (IB: helicase)" took
+     a fourth line, past the frame, at 1101 x 700 (28 Nov 2026, tools/picture-space.mjs E) */
   function frameOf(svg, bg, model, clipRect, Dw, narrow) {
-    var m = K.margins(narrow, 18, 18, 96, 96), ft = K.fitType(Dw, W, m[0], m[1], m[2], m[3], 14.5), f = ft.f;
+    var cl = 18 + Math.max(0, Math.min(1, (Dw - 500) / 400));
+    var m = K.margins(narrow, cl, cl, 96, 96), ft = K.fitType(Dw, W, m[0], m[1], m[2], m[3], 14.5), f = ft.f;
     var bandH = narrow ? f * .72 * 2 + 8 : 3 * f * 1.18 + f * .6, pad = 10 + bandH;
     var vb = { x: -ft.mL, y: -pad, w: W + ft.mL + ft.mR, h: H + 2 * pad, bw: W, bh: H };
     svg.setAttribute('viewBox', n1(vb.x) + ' ' + n1(vb.y) + ' ' + n1(vb.w) + ' ' + n1(vb.h));

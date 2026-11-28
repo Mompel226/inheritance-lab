@@ -1790,9 +1790,9 @@ picture{display:block;line-height:0}
 @media (max-width:1100px){ .hdr__sub{display:none} }
 @media (max-width:1000px){ .hdr__title{font-size:16px} }
 
-/* the compact header up to 1100px — a tablet held flat included — with the byline allowed onto a second line, so the name is never cut short.
+/* the compact header up to 1320px — a tablet held flat included — with the byline allowed onto a second line, so the name is never cut short.
    Last in the file on purpose:the base rule that hides the short labels would otherwise win. */
-@media (max-width:1100px){
+@media (max-width:1320px){   /* 1100px until 28 Nov 2026: from 1121 to 1301px (signed in) the full header was wider than the window (tools/picture-space.mjs A) */
   .badge{padding:1px 7px;font-size:10px;letter-spacing:.06em} .stat__lbl{display:none} .stat{padding:4px 10px 4px 5px} .stat--stations{display:none}
   .hbtn{padding:6px 11px} #btnHelp{width:32px;padding:0;display:grid;place-items:center;height:30px}
   .hbtn__long{display:none} .hbtn__short{display:inline;font-size:15px;font-weight:700}

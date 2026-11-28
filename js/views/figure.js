@@ -10,7 +10,7 @@
    spec: { kind:'figure', parts:[…], names:{ part: 'its name on the picture' }, beyond:{ part: 1 },
            modes:[{ id, name, img, iw, ih, x0, y0, w, h, pts:{ part:[x, y, side?, r?] }, alts:{ part:[[x, y], …] }, mids,
                     spots:{ part:[cx, cy, rx, ry, rot?] } (where the light falls: on the whole part, centred), veil,
-                    names, say, alt, credit, cannot:{ part: 'why' }, heads:[{ x, t, y? }], narrow:{ … } }] }
+                    names, say, note, alt, credit, cannot:{ part: 'why' }, heads:[{ x, t, y? }], narrow:{ … } }] }
    `img` is a file in assets/photos: a photograph or one of the lab's own drawings (an SVG). Points are in the picture's
    own pixels or viewBox units. `alts` are other points ON a part, where its name may stand when names crowd, so every
    line stays level; `beyond` names a part beyond 0610, left out first on a phone too narrow for every name.
@@ -179,7 +179,15 @@
           return false;
         });
       }
-      while (tooTall(s) && s.W < 26) s = sizes(s.W + 1);
+      /* …but an animated picture (a film: js/inh-films.js) never by shrinking it: its margins hold every name of the whole film,
+         names that never stand together, so the widening ran away in a short laptop window (each wider wrap widened the margins,
+         the picture's pixels per unit fell, the font grew in its units and the names grew taller again): the mitosis station's
+         picture fell to a quarter of its size (2076 units wide for 340 of drawing, 1280 x 680, 28 Nov 2026,
+         tools/picture-space.mjs D). There the wrap stops where the picture would lose more than 15 %; each frame's own names
+         still stand level (tools/still-names.mjs, tools/picture-space.mjs E). A still picture widens as before, so its lines
+         stay level (tools/labels.mjs). */
+      var ppuOf = function (t) { return Math.min(r.width / (m.w + t.L + t.R), r.height / t.vh); }, p0 = ppuOf(s);
+      while (tooTall(s) && s.W < 26) { var wider = sizes(s.W + 1); if (m.film && ppuOf(wider) < p0 * .85) break; s = wider; }
       M.wrap = s.W;
       /* words in the margins would leave the picture under 60 % of the width (a wide micrograph, or a photograph on a
          phone): numbered pins in narrow margins and a key under the picture instead (8 Oct 2026 review: the electron
@@ -383,13 +391,13 @@
       keyEl.hidden = !ky;
       keyEl.innerHTML = ky ? ky.map(function (q) { return '<li><i class="figkey__sw ' + q[0] + '" aria-hidden="true"></i>' + q[1] + '</li>'; }).join('') : '';
       note.hidden = !why; note.textContent = why || '';
-      api.say = modes[k].spec.say; api.credit = modes[k].spec.credit;
+      api.say = modes[k].spec.say; api.note = modes[k].spec.note; api.credit = modes[k].spec.credit;
       ctx.caption();
     }
     if (global.ResizeObserver) new global.ResizeObserver(function () { draw(modes[cur]); }).observe(stage);
 
     var api = {
-      el: root, say: modes[0].spec.say, credit: modes[0].spec.credit,
+      el: root, say: modes[0].spec.say, note: modes[0].spec.note, credit: modes[0].spec.credit,
       labels: (function () { var o = {}; (spec.parts || []).forEach(function (p) { o[p] = NAMES[p] || p; }); return o; })(),
       focus: function (part) {
         lit = part || null;

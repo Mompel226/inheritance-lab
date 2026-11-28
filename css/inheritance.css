@@ -54,8 +54,14 @@
 /* his name is never cut (memory header-footer-credit): the topic line gives way first */
 .hdr__title,.hdr__by{flex:none}
 .hdr__mark{flex:none}
-@media (max-width:1500px){ .hdr__sub{display:none} }
-@media (max-width:1300px) and (min-width:1001px){ .stat--stations{display:none} }
+/* the header is one row that fits the window: the topic line gives way first, then the stations count (28 Nov 2026: from 1121 to 1601px
+   the page was wider than the window at 29 widths, so the station row dragged it sideways, cutting the picture; the limits were 1500px
+   and 1300px; tools/picture-space.mjs A, which also counts the buttons' rows) */
+@media (max-width:1700px){ .hdr__sub{display:none} }
+@media (max-width:1500px) and (min-width:1001px){ .stat--stations{display:none} }   /* to 1480px it left the buttons 3px short at 1481px */
+@media (max-width:1100px) and (min-width:1001px){ .hdr__stats{gap:6px} }   /* at 1001px the buttons were 7px wider than their room (9px signed in) */
+/* and if the buttons still do not fit (a longer name or warning once signed in), they take a second row rather than standing past the window's edge */
+@media (min-width:541px){ .hdr__stats{flex:0 1 auto;min-width:0;flex-wrap:wrap;justify-content:flex-end;row-gap:5px} }
 .hdr__sub{color:var(--hdr-soft);opacity:1;font-size:12.5px;min-width:0;flex:0 1 auto}
 .hdr__by{color:var(--hdr-soft);opacity:1}
 .hdr__by:hover,.hdr__by:focus-visible{color:var(--hdr-ink)}
@@ -101,16 +107,6 @@
 .said:empty{display:none}
 .said__name{display:block;font-size:14px;font-weight:600;color:var(--col-ink)}
 .said__credit{display:block;font-size:11.5px;color:var(--col-soft);margin-top:2px}
-/* a picture of several photographs: its credits folded under it (Daniel, 4 Nov 2026), open upwards into the picture's space */
-.said__fold{margin-top:3px;font-size:12.5px;color:var(--col-soft)}
-.said__fold summary{display:inline-flex;align-items:center;gap:5px;cursor:pointer;padding:2px 8px;border-radius:6px;list-style:none}
-.said__fold summary::-webkit-details-marker{display:none}
-.said__fold summary::before{content:'\25B8';font-size:11px}
-.said__fold[open] summary::before{content:'\25BE'}
-.said__fold summary:hover{color:var(--col-ink)}
-.said__fold summary:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.said__list{margin:4px auto 0;padding:0;list-style:none;text-align:left;display:inline-block;max-width:100%;line-height:1.45}
-.said__list b{color:var(--col-ink);font-weight:600}
 .sim{flex:1;min-height:0;overflow:auto;padding:12px 14px 16px;display:flex;flex-direction:column}
 .sim[hidden]{display:none}
 .sim .widget{margin-top:0;border:none;box-shadow:none;background:transparent;padding:0}
@@ -333,10 +329,13 @@ p,li,dd,figcaption{text-wrap:pretty}
 .exam-part[class*="exam-part--"] .exam-part__h{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--pt-ink);margin-bottom:10px}
 .exam-part[class*="exam-part--"] .xcard__h:hover,.exam-part[class*="exam-part--"] .xcard.is-open .xcard__h{border-color:var(--pt-ink)}
 .exam-part[class*="exam-part--"] .xcard.is-open .xcard__h{background:var(--pt-tint);color:var(--pt-ink)}
+/* an animation's card keeps its own header when open: the rule above, coming later, painted it the part's tint and left its
+   "Animation · 13 steps" at 1.35 to 1 (tools/panel-contrast.mjs, 28 Nov 2026) */
+.exam-part[class*="exam-part--"] .xcard--film.is-open .xcard__h{background:var(--anim);border-color:var(--anim);color:var(--anim-ink)}
 .exam-part[class*="exam-part--"] .xcard__b{border-color:var(--pt-ink)}
 .exam-part[class*="exam-part--"] .xcard__h:focus-visible{outline-color:var(--pt-ink)}
 
-/* the photographs (stations 1 and 3): each one names itself; their credits are folded under the picture (.said__fold) */
+/* the photographs (stations 1 and 3): each one names itself; their credits wait under the i beside the caption (js/plate.js caption) */
 .gal{flex:1;min-height:0;display:flex;flex-direction:column;padding:8px 10px 8px;overflow:auto}
 .gal__grid{display:grid;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));gap:10px;align-content:start}
 .gal__grid[hidden]{display:none}
@@ -756,6 +755,9 @@ p,li,dd,figcaption{text-wrap:pretty}
 .sp__lv:first-child{margin-top:0}
 .sp__lvt{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:var(--r-pill);margin-right:3px;vertical-align:1px;background:var(--accent);color:var(--card)}
 .sp__lv--ib,.sp__lv--ibhl{background:var(--ext-tint);border-left-color:var(--ext)}
+/* inside a step's words the IGCSE label keeps its own ink: .sp__txt b (css/app.css) outranked it and drew page ink on the
+   green, 1.46 to 1 in the dark version (tools/panel-contrast.mjs, 28 Nov 2026); the IB labels' rules already outrank it */
+.sp__txt .sp__lvt{color:var(--card)}
 .sp__lv--ib .sp__lvt,.sp__lv--ibhl .sp__lvt{background:var(--ext);color:var(--ext-on)}
 .sp__lv--bey{background:var(--ext-tint);border-left-color:var(--ext)}
 .sp__lv--bey .sp__lvt{background:var(--ext);color:var(--ext-on);font-style:italic}
@@ -820,3 +822,62 @@ p,li,dd,figcaption{text-wrap:pretty}
 /* fertilisation, in the zygote: each parent's two chromosomes in one dashed outline, in that parent's colour (w-divide.js fert) */
 .dv__grp{fill:none;stroke-width:1.6;stroke-dasharray:5 3}
 .dv__grp--dad{stroke:var(--dad)} .dv__grp--mum{stroke:var(--mum)}
+
+/* ---------- the picture is the priority (Daniel, 27 Nov 2026, the Membrane Lab; every lab, 28 Nov 2026) ----------
+   "I still believe that animation is too small and there's too much text that impedes the visualization. Text should be on the
+   right"; 28 Nov: "when you show an image on the left, you don't have to scroll down". On a laptop each station's column is as
+   wide as its own picture can stand in the window's height (--pr, its width to its height with its names; --pf, the height the
+   window keeps for the header, the station row, the picture's buttons and its caption), never narrower than a square picture's
+   column or 42 % of the window, and the words keep at least 600 px (the Immunity Lab's rule). This lab's station pictures are
+   all wider than high (the sex chromosomes 2 to 1, the blood groups 1.55, the karyotypes 1.49, the uses 1.06); its films are
+   taller than wide and already fill the column's height. Proof: tools/picture-space.mjs. */
+@media (min-width:1001px){
+  .stage{--pr:1;--pf:214px;--colw:clamp(42vw, max(calc(100dvh - 194px), calc((100dvh - var(--pf)) * var(--pr) + 20px)), calc(100vw - 600px));
+    grid-template-columns:minmax(360px,var(--colw)) minmax(0,1fr)}
+  .stage:has(> .platecol[data-station="genes"]){--pr:1.18}
+  .stage:has(> .platecol[data-station="pairs"]){--pr:1.49}
+  .stage:has(> .platecol[data-station="protein"]){--pr:1.31}
+  .stage:has(> .platecol[data-station="express"]){--pr:1.22}
+  .stage:has(> .platecol[data-station="mitosis"]){--pr:1.1}
+  .stage:has(> .platecol[data-station="uses"]){--pr:1.06}
+  .stage:has(> .platecol[data-station="meiosis"]){--pr:1.13}
+  .stage:has(> .platecol[data-station="words"]){--pr:1.47}
+  .stage:has(> .platecol[data-station="crosses"]){--pr:1.4}
+  .stage:has(> .platecol[data-station="testcross"]){--pr:1.4}
+  .stage:has(> .platecol[data-station="pedigree"]){--pr:1.31}
+  .stage:has(> .platecol[data-station="abo"]){--pr:1.55}
+  .stage:has(> .platecol[data-station="sexlinked"]){--pr:2}
+  .stage:has(> .platecol[data-station="practise"]){--pr:1.29}
+}
+
+/* the caption is one line; a photograph's credit, or the credits of a picture of several photographs, wait under the i beside
+   it, over the foot of the picture (js/plate.js caption; the Immunity Lab's, 28 Nov 2026) */
+@media (min-width:621px){
+  .said:not(:empty){display:flex;align-items:center;justify-content:center;gap:7px;padding:5px 14px 6px;line-height:1.35}
+  .said__name{display:block;font-size:13px;min-width:0}
+}
+.said__i{display:inline-grid;place-items:center;position:relative;flex:none;width:21px;height:21px;margin:0;padding:0;
+  border-radius:50%;border:1.5px solid var(--col-line);background:var(--col-card);color:var(--col-ink);
+  font:italic 700 12.5px/1 Georgia,'Times New Roman',serif;cursor:pointer}
+.said__i::before{content:"";position:absolute;inset:-8px}
+.said__i:hover,.said__i[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
+.said__i:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.said__more{position:absolute;left:12px;right:12px;bottom:calc(100% + 6px);z-index:8;display:block;text-align:left;
+  padding:10px 14px 11px;border-radius:10px;background:var(--col-card);border:1px solid var(--col-line);
+  box-shadow:0 8px 24px rgba(0,0,0,.35);font-size:12.5px;line-height:1.45;color:var(--col-ink)}
+.said__more[hidden]{display:none}
+.said__more .said__credit{display:block;font-size:12.5px;color:var(--col-ink);margin:0}
+.said__more .said__h{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--col-soft);margin-bottom:3px}
+.said__more .said__list{display:block;margin:0;max-width:none}
+.said__more .said__li{display:block;margin-top:2px}
+.said__more .said__li b{color:var(--col-ink);font-weight:600}
+@media (max-width:540px){ .said__i{width:26px;height:26px} }
+.said__more .said__note{display:block;margin:0 0 6px;font-size:13px;line-height:1.45;color:var(--col-ink)}
+.said__more .said__note:last-child{margin-bottom:0}
+.said__nt{display:none}
+/* a phone or a tablet: the note under the line, where the picture leaves room for it; the i only for credits */
+@media (max-width:1000px){
+  .said:not(:empty){flex-wrap:wrap}
+  .said__nt{display:block;flex:0 0 100%;font-size:12.5px;line-height:1.4;color:var(--col-soft);margin-top:2px}
+  .said__more .said__note,.said__i--note{display:none}
+}

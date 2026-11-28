@@ -10,7 +10,9 @@
    ctx.pick(part)   a part pressed on the picture: app.js lands on the sentence whose `group` names it
    view.focus(part) a sentence opened in the text: the picture shows that part (null: the whole view)
    view.say         the line under the picture (what you are looking at)
-   view.credit      who made the picture, under it
+   view.note        what the picture leaves out, draws to scale or adds to that line: under the i too on a laptop, under the line
+                    itself on a phone or a tablet
+   view.credit      who made the picture, under the i beside the line (view.credits: several photographs' credits, the same)
    view.stop()      the station is left: pause anything that moves
 
    Each station's view is built once and kept, so a reader who comes back finds it as they left it.
@@ -30,19 +32,44 @@
   function init(o) {
     opts = o || {};
     col = document.querySelector('.viewcol'); host = el('viewHost'); sim = el('simHost'); said = el('said');
+    wireCaption();
   }
 
-  /* A picture made of several photographs gives `credits` ([[name, credit], …]): a folded list under the picture, never
-     words on the photographs (Daniel, 4 Nov 2026: "not on the images, because it covers the image"). It stays open while
-     the reader presses the photographs, which redraws this line. */
+  /* The caption is one line: what the picture shows. What it leaves out, draws to scale or adds to that line (`note`), and
+     who made it (`credit`; a picture of several photographs: `credits`, [[name, credit], …], never words on the photographs:
+     Daniel, 4 Nov 2026, "it covers the image"), wait one press away under the i beside it, over the foot of the picture
+     (Daniel, 27 Nov 2026, the Membrane Lab: "the animation is the priority … too much text that impedes the visualization";
+     28 Nov 2026, every lab). On a phone or a tablet the note stands under the line, where the picture leaves room for it,
+     and the i opens only credits. It stays open while the picture redraws this line; a press anywhere else, or Esc, closes it. */
   function caption(v) {
     if (!said) return;
-    var was = said.querySelector('.said__fold'), open = !!(was && was.open);
-    var list = v && v.credits && v.credits.length ? v.credits : null;
+    var was = said.querySelector('.said__i'), open = !!(was && was.getAttribute('aria-expanded') === 'true');
+    var list = v && v.credits && v.credits.length ? v.credits : null, note = v && v.note ? v.note : '';
+    var cred = list ? '<span class="said__h">Credits for these photographs</span><span class="said__list">' +
+        list.map(function (c) { return '<span class="said__li"><b>' + esc(c[0]) + '</b>: ' + esc(c[1]) + '</span>'; }).join('') + '</span>' :
+      v && v.credit ? '<span class="said__credit">' + v.credit + '</span>' : '';
+    var more = (note ? '<span class="said__note">' + note + '</span>' : '') + cred;
     said.innerHTML = '<span class="said__name">' + (v && v.say ? v.say : '') + '</span>' +
-      (list ? '<details class="said__fold"' + (open ? ' open' : '') + '><summary>Credits for these photographs</summary><ul class="said__list">' +
-        list.map(function (c) { return '<li><b>' + esc(c[0]) + '</b>: ' + esc(c[1]) + '</li>'; }).join('') + '</ul></details>' :
-        v && v.credit ? '<span class="said__credit">' + v.credit + '</span>' : '');
+      (note ? '<span class="said__nt">' + note + '</span>' : '') + (more ?
+      '<button class="said__i' + (cred ? '' : ' said__i--note') + '" type="button" aria-expanded="' + open + '" aria-controls="saidMore" aria-label="' + (list ? (note ? 'About this picture, and credits for its photographs' : 'Credits for these photographs') : 'About this picture') + '">i</button>' +
+      '<span class="said__more" id="saidMore" role="note"' + (open ? '' : ' hidden') + '>' + more + '</span>' : '');
+  }
+  function shutMore(back) {
+    var b = said && said.querySelector('.said__i[aria-expanded="true"]'); if (!b) return;
+    b.setAttribute('aria-expanded', 'false');
+    var m = said.querySelector('.said__more'); if (m) m.hidden = true;
+    if (back) b.focus();
+  }
+  function wireCaption() {
+    if (!said) return;
+    said.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('.said__i') : null, m = said.querySelector('.said__more');
+      if (!b || !m) return;
+      var on = b.getAttribute('aria-expanded') !== 'true';
+      b.setAttribute('aria-expanded', on ? 'true' : 'false'); m.hidden = !on;
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shutMore(true); });
+    document.addEventListener('pointerdown', function (e) { if (!said.contains(e.target)) shutMore(false); });
   }
 
   function showStation(st) {
@@ -66,7 +93,7 @@
     if (current.start) current.start();
     if (current.focus) current.focus(null);
     caption(current);
-    if (col) col.setAttribute('data-kind', spec.kind);
+    if (col) { col.setAttribute('data-kind', spec.kind); col.setAttribute('data-station', st.id); }   /* the station sets the column's width: css/inheritance.css */
   }
 
   function focus(part) { if (current && current.focus) current.focus(part); }
